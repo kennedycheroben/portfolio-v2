@@ -137,6 +137,10 @@ async function prerender() {
       pageHtml = pageHtml.replace("</head>", `${jsonLdTag}</head>`);
     }
 
+    // 8. Dynamic Portfolio Data for Zero-Flash Client Hydration
+    const dataTag = `  <script id="__PORTFOLIO_DATA__">window.__PORTFOLIO_DATA__ = ${JSON.stringify(projectsState)};</script>\n  `;
+    pageHtml = pageHtml.replace("</body>", `${dataTag}</body>`);
+
     // Dual-write target files to support both clean URLs and trailing-slash directory indexing
     if (route === "/") {
       fs.writeFileSync(path.resolve(distDir, "index.html"), pageHtml, "utf-8");

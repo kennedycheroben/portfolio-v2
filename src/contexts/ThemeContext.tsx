@@ -19,6 +19,11 @@ function getStoredTheme(): Theme {
     return "dark";
   }
   try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const themeParam = urlParams.get("theme");
+    if (themeParam === "light" || themeParam === "dark") {
+      return themeParam;
+    }
     const saved = localStorage.getItem(STORAGE_KEY) as Theme | null;
     if (saved === "light" || saved === "dark" || saved === "system") {
       return saved;

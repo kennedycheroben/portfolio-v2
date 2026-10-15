@@ -60,18 +60,22 @@ export const Home: React.FC = () => {
           <img
             src="/images/hero_section.jpeg"
             alt="Kennedy Cheroben portrait"
-            className="h-full w-full object-cover object-[70%_center] opacity-65 md:object-right"
+            className="h-full w-full object-cover object-[70%_center] opacity-40 dark:opacity-65 md:object-right"
             loading="eager"
             fetchPriority="high"
           />
         </picture>
         <div className="absolute inset-0 -z-10 hidden veil-x md:block" />
+        <div className="absolute inset-0 -z-10 bg-black/50 md:hidden" />
         <div className="absolute inset-0 -z-10 veil-up md:hidden" />
 
         <Container className="flex min-h-[calc(100svh-4rem)] flex-col justify-end pb-12 pt-24 md:justify-center md:pb-24">
-          <p className="label-mono animate-rise">
-            <span className="text-emerald-400">●</span> {profile.status}
-          </p>
+          <div className="animate-rise">
+            <span className="inline-flex items-center gap-2 rounded-full border border-subtle bg-canvas/90 px-3.5 py-1.5 text-[0.7rem] font-mono tracking-wider uppercase text-emerald-400 backdrop-blur-md">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>{profile.status}</span>
+            </span>
+          </div>
 
           <h1 className="mt-6 display-xl animate-rise text-primary">
             Kennedy
@@ -101,13 +105,13 @@ export const Home: React.FC = () => {
             </Link>
             <Link
               to="/contact"
-              className="inline-flex h-12 items-center gap-3 rounded-full border border-subtle px-7 text-sm font-semibold text-primary transition-all hover:border-emerald-500/80 hover:text-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="inline-flex h-12 items-center gap-3 rounded-full border border-subtle bg-surface/60 px-7 text-sm font-semibold text-primary transition-all hover:border-emerald-500/80 hover:text-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
             >
               Start a project
             </Link>
           </div>
 
-          <dl className="mt-16 grid max-w-xl grid-cols-3 gap-6 border-t border-subtle pt-5">
+          <dl className="mt-16 grid max-w-xl grid-cols-2 sm:grid-cols-3 gap-6 border-t border-subtle pt-5">
             <div>
               <dt className="label-mono">Based</dt>
               <dd className="mt-1 text-sm font-medium text-primary">{profile.location}</dd>
@@ -116,7 +120,7 @@ export const Home: React.FC = () => {
               <dt className="label-mono">Practice</dt>
               <dd className="mt-1 text-sm font-medium text-primary">{profile.experienceYears}</dd>
             </div>
-            <div>
+            <div className="col-span-2 sm:col-span-1">
               <dt className="label-mono">Focus</dt>
               <dd className="mt-1 text-sm font-medium text-primary">Design × Code</dd>
             </div>

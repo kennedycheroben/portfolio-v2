@@ -22,7 +22,7 @@
   --accent-rose: #f43f5e;            /* Error / Alert indicator */
 
   /* Gradients */
-  --gradient-brand: linear-gradient(100deg, #10b981 0%, #06b6d4 100%);
+  --gradient-brand: linear-gradient(100deg, #34d399 0%, #22d3ee 100%);
   --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
   --glow-hero: radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.12) 0%, transparent 70%);
 

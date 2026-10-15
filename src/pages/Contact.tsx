@@ -84,7 +84,7 @@ export const Contact: React.FC = () => {
           {/* Left Column: Context, Photo & Timezone */}
           <div className="md:col-span-5 space-y-6">
             <SectionLabel n="04">Contact</SectionLabel>
-            <h1 className="mt-6 text-5xl font-extrabold font-display leading-[0.92] text-primary md:text-7xl animate-rise">
+            <h1 className="mt-6 text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display leading-[1.05] text-primary animate-rise">
               Have something worth building?
               <span className="sr-only"> — Let's engineer something extraordinary</span>
             </h1>

@@ -1,3 +1,4 @@
+@import "tailwindcss";
 @import "./tokens.css";
 
 /* Base document styling */
@@ -145,13 +146,13 @@ body {
   background-size: 48px 48px;
 }
 
-/* Display Clamp Typography - Direct from Lovable Spec */
+/* Display Clamp Typography - Direct from Lovable Spec with Responsive Mobile Safeguard */
 .display-xl {
   font-family: var(--font-family-display);
   font-weight: 800;
-  line-height: 0.88;
-  letter-spacing: -0.045em;
-  font-size: clamp(3.2rem, 11vw, 10.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  font-size: clamp(2.35rem, 8.5vw, 10.5rem);
 }
 
 /* Brand Text Gradient */

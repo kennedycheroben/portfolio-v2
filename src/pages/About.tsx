@@ -37,7 +37,7 @@ export const About: React.FC = () => {
         <Container className="grid gap-10 py-16 md:grid-cols-12 md:items-end md:py-24">
           <div className="md:col-span-7">
             <SectionLabel n="02">About</SectionLabel>
-            <h1 className="mt-6 text-5xl font-extrabold font-display leading-[0.92] text-primary md:text-8xl animate-rise">
+            <h1 className="mt-6 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold font-display leading-[0.96] text-primary animate-rise">
               Between the <span className="text-gradient-brand">wireframe</span> and the <span className="italic">schema</span>.
               <span className="sr-only"> — Structural integrity beneath the surface, visual craft on top.</span>
             </h1>
@@ -47,15 +47,18 @@ export const About: React.FC = () => {
           </p>
         </Container>
 
-        <picture className="block border-t border-subtle">
-          <source media="(max-width: 767px)" srcSet="/images/about_section_phone.jpeg" />
-          <img
-            src="/images/about_section.jpeg"
-            alt="Kennedy Cheroben"
-            className="aspect-[4/5] w-full object-cover md:aspect-[21/9]"
-            loading="lazy"
-          />
-        </picture>
+        <div className="relative border-t border-subtle overflow-hidden bg-black/20">
+          <picture className="block">
+            <source media="(max-width: 767px)" srcSet="/images/about_section_phone.jpeg" />
+            <img
+              src="/images/about_section.jpeg"
+              alt="Kennedy Cheroben"
+              className="aspect-[4/5] w-full object-cover object-[center_35%] md:aspect-[21/9] dark:opacity-90"
+              loading="lazy"
+            />
+          </picture>
+          <div className="absolute inset-0 pointer-events-none ring-1 ring-inset ring-white/10 dark:ring-white/5" />
+        </div>
       </section>
 
       {/* Practice Narrative */}

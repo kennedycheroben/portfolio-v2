@@ -27,7 +27,7 @@ export const Work: React.FC = () => {
       <section className="pt-16 pb-12 md:pt-24 md:pb-16 bg-canvas">
         <Container>
           <SectionLabel n="01">Work index</SectionLabel>
-          <h1 className="mt-6 max-w-5xl text-5xl font-extrabold font-display leading-[0.95] text-primary md:text-8xl animate-rise">
+          <h1 className="mt-6 max-w-5xl text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold font-display leading-[0.96] text-primary animate-rise">
             Case files<span className="text-emerald-400">.</span>
           </h1>
           <p className="mt-8 max-w-2xl text-lg text-secondary leading-relaxed">
