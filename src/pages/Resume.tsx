@@ -1,4 +1,4 @@
-import { ArrowUpRight, CheckCircle2, Terminal, Layers, ShieldCheck, Cpu } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, Terminal, Layers, ShieldCheck, Cpu, Printer } from "lucide-react";
 import { Container } from "../components/ui/Container";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
@@ -14,12 +14,12 @@ export const Resume: React.FC = () => {
         canonicalPath="/resume"
       />
 
-      <section className="py-12 sm:py-20">
+      <section className="py-12 sm:py-20 blueprint">
         <Container size="default">
           {/* Header */}
-          <div className="max-w-3xl mb-12 space-y-4">
+          <div className="max-w-3xl mb-12 space-y-4 animate-rise">
             <Badge variant="brand">Verified Technical Dossier</Badge>
-            <h1 className="text-4xl sm:text-5xl font-extrabold font-display tracking-tight text-primary">
+            <h1 className="display-xl text-primary">
               Engineering Competencies &amp; Experience
             </h1>
             <p className="text-lg text-secondary leading-relaxed">
@@ -134,6 +134,16 @@ export const Resume: React.FC = () => {
             <Button to="/work" variant="secondary" size="lg">
               Review Architecture Case Studies
             </Button>
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined") window.print();
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface border border-subtle text-sm font-mono text-secondary hover:text-primary hover:bg-surface-elevated transition-colors cursor-pointer"
+            >
+              <Printer className="w-4 h-4 text-emerald-400" />
+              <span>Print Dossier</span>
+            </button>
           </div>
         </Container>
       </section>

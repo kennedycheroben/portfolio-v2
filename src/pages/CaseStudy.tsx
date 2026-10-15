@@ -26,7 +26,7 @@ export const CaseStudy: React.FC = () => {
   // If loading and project not yet resolved
   if (state.status === "loading" && !project) {
     return (
-      <section className="py-24 text-center">
+      <section className="py-24 text-center blueprint">
         <Container size="editorial">
           <LoadingState message="Loading architectural case study..." />
         </Container>
@@ -37,7 +37,7 @@ export const CaseStudy: React.FC = () => {
   // If not found in published records
   if (!project) {
     return (
-      <section className="py-24 text-center">
+      <section className="py-24 text-center blueprint">
         <Container size="editorial">
           <Badge variant="warning" className="mb-4">Project Not Found</Badge>
           <h1 className="text-3xl sm:text-4xl font-bold font-display text-primary mb-4">
@@ -46,9 +46,11 @@ export const CaseStudy: React.FC = () => {
           <p className="text-secondary max-w-md mx-auto mb-8 leading-relaxed">
             The requested project under slug <code className="font-mono text-emerald-400">"{slug}"</code> does not exist in the published case-study index.
           </p>
-          <Button to="/work" variant="primary" icon={<ArrowLeft className="w-4 h-4" />}>
-            Back to All Projects
-          </Button>
+          <div className="flex justify-center">
+            <Button to="/work" variant="primary" icon={<ArrowLeft className="w-4 h-4" />}>
+              Explore All Projects
+            </Button>
+          </div>
         </Container>
       </section>
     );
@@ -79,7 +81,7 @@ export const CaseStudy: React.FC = () => {
         ogType="article"
       />
 
-      <article className="py-12 sm:py-20">
+      <article className="py-12 sm:py-20 blueprint">
         <Container size="editorial">
           {/* Back Navigation Link */}
           <div className="mb-8">
@@ -93,7 +95,7 @@ export const CaseStudy: React.FC = () => {
           </div>
 
           {/* Hero Header */}
-          <header className="space-y-6 mb-12">
+          <header className="space-y-6 mb-12 animate-rise">
             <div className="flex flex-wrap items-center gap-2">
               {project.category && <Badge variant="brand">{project.category}</Badge>}
               {project.timeline && (
@@ -112,28 +114,34 @@ export const CaseStudy: React.FC = () => {
               {project.summary}
             </p>
 
+            {project.seoDescription && project.seoDescription !== project.summary && (
+              <p className="text-sm font-mono text-muted leading-relaxed">
+                {project.seoDescription}
+              </p>
+            )}
+
             {/* Metadata Bar */}
-            <div className="p-4 rounded-xl bg-surface border border-subtle grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs font-mono mt-6">
+            <div className="p-5 rounded-2xl bg-surface border border-subtle grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono mt-6 glass-panel">
               {project.role && (
                 <div>
-                  <span className="text-muted block">ROLE</span>
-                  <span className="text-primary font-medium">{project.role}</span>
+                  <span className="text-muted block text-[10px] tracking-wider uppercase">ROLE</span>
+                  <span className="text-primary font-medium mt-0.5 block">{project.role}</span>
                 </div>
               )}
               {project.timeline && (
                 <div>
-                  <span className="text-muted block">TIMELINE</span>
-                  <span className="text-primary font-medium">{project.timeline}</span>
+                  <span className="text-muted block text-[10px] tracking-wider uppercase">TIMELINE</span>
+                  <span className="text-primary font-medium mt-0.5 block">{project.timeline}</span>
                 </div>
               )}
               {project.liveUrl && (
                 <div>
-                  <span className="text-muted block">LIVE DEMO</span>
+                  <span className="text-muted block text-[10px] tracking-wider uppercase">LIVE DEMO</span>
                   <a
                     href={project.liveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-emerald-400 hover:underline flex items-center gap-1 font-medium"
+                    className="text-emerald-400 hover:underline flex items-center gap-1 font-medium mt-0.5"
                   >
                     <span>Visit Live Site</span>
                     <ExternalLink className="w-3 h-3" />
@@ -142,12 +150,12 @@ export const CaseStudy: React.FC = () => {
               )}
               {project.repositoryUrl && (
                 <div>
-                  <span className="text-muted block">REPOSITORY</span>
+                  <span className="text-muted block text-[10px] tracking-wider uppercase">REPOSITORY</span>
                   <a
                     href={project.repositoryUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-cyan-400 hover:underline flex items-center gap-1 font-medium"
+                    className="text-cyan-400 hover:underline flex items-center gap-1 font-medium mt-0.5"
                   >
                     <span>Code Repository</span>
                     <GitBranch className="w-3 h-3" />
@@ -159,7 +167,7 @@ export const CaseStudy: React.FC = () => {
 
           {/* Cover Image */}
           {project.coverImageUrl && (
-            <div className="mb-12 rounded-2xl overflow-hidden border border-subtle bg-surface-elevated max-h-[460px]">
+            <div className="mb-12 rounded-2xl overflow-hidden border border-subtle bg-surface-elevated max-h-[460px] shadow-2xl">
               <img
                 src={project.coverImageUrl}
                 alt={project.coverImageAlt || `${project.title} preview`}

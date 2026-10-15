@@ -2,13 +2,13 @@ import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { App } from "../src/App";
-import { LEGACY_MOCK_PROJECTS } from "../src/lib/projects/legacySeed";
+import { TEST_FIXTURE_PROJECTS } from "./fixtures/testProjects";
 
 describe("Route Skeletons & Navigation", () => {
   it("renders Home page at '/' with verified identity", () => {
     render(
       <MemoryRouter initialEntries={["/"]}>
-        <App initialProjectsState={{ status: "ready", projects: LEGACY_MOCK_PROJECTS }} />
+        <App initialProjectsState={{ status: "ready", projects: TEST_FIXTURE_PROJECTS }} />
       </MemoryRouter>
     );
 
@@ -34,7 +34,7 @@ describe("Route Skeletons & Navigation", () => {
   it("renders Work gallery at '/work' with populated dynamic projects", () => {
     render(
       <MemoryRouter initialEntries={["/work"]}>
-        <App initialProjectsState={{ status: "ready", projects: LEGACY_MOCK_PROJECTS }} />
+        <App initialProjectsState={{ status: "ready", projects: TEST_FIXTURE_PROJECTS }} />
       </MemoryRouter>
     );
 
@@ -59,7 +59,7 @@ describe("Route Skeletons & Navigation", () => {
   it("renders dynamic CaseStudy at '/work/benchero' when project is published", () => {
     render(
       <MemoryRouter initialEntries={["/work/benchero"]}>
-        <App initialProjectsState={{ status: "ready", projects: LEGACY_MOCK_PROJECTS }} />
+        <App initialProjectsState={{ status: "ready", projects: TEST_FIXTURE_PROJECTS }} />
       </MemoryRouter>
     );
 

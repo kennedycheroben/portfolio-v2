@@ -202,3 +202,52 @@ export async function reorderProjectRecords(ids: string[]): Promise<Project[]> {
   writeProjectsToFile(reordered);
   return reordered;
 }
+
+export interface Inquiry {
+  id: string;
+  name: string;
+  email: string;
+  category: string;
+  message: string;
+  createdAt: string;
+}
+
+const INQUIRIES_FILE = path.resolve(DATA_DIR, "inquiries.json");
+
+export function readInquiriesFromFile(): Inquiry[] {
+  ensureDirectories();
+  try {
+    if (!fs.existsSync(INQUIRIES_FILE)) {
+      return [];
+    }
+    const raw = fs.readFileSync(INQUIRIES_FILE, "utf-8");
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    console.error("Failed to read inquiries database:", err);
+    return [];
+  }
+}
+
+export function writeInquiriesToFile(inquiries: Inquiry[]): void {
+  ensureDirectories();
+  const tempFile = `${INQUIRIES_FILE}.${Date.now()}.tmp`;
+  fs.writeFileSync(tempFile, JSON.stringify(inquiries, null, 2), "utf-8");
+  fs.renameSync(tempFile, INQUIRIES_FILE);
+}
+
+export async function createInquiryRecord(input: Omit<Inquiry, "id" | "createdAt">): Promise<Inquiry> {
+  const all = readInquiriesFromFile();
+  const newInquiry: Inquiry = {
+    id: crypto.randomUUID(),
+    name: input.name.trim(),
+    email: input.email.trim().toLowerCase(),
+    category: input.category || "General Inquiry",
+    message: input.message.trim(),
+    createdAt: new Date().toISOString(),
+  };
+  all.push(newInquiry);
+  writeInquiriesToFile(all);
+  return newInquiry;
+}
+

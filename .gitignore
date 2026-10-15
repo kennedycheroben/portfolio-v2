@@ -20,6 +20,10 @@ pnpm-debug.log*
 # Test coverage
 coverage/
 
+# Local runtime data & uploads
+data/
+public/uploads/
+
 # Editor and OS
 .DS_Store
 *.suo

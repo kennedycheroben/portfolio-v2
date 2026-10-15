@@ -10,6 +10,7 @@ import {
   updateProjectRecord,
   deleteProjectRecord,
   reorderProjectRecords,
+  createInquiryRecord,
 } from "./db";
 import {
   createAdminToken,
@@ -109,7 +110,54 @@ export async function handleApiRequest(
       return true;
     }
 
-    // 3. ADMIN AUTH: POST /api/admin/login
+    // 3. PUBLIC: POST /api/contact (Project Inquiry Form)
+    if (pathname === "/api/contact" && method === "POST") {
+      const body = await parseBody(req);
+      const { name, email, category, message, website } = body;
+
+      // Anti-bot honeypot check
+      if (website && typeof website === "string" && website.trim().length > 0) {
+        json(res, 400, { error: "Bot detected", code: "BOT_DETECTED" });
+        return true;
+      }
+
+      if (!name || typeof name !== "string" || name.trim().length < 2) {
+        json(res, 400, { error: "Name must be at least 2 characters.", code: "INVALID_NAME" });
+        return true;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || typeof email !== "string" || !emailRegex.test(email.trim())) {
+        json(res, 400, { error: "A valid email address is required.", code: "INVALID_EMAIL" });
+        return true;
+      }
+
+      if (!message || typeof message !== "string" || message.trim().length < 10) {
+        json(res, 400, { error: "Message must be at least 10 characters.", code: "INVALID_MESSAGE" });
+        return true;
+      }
+
+      try {
+        const inquiry = await createInquiryRecord({
+          name: name.trim(),
+          email: email.trim(),
+          category: typeof category === "string" ? category.trim() : "General Inquiry",
+          message: message.trim(),
+        });
+
+        json(res, 200, {
+          success: true,
+          message: "Thank you for reaching out. Your inquiry has been received.",
+          inquiryId: inquiry.id,
+        });
+        return true;
+      } catch (err: any) {
+        json(res, 500, { error: "Failed to persist inquiry. Please try again.", code: "PERSISTENCE_FAILED" });
+        return true;
+      }
+    }
+
+    // 4. ADMIN AUTH: POST /api/admin/login
     if (pathname === "/api/admin/login" && method === "POST") {
       const body = await parseBody(req);
       const { email, password } = body;

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { getRouteMetadata } from "../src/entry.server";
+import { TEST_FIXTURE_PROJECTS } from "./fixtures/testProjects";
 
 describe("Route Metadata & SEO Verification", () => {
   it("generates correct metadata for home route", () => {
@@ -22,7 +23,10 @@ describe("Route Metadata & SEO Verification", () => {
   });
 
   it("generates dynamic metadata for individual project slug", () => {
-    const meta = getRouteMetadata("/work/benchero");
+    const meta = getRouteMetadata("/work/benchero", {
+      status: "ready",
+      projects: TEST_FIXTURE_PROJECTS,
+    });
     expect(meta.title).toContain("Benchero");
     expect(meta.canonicalPath).toBe("/work/benchero");
   });

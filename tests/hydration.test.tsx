@@ -4,6 +4,8 @@ import { hydrateRoot } from "react-dom/client";
 import { StaticRouter, BrowserRouter } from "react-router-dom";
 import { renderToString } from "react-dom/server";
 import { App } from "../src/App";
+// @ts-expect-error flag for react act environment
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 describe("Exact Hydration Parity Test", () => {
   const routesToTest = ["/", "/about", "/work", "/work/benchero", "/contact", "/resume"];
@@ -42,7 +44,9 @@ describe("Exact Hydration Parity Test", () => {
       );
 
       // Allow React concurrent scheduler to settle hydration pass
-      await new Promise((r) => setTimeout(r, 50));
+      await React.act(async () => {
+        await new Promise((r) => setTimeout(r, 80));
+      });
 
       // 6. Check for any hydration mismatch errors
       const hydrationErrors = consoleErrorSpy.mock.calls.filter((call) =>
@@ -51,8 +55,10 @@ describe("Exact Hydration Parity Test", () => {
 
       expect(hydrationErrors.length).toBe(0);
 
-      // Clean unmount
-      root.unmount();
+      // Clean unmount within act
+      await React.act(async () => {
+        root.unmount();
+      });
       document.body.removeChild(container);
       consoleErrorSpy.mockRestore();
     });

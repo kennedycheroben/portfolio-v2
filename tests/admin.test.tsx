@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { AdminAuthProvider } from "../src/admin/AdminAuthContext";
 import { AdminLogin } from "../src/admin/AdminLogin";
 import { AdminLayout } from "../src/admin/AdminLayout";
@@ -50,15 +50,18 @@ describe("Administrative CMS Enclave", () => {
     render(
       <MemoryRouter initialEntries={["/admin/dashboard"]}>
         <AdminAuthProvider>
-          <AdminLayout />
+          <Routes>
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route path="dashboard" element={<div>Admin Protected Content</div>} />
+            </Route>
+            <Route path="/admin/login" element={<div>Admin Login Portal Screen</div>} />
+          </Routes>
         </AdminAuthProvider>
       </MemoryRouter>
     );
 
-    // Initial state or when not authenticated should protect route
     await waitFor(() => {
-      // AdminLayout navigates to /admin/login or shows loading during check
-      expect(document.body).toBeInTheDocument();
+      expect(screen.getByText("Admin Login Portal Screen")).toBeInTheDocument();
     });
   });
 });

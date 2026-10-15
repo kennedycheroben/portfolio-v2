@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Send, MapPin, CheckCircle2, ShieldAlert } from "lucide-react";
+import { Send, MapPin, CheckCircle2, AlertCircle } from "lucide-react";
 import { Container } from "../components/ui/Container";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
@@ -12,14 +12,71 @@ export const Contact: React.FC = () => {
     email: "",
     category: "Full-Stack Web Application",
     message: "",
+    website: "", // Anti-bot honeypot
   });
 
+  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Phase 3 UI demonstration state (backend dispatch is wired in Phase 4)
-    setSubmitted(true);
+    setError(null);
+
+    // Client-side input validation
+    if (!formData.name.trim() || formData.name.trim().length < 2) {
+      setError("Please provide a valid name (at least 2 characters).");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim() || !emailRegex.test(formData.email.trim())) {
+      setError("Please provide a valid email address.");
+      return;
+    }
+
+    if (!formData.message.trim() || formData.message.trim().length < 10) {
+      setError("Please provide project details (at least 10 characters).");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          category: formData.category,
+          message: formData.message.trim(),
+          website: formData.website,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok && data.success) {
+        setSubmitted(true);
+        setFormData({
+          name: "",
+          email: "",
+          category: "Full-Stack Web Application",
+          message: "",
+          website: "",
+        });
+      } else {
+        setError(data.error || "Failed to submit inquiry. Please try again or reach out directly.");
+      }
+    } catch (err: any) {
+      setError(err.message || "Network error. Please verify your connection.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -83,6 +140,16 @@ export const Contact: React.FC = () => {
                   </p>
                 </div>
 
+                {error && (
+                  <div
+                    role="alert"
+                    className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-mono flex items-start gap-2.5"
+                  >
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>{error}</span>
+                  </div>
+                )}
+
                 {submitted ? (
                   <div
                     role="status"
@@ -94,19 +161,33 @@ export const Contact: React.FC = () => {
                     <h3 className="text-xl font-bold font-display text-primary">
                       Inquiry Received
                     </h3>
-                    <p className="text-sm text-secondary max-w-md mx-auto">
-                      Thank you for reaching out. In Phase 3 foundation mode, this form verifies input ergonomics and client-side validation. Serverless delivery will be active in Phase 4.
+                    <p className="text-sm text-secondary max-w-md mx-auto leading-relaxed">
+                      Thank you for reaching out. Your project inquiry has been recorded and will be reviewed shortly.
                     </p>
                     <Button
                       variant="secondary"
                       size="sm"
                       onClick={() => setSubmitted(false)}
                     >
-                      Reset Form
+                      Send Another Inquiry
                     </Button>
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Honeypot field (hidden from genuine users) */}
+                    <div className="hidden" aria-hidden="true">
+                      <label htmlFor="contact-website">Website</label>
+                      <input
+                        id="contact-website"
+                        type="text"
+                        name="website"
+                        tabIndex={-1}
+                        autoComplete="off"
+                        value={formData.website}
+                        onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                      />
+                    </div>
+
                     {/* Name Field */}
                     <div className="space-y-2">
                       <label
@@ -197,7 +278,7 @@ export const Contact: React.FC = () => {
                       <textarea
                         id="contact-message"
                         required
-                        minLength={20}
+                        minLength={10}
                         maxLength={3000}
                         rows={5}
                         value={formData.message}
@@ -209,19 +290,12 @@ export const Contact: React.FC = () => {
                       />
                     </div>
 
-                    {/* Phase 3 Scope Notice */}
-                    <div className="p-3 rounded-xl bg-surface border border-subtle flex items-start gap-2 text-xs text-muted font-mono">
-                      <ShieldAlert className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                      <span>
-                        Phase 3 Foundation: Client-side input validation active. Cloudflare Turnstile anti-bot challenge and serverless dispatch will be enabled in Phase 4.
-                      </span>
-                    </div>
-
                     {/* Submit Button */}
                     <Button
                       type="submit"
                       variant="primary"
                       size="lg"
+                      loading={loading}
                       className="w-full justify-center"
                       iconRight={<Send className="w-4 h-4" />}
                     >

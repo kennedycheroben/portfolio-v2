@@ -13,7 +13,6 @@ import {
   Star,
   Layers,
   AlertTriangle,
-  Download,
   FolderGit2,
 } from "lucide-react";
 import { useAdminAuth } from "./AdminAuthContext";
@@ -22,7 +21,6 @@ import { Badge } from "../components/ui/Badge";
 import { LoadingState } from "../components/ui/LoadingState";
 import { HeadMeta } from "../components/seo/HeadMeta";
 import type { Project } from "../lib/projects/types";
-import { LEGACY_PORTFOLIO_PROJECTS } from "../lib/projects/legacySeed";
 
 export const AdminDashboard: React.FC = () => {
   const { token } = useAdminAuth();
@@ -39,9 +37,6 @@ export const AdminDashboard: React.FC = () => {
   // Delete modal state
   const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
   const [deleting, setDeleting] = useState(false);
-
-  // Import legacy state
-  const [importing, setImporting] = useState(false);
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -226,31 +221,6 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  // One-click import legacy backup
-  const handleImportLegacy = async () => {
-    if (!confirm("Import the 5 verified portfolio projects (Benchero, WhatsApp Vault, JDM Kenya, MediaFusion, Unify Studios)?")) {
-      return;
-    }
-    setImporting(true);
-    try {
-      for (const p of LEGACY_PORTFOLIO_PROJECTS) {
-        await fetch("/api/admin/projects", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(p),
-        });
-      }
-      await fetchProjects();
-      showNotification("Imported 5 verified portfolio projects successfully.");
-    } catch (err: any) {
-      alert(err.message || "Error importing projects");
-    } finally {
-      setImporting(false);
-    }
-  };
 
   // Filtered list
   const filteredProjects = useMemo(() => {
@@ -316,17 +286,7 @@ export const AdminDashboard: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            {projects.length === 0 && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleImportLegacy}
-                loading={importing}
-                icon={<Download className="w-3.5 h-3.5" />}
-              >
-                Import Legacy Projects
-              </Button>
-            )}
+
 
             <Button
               to="/admin/projects/new"
@@ -453,16 +413,7 @@ export const AdminDashboard: React.FC = () => {
               >
                 Create First Project
               </Button>
-              {projects.length === 0 && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleImportLegacy}
-                  loading={importing}
-                >
-                  Import Verified Backup
-                </Button>
-              )}
+
             </div>
           </div>
         )}

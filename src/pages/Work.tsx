@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, ExternalLink, Search, FolderGit2 } from "lucide-react";
+import { ArrowUpRight, ExternalLink, Search, FolderGit2, Shield } from "lucide-react";
 import { Container } from "../components/ui/Container";
 import { Badge } from "../components/ui/Badge";
+import { Button } from "../components/ui/Button";
 import { HeadMeta } from "../components/seo/HeadMeta";
 import { LoadingState } from "../components/ui/LoadingState";
 import { usePublishedProjects } from "../lib/projects/PublicProjectsContext";
@@ -46,12 +47,12 @@ export const Work: React.FC = () => {
         canonicalPath="/work"
       />
 
-      <section className="py-12 sm:py-20">
+      <section className="py-12 sm:py-20 blueprint">
         <Container size="default">
           {/* Header */}
-          <div className="max-w-3xl mb-10 space-y-4">
+          <div className="max-w-3xl mb-10 space-y-4 animate-rise">
             <Badge variant="brand">Portfolio Showcase</Badge>
-            <h1 className="text-4xl sm:text-5xl font-extrabold font-display tracking-tight text-primary">
+            <h1 className="display-xl text-primary">
               Verified Architecture, Systems &amp; Visual Design
             </h1>
             <p className="text-lg text-secondary leading-relaxed">
@@ -59,32 +60,48 @@ export const Work: React.FC = () => {
             </p>
           </div>
 
-          {/* Search and Category Filter Controls */}
-          <div className="space-y-4 mb-10">
-            {/* Search Input */}
-            <div className="relative max-w-md">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by title, technology, or category..."
-                className="w-full pl-10 pr-4 py-2 bg-surface border border-subtle rounded-xl text-sm text-primary placeholder-muted focus:outline-none focus:ring-2 focus:ring-emerald-500/80 transition-all font-body"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono text-muted hover:text-primary"
-                >
-                  Clear
-                </button>
-              )}
+          {/* Search, Filter Bar & Project Count */}
+          <div className="space-y-4 mb-10 bg-surface/60 border border-subtle p-4 sm:p-6 rounded-2xl backdrop-blur-md">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              {/* Search Input */}
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by title, technology, or category..."
+                  className="w-full pl-10 pr-12 py-2 bg-surface-elevated border border-subtle rounded-xl text-sm text-primary placeholder-muted focus:outline-none focus:ring-2 focus:ring-emerald-500/80 transition-all font-body"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono text-muted hover:text-primary cursor-pointer"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              {/* Dynamic Project Counter */}
+              <div
+                className="text-xs font-mono text-muted tracking-wider"
+                aria-live="polite"
+              >
+                {allProjects.length > 0 ? (
+                  <span>
+                    SHOWING <strong className="text-emerald-400">{filteredProjects.length}</strong> OF {allProjects.length} CASE STUDIES
+                  </span>
+                ) : (
+                  <span>0 PROJECTS PUBLISHED</span>
+                )}
+              </div>
             </div>
 
             {/* Category Filter Pills */}
             {categories.length > 1 && (
-              <div className="flex flex-wrap gap-2 pt-2" role="tablist" aria-label="Project categories">
+              <div className="flex flex-wrap gap-2 pt-2 border-t border-subtle" role="tablist" aria-label="Project categories">
                 {categories.map((cat) => (
                   <button
                     key={cat}
@@ -121,50 +138,72 @@ export const Work: React.FC = () => {
             </div>
           )}
 
-          {/* Empty State */}
-          {state.status !== "loading" && filteredProjects.length === 0 && (
+          {/* Empty State: Zero Projects in Catalog */}
+          {state.status !== "loading" && allProjects.length === 0 && (
             <div className="py-16 p-8 rounded-2xl bg-surface/50 border border-subtle text-center space-y-4">
               <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 mx-auto flex items-center justify-center">
                 <FolderGit2 className="w-6 h-6" />
               </div>
-              <h2 className="text-xl font-bold font-display text-primary">
-                {searchQuery || selectedCategory !== "All"
-                  ? "No matching projects found"
-                  : "Case Studies In Progress"}
-              </h2>
+              <h3 className="text-2xl font-bold font-display text-primary">
+                Zero Projects Published
+              </h3>
               <p className="text-sm text-secondary max-w-md mx-auto leading-relaxed">
-                {searchQuery || selectedCategory !== "All"
-                  ? "Try resetting your search query or switching to another category."
-                  : "Projects are currently being curated and will be published directly through the admin dashboard."}
+                Portfolio case studies are curated and managed directly through the admin dashboard. Newly published projects will appear here automatically.
               </p>
-              {(searchQuery || selectedCategory !== "All") && (
-                <div className="pt-2">
-                  <button
-                    onClick={() => {
-                      setSearchQuery("");
-                      setSelectedCategory("All");
-                    }}
-                    className="px-4 py-2 rounded-xl bg-surface-elevated text-xs font-mono text-primary hover:bg-surface border border-subtle transition-colors cursor-pointer"
-                  >
-                    Reset Filters
-                  </button>
-                </div>
-              )}
+              <div className="pt-2 flex justify-center gap-3">
+                <Button
+                  to="/admin/login"
+                  variant="primary"
+                  size="sm"
+                  iconRight={<Shield className="w-3.5 h-3.5" />}
+                >
+                  Access Admin Enclave
+                </Button>
+                <Button to="/contact" variant="secondary" size="sm">
+                  Inquire Directly
+                </Button>
+              </div>
             </div>
           )}
 
-          {/* Projects Grid */}
+          {/* Empty Search Filter State */}
+          {allProjects.length > 0 && filteredProjects.length === 0 && (
+            <div className="py-16 p-8 rounded-2xl bg-surface/50 border border-subtle text-center space-y-4">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 mx-auto flex items-center justify-center">
+                <FolderGit2 className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold font-display text-primary">
+                No matching projects found
+              </h3>
+              <p className="text-sm text-secondary max-w-md mx-auto leading-relaxed">
+                Try resetting your search query or switching to another category.
+              </p>
+              <div className="pt-2">
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedCategory("All");
+                  }}
+                  className="px-4 py-2 rounded-xl bg-surface-elevated text-xs font-mono text-primary hover:bg-surface border border-subtle transition-colors cursor-pointer"
+                >
+                  Reset Filters
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Dynamic Projects Grid */}
           {filteredProjects.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredProjects.map((project) => (
                 <article
                   key={project.slug}
-                  className="glass-card flex flex-col justify-between p-6 rounded-2xl border border-subtle group hover:border-emerald-500/40 transition-colors"
+                  className="glass-card flex flex-col justify-between p-6 sm:p-7 rounded-2xl border border-subtle group hover:border-emerald-500/40 transition-colors"
                 >
                   <div className="space-y-4">
                     {/* Cover image thumbnail if present */}
                     {project.coverImageUrl && (
-                      <div className="w-full h-44 rounded-xl overflow-hidden bg-surface-elevated border border-subtle">
+                      <div className="w-full h-48 rounded-xl overflow-hidden bg-surface-elevated border border-subtle mb-3">
                         <img
                           src={project.coverImageUrl}
                           alt={project.coverImageAlt || project.title}

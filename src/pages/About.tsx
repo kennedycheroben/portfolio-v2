@@ -13,12 +13,12 @@ export const About: React.FC = () => {
         canonicalPath="/about"
       />
 
-      <section className="py-12 sm:py-20">
+      <section className="py-12 sm:py-20 blueprint">
         <Container size="default">
           {/* Header */}
-          <div className="max-w-3xl mb-12 space-y-4">
+          <div className="max-w-3xl mb-12 space-y-4 animate-rise">
             <Badge variant="brand">Biography &amp; Approach</Badge>
-            <h1 className="text-4xl sm:text-5xl font-extrabold font-display tracking-tight text-primary">
+            <h1 className="display-xl text-primary">
               Crafting systems with <span className="gradient-brand-text">structural integrity</span> and unmistakable presence.
             </h1>
             <p className="text-lg text-secondary leading-relaxed">

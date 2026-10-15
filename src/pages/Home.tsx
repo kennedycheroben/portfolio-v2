@@ -38,7 +38,7 @@ export const Home: React.FC = () => {
       />
 
       {/* Hero Section */}
-      <section className="relative pt-12 pb-20 md:pt-20 md:pb-32 overflow-hidden">
+      <section className="relative pt-12 pb-20 md:pt-20 md:pb-32 overflow-hidden blueprint">
         {/* Ambient radial glow */}
         <div
           className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -z-10"
@@ -48,7 +48,7 @@ export const Home: React.FC = () => {
         <Container size="default">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             {/* Left Content Column */}
-            <div className="lg:col-span-7 space-y-6">
+            <div className="lg:col-span-7 space-y-6 animate-rise">
               <div className="inline-flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                 <Badge variant="brand" mono={false}>
@@ -56,7 +56,7 @@ export const Home: React.FC = () => {
                 </Badge>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-primary leading-[1.08]">
+              <h1 className="display-xl text-primary">
                 Bridging technical <span className="gradient-brand-text">engineering</span> with high-craft <span className="gradient-brand-text">visual design</span>.
               </h1>
 
@@ -104,7 +104,7 @@ export const Home: React.FC = () => {
                   aria-hidden="true"
                 />
 
-                <div className="relative rounded-2xl overflow-hidden border border-subtle bg-surface shadow-2xl">
+                <div className="relative rounded-2xl overflow-hidden border border-subtle bg-surface shadow-2xl glow-border">
                   <picture>
                     <source
                       media="(max-width: 640px)"
@@ -119,7 +119,7 @@ export const Home: React.FC = () => {
                     />
                   </picture>
                   <div className="p-4 bg-surface/90 border-t border-subtle backdrop-blur-md">
-                    <p className="text-xs font-mono text-muted">
+                    <p className="text-xs font-mono text-muted tracking-wider">
                       KENNEDY CHEROBEN · FULL-STACK &amp; VISUAL DESIGN
                     </p>
                   </div>
@@ -130,11 +130,11 @@ export const Home: React.FC = () => {
         </Container>
       </section>
 
-      {/* Two Disciplines Section */}
+      {/* Surface & Structure: Three Disciplines Section */}
       <section className="py-16 bg-surface/40 border-y border-subtle">
         <Container size="default">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-6 rounded-2xl bg-surface border border-subtle space-y-3">
+            <div className="p-6 rounded-2xl bg-surface border border-subtle space-y-3 glass-card">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
                 <Code className="w-5 h-5" />
               </div>
@@ -146,7 +146,7 @@ export const Home: React.FC = () => {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-surface border border-subtle space-y-3">
+            <div className="p-6 rounded-2xl bg-surface border border-subtle space-y-3 glass-card">
               <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
                 <Palette className="w-5 h-5" />
               </div>
@@ -158,7 +158,7 @@ export const Home: React.FC = () => {
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-surface border border-subtle space-y-3">
+            <div className="p-6 rounded-2xl bg-surface border border-subtle space-y-3 glass-card">
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
                 <ShieldCheck className="w-5 h-5" />
               </div>
@@ -193,9 +193,9 @@ export const Home: React.FC = () => {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
             {featured.length === 0 ? (
-              <div className="lg:col-span-3 p-10 rounded-2xl bg-surface/50 border border-subtle text-center space-y-4">
+              <div className="lg:col-span-12 p-12 rounded-2xl bg-surface/50 border border-subtle text-center space-y-4">
                 <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 mx-auto flex items-center justify-center">
                   <Terminal className="w-6 h-6" />
                 </div>
@@ -203,69 +203,95 @@ export const Home: React.FC = () => {
                   Case Studies In Preparation
                 </h3>
                 <p className="text-sm text-secondary max-w-md mx-auto leading-relaxed">
-                  Portfolio projects are being prepared and will appear live once published from the admin dashboard.
+                  Portfolio projects are published directly through the admin dashboard and will display here dynamically.
                 </p>
-                <div className="pt-2">
+                <div className="pt-2 flex justify-center gap-3">
                   <Button to="/contact" variant="secondary" size="sm">
                     Inquire Directly
+                  </Button>
+                  <Button to="/admin/login" variant="ghost" size="sm">
+                    Admin Sign In
                   </Button>
                 </div>
               </div>
             ) : (
-              featured.map((project) => (
-                <article
-                  key={project.slug}
-                  className="glass-card flex flex-col justify-between p-6 rounded-2xl border border-subtle group"
-                >
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      {project.category && <Badge variant="brand">{project.category}</Badge>}
-                      {project.timeline && <span className="text-xs font-mono text-muted">{project.timeline}</span>}
+              featured.map((project, index) => {
+                // Asymmetric rhythm: Lead item is full-width (12 cols) if 1 item or 1st of 3, next items are 7 and 5 cols
+                const colSpanClass =
+                  featured.length === 1
+                    ? "lg:col-span-12"
+                    : index === 0
+                    ? "lg:col-span-12"
+                    : index === 1
+                    ? "lg:col-span-7"
+                    : "lg:col-span-5";
+
+                return (
+                  <article
+                    key={project.slug}
+                    className={`${colSpanClass} glass-card flex flex-col justify-between p-6 sm:p-8 rounded-2xl border border-subtle group`}
+                  >
+                    <div className="space-y-4">
+                      {project.coverImageUrl && (
+                        <div className="w-full h-56 rounded-xl overflow-hidden bg-surface-elevated border border-subtle mb-4">
+                          <img
+                            src={project.coverImageUrl}
+                            alt={project.coverImageAlt || project.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                          />
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between">
+                        {project.category && <Badge variant="brand">{project.category}</Badge>}
+                        {project.timeline && <span className="text-xs font-mono text-muted">{project.timeline}</span>}
+                      </div>
+
+                      <h3 className="text-xl sm:text-2xl font-bold font-display text-primary group-hover:text-emerald-400 transition-colors">
+                        <Link to={`/work/${project.slug}`} className="flex items-center gap-1.5">
+                          <span>{project.title}</span>
+                          <ArrowUpRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </Link>
+                      </h3>
+
+                      <p className="text-sm text-secondary line-clamp-3 leading-relaxed">
+                        {project.summary}
+                      </p>
+
+                      <div className="flex flex-wrap gap-1.5 pt-2">
+                        {(project.technologies || []).slice(0, 5).map((tech) => (
+                          <Badge key={tech} variant="outline">
+                            {tech}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
 
-                    <h3 className="text-xl font-bold font-display text-primary group-hover:text-emerald-400 transition-colors">
-                      <Link to={`/work/${project.slug}`} className="flex items-center gap-1.5">
-                        <span>{project.title}</span>
-                        <ArrowUpRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </Link>
-                    </h3>
-
-                    <p className="text-sm text-secondary line-clamp-3 leading-relaxed">
-                      {project.summary}
-                    </p>
-
-                    <div className="flex flex-wrap gap-1.5 pt-2">
-                      {(project.technologies || []).slice(0, 4).map((tech) => (
-                        <Badge key={tech} variant="outline">
-                          {tech}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="pt-6 mt-6 border-t border-subtle flex items-center justify-between">
-                    <Link
-                      to={`/work/${project.slug}`}
-                      className="text-xs font-mono text-emerald-400 hover:underline flex items-center gap-1 font-semibold"
-                    >
-                      Read Case Study
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                    </Link>
-                    {project.liveUrl && (
-                      <a
-                        href={project.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs font-mono text-muted hover:text-primary flex items-center gap-1"
-                        aria-label={`Open live demonstration for ${project.title}`}
+                    <div className="pt-6 mt-6 border-t border-subtle flex items-center justify-between">
+                      <Link
+                        to={`/work/${project.slug}`}
+                        className="text-xs font-mono text-emerald-400 hover:underline flex items-center gap-1 font-semibold"
                       >
-                        <span>Live Site</span>
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
-                    )}
-                  </div>
-                </article>
-              ))
+                        Read Case Study
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      </Link>
+                      {project.liveUrl && (
+                        <a
+                          href={project.liveUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-mono text-muted hover:text-primary flex items-center gap-1"
+                          aria-label={`Open live demonstration for ${project.title}`}
+                        >
+                          <span>Live Site</span>
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                    </div>
+                  </article>
+                );
+              })
             )}
           </div>
         </Container>
@@ -276,7 +302,7 @@ export const Home: React.FC = () => {
         <Container size="default">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-5">
-              <div className="rounded-2xl overflow-hidden border border-subtle bg-surface">
+              <div className="rounded-2xl overflow-hidden border border-subtle bg-surface shadow-xl">
                 <picture>
                   <source
                     media="(max-width: 640px)"
