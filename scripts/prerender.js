@@ -45,7 +45,7 @@ async function prerender() {
   };
 
   // Build route list dynamically
-  const staticRoutes = ["/", "/about", "/work", "/contact", "/resume", "/404"];
+  const staticRoutes = ["/", "/about", "/work", "/contact", "/resume", "/guide", "/privacy", "/terms", "/404"];
   const dynamicRoutes = publishedProjects.map((p) => `/work/${p.slug}`);
   const routes = [...staticRoutes, ...dynamicRoutes];
 

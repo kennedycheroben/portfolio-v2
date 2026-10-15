@@ -3,11 +3,18 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "../ui/ThemeToggle";
 
-const NAV_LINKS = [
-  { path: "/work", name: "Work", n: "01" },
-  { path: "/about", name: "About", n: "02" },
-  { path: "/resume", name: "Resume", n: "03" },
-  { path: "/contact", name: "Contact", n: "04" },
+interface NavLinkItem {
+  path: string;
+  name: string;
+  end?: boolean;
+}
+
+const NAV_LINKS: NavLinkItem[] = [
+  { path: "/", name: "Home", end: true },
+  { path: "/about", name: "About" },
+  { path: "/work", name: "Work" },
+  { path: "/resume", name: "Resume" },
+  { path: "/contact", name: "Contact" },
 ];
 
 export const Header: React.FC = () => {
@@ -49,13 +56,13 @@ export const Header: React.FC = () => {
             <NavLink
               key={item.path}
               to={item.path}
+              end={item.end}
               className={({ isActive }) =>
-                `group flex items-baseline gap-1.5 text-sm transition-colors ${
+                `text-sm transition-colors ${
                   isActive ? "text-primary font-semibold" : "text-secondary hover:text-primary"
                 }`
               }
             >
-              <span className="font-mono text-[0.65rem] text-emerald-400">{item.n}</span>
               <span className="link-underline">{item.name}</span>
             </NavLink>
           ))}
@@ -88,25 +95,18 @@ export const Header: React.FC = () => {
           className="fixed inset-x-0 top-16 bottom-0 z-40 flex flex-col bg-canvas px-6 pt-8 md:hidden"
         >
           <nav aria-label="Mobile Navigation" className="flex flex-col">
-            <Link
-              to="/"
-              className="flex items-baseline gap-4 border-b border-subtle py-4 animate-rise"
-            >
-              <span className="font-mono text-xs text-emerald-400">00</span>
-              <span className="font-display text-3xl font-bold text-primary">Home</span>
-            </Link>
             {NAV_LINKS.map((item, i) => (
               <NavLink
                 key={item.path}
                 to={item.path}
+                end={item.end}
                 className={({ isActive }) =>
-                  `flex items-baseline gap-4 border-b border-subtle py-4 animate-rise ${
+                  `flex items-baseline border-b border-subtle py-4 animate-rise ${
                     isActive ? "text-primary font-bold" : "text-secondary"
                   }`
                 }
-                style={{ animationDelay: `${(i + 1) * 60}ms` }}
+                style={{ animationDelay: `${i * 60}ms` }}
               >
-                <span className="font-mono text-xs text-emerald-400">{item.n}</span>
                 <span className="font-display text-3xl font-bold text-primary">{item.name}</span>
               </NavLink>
             ))}

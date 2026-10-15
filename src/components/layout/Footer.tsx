@@ -3,6 +3,17 @@ import { Link, useLocation } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { profile } from "../../content/profile";
 
+const FOOTER_LINKS = [
+  { path: "/", name: "Home" },
+  { path: "/about", name: "About" },
+  { path: "/work", name: "Work" },
+  { path: "/resume", name: "Resume" },
+  { path: "/guide", name: "Guide" },
+  { path: "/contact", name: "Contact" },
+  { path: "/privacy", name: "Privacy" },
+  { path: "/terms", name: "Terms" },
+];
+
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
   const location = useLocation();
@@ -21,32 +32,25 @@ export const Footer: React.FC = () => {
           </Link>
         )}
 
-        <div className={`${!isContact ? "mt-16 border-t" : ""} grid gap-6 border-subtle pt-6 text-sm text-secondary md:grid-cols-3 items-center`}>
-          <p className="text-muted">
-            &copy; {currentYear} {profile.name}
-          </p>
-          <p className="label-mono md:text-center">
-            {profile.location} · EAT (UTC+3)
-          </p>
-          <nav aria-label="Footer Navigation" className="flex gap-5 md:justify-end text-sm">
-            <Link to="/work" className="link-underline text-secondary hover:text-primary transition-colors">
-              Work
-            </Link>
-            <Link to="/about" className="link-underline text-secondary hover:text-primary transition-colors">
-              About
-            </Link>
-            <Link to="/resume" className="link-underline text-secondary hover:text-primary transition-colors">
-              Resume
-            </Link>
-            {isContact ? (
-              <span className="font-mono text-xs text-emerald-400 font-semibold">
-                ● Inquiries active
-              </span>
-            ) : (
-              <Link to="/contact" className="link-underline text-secondary hover:text-primary transition-colors">
-                Contact
+        <div className={`${!isContact ? "mt-16 border-t" : ""} border-subtle pt-8 flex flex-col gap-6 md:flex-row md:items-center md:justify-between text-sm text-secondary`}>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+            <p className="text-muted">
+              &copy; {currentYear} {profile.name}
+            </p>
+            <p className="label-mono">
+              {profile.location} · EAT (UTC+3)
+            </p>
+          </div>
+          <nav aria-label="Footer Navigation" className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm md:justify-end">
+            {FOOTER_LINKS.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className="link-underline text-secondary hover:text-primary transition-colors"
+              >
+                {link.name}
               </Link>
-            )}
+            ))}
           </nav>
         </div>
       </div>

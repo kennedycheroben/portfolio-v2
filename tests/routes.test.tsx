@@ -116,4 +116,60 @@ describe("Route Skeletons & Navigation", () => {
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/signal lost/i);
     expect(screen.getByRole("link", { name: /return home/i })).toBeInTheDocument();
   });
+
+  it("renders Privacy Policy page at '/privacy'", () => {
+    render(
+      <MemoryRouter initialEntries={["/privacy"]}>
+        <App />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/Privacy Policy/i);
+  });
+
+  it("renders Terms of Service page at '/terms'", () => {
+    render(
+      <MemoryRouter initialEntries={["/terms"]}>
+        <App />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/Terms of Service/i);
+  });
+
+  it("renders Visitor Guide page at '/guide'", () => {
+    render(
+      <MemoryRouter initialEntries={["/guide"]}>
+        <App />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/Visitor Guide & FAQ/i);
+    expect(screen.getByText(/Frequently Asked Questions/i)).toBeInTheDocument();
+  });
+
+  it("renders all expected links in header navigation and footer", () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <App />
+      </MemoryRouter>
+    );
+
+    const mainNav = screen.getByRole("navigation", { name: "Main Navigation" });
+    expect(mainNav).toHaveTextContent(/Home/i);
+    expect(mainNav).toHaveTextContent(/About/i);
+    expect(mainNav).toHaveTextContent(/Work/i);
+    expect(mainNav).toHaveTextContent(/Resume/i);
+    expect(mainNav).toHaveTextContent(/Contact/i);
+
+    const footerNav = screen.getByRole("navigation", { name: "Footer Navigation" });
+    expect(footerNav).toHaveTextContent(/Home/i);
+    expect(footerNav).toHaveTextContent(/About/i);
+    expect(footerNav).toHaveTextContent(/Work/i);
+    expect(footerNav).toHaveTextContent(/Resume/i);
+    expect(footerNav).toHaveTextContent(/Guide/i);
+    expect(footerNav).toHaveTextContent(/Contact/i);
+    expect(footerNav).toHaveTextContent(/Privacy/i);
+    expect(footerNav).toHaveTextContent(/Terms/i);
+  });
 });

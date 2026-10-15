@@ -11,6 +11,9 @@ describe("Static Pre-Rendering Output Audit", () => {
     { file: "work/index.html", path: "/work", expectedTitle: "Featured Work & Case Studies" },
     { file: "contact/index.html", path: "/contact", expectedTitle: "Direct Contact & Inquiries" },
     { file: "resume/index.html", path: "/resume", expectedTitle: "Experience, Skills & Credentials" },
+    { file: "guide/index.html", path: "/guide", expectedTitle: "Visitor Guide & FAQ" },
+    { file: "privacy/index.html", path: "/privacy", expectedTitle: "Privacy Policy" },
+    { file: "terms/index.html", path: "/terms", expectedTitle: "Terms of Service" },
     { file: "404.html", path: "/404", expectedTitle: "404" },
   ];
 

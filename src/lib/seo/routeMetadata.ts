@@ -152,5 +152,38 @@ export function getRouteMetadata(
     };
   }
 
+  if (path === "/privacy") {
+    return {
+      title: "Privacy Policy | Kennedy Cheroben",
+      description:
+        "Data protection and privacy practices for the personal portfolio of Kennedy Cheroben.",
+      canonicalPath: "/privacy",
+      ogType: "website",
+      robots: "index, follow",
+    };
+  }
+
+  if (path === "/terms") {
+    return {
+      title: "Terms of Service | Kennedy Cheroben",
+      description:
+        "Terms of service, usage conditions, and intellectual property rights for the portfolio of Kennedy Cheroben.",
+      canonicalPath: "/terms",
+      ogType: "website",
+      robots: "index, follow",
+    };
+  }
+
+  if (path === "/guide") {
+    return {
+      title: "Visitor Guide & FAQ | Kennedy Cheroben",
+      description:
+        "A practical guide to navigating the portfolio, case study structure, inquiry workflow, and common questions.",
+      canonicalPath: "/guide",
+      ogType: "website",
+      robots: "index, follow",
+    };
+  }
+
   return NOT_FOUND_METADATA;
 }

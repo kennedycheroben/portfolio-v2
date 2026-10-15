@@ -6,6 +6,9 @@ import { Work } from "./pages/Work";
 import { CaseStudy } from "./pages/CaseStudy";
 import { Contact } from "./pages/Contact";
 import { Resume } from "./pages/Resume";
+import { Privacy } from "./pages/Privacy";
+import { Terms } from "./pages/Terms";
+import { Guide } from "./pages/Guide";
 import { NotFound } from "./pages/NotFound";
 import { AdminLayout } from "./admin/AdminLayout";
 import { AdminLogin } from "./admin/AdminLogin";
@@ -40,6 +43,18 @@ export const routes: RouteObject[] = [
       {
         path: "resume",
         element: <Resume />,
+      },
+      {
+        path: "privacy",
+        element: <Privacy />,
+      },
+      {
+        path: "terms",
+        element: <Terms />,
+      },
+      {
+        path: "guide",
+        element: <Guide />,
       },
       {
         path: "*",

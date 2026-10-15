@@ -70,14 +70,7 @@ export const Home: React.FC = () => {
         <div className="absolute inset-0 -z-10 veil-up md:hidden" />
 
         <Container className="flex min-h-[calc(100svh-4rem)] flex-col justify-end pb-12 pt-24 md:justify-center md:pb-24">
-          <div className="animate-rise">
-            <span className="inline-flex items-center gap-2 rounded-full border border-subtle bg-canvas/90 px-3.5 py-1.5 text-[0.7rem] font-mono tracking-wider uppercase text-emerald-400 backdrop-blur-md">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>{profile.status}</span>
-            </span>
-          </div>
-
-          <h1 className="mt-6 display-xl animate-rise text-primary">
+          <h1 className="display-xl animate-rise text-primary">
             Kennedy
             <br />
             Cheroben<span className="text-emerald-400">.</span>
