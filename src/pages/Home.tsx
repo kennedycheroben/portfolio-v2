@@ -6,10 +6,13 @@ import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
 import { HeadMeta } from "../components/seo/HeadMeta";
 import { profile } from "../content/profile";
-import { projects } from "../content/projects";
+import { usePublishedProjects } from "../lib/projects/PublicProjectsContext";
+import { featuredProjects as selectFeatured } from "../lib/projects/selectors";
 
 export const Home: React.FC = () => {
-  const featuredProjects = projects.slice(0, 3);
+  const { state } = usePublishedProjects();
+  const allProjects = state.status === "ready" ? state.projects : [];
+  const featured = selectFeatured(allProjects, 3);
 
   const homeJsonLd = {
     "@context": "https://schema.org",
@@ -186,65 +189,84 @@ export const Home: React.FC = () => {
               size="sm"
               iconRight={<ArrowUpRight className="w-4 h-4" />}
             >
-              View All 5 Projects
+              {allProjects.length > 0 ? `View All ${allProjects.length} Projects` : "Explore Work"}
             </Button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {featuredProjects.map((project) => (
-              <article
-                key={project.slug}
-                className="glass-card flex flex-col justify-between p-6 rounded-2xl border border-subtle group"
-              >
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Badge variant="brand">{project.category}</Badge>
-                    <span className="text-xs font-mono text-muted">{project.year}</span>
-                  </div>
-
-                  <h3 className="text-xl font-bold font-display text-primary group-hover:text-emerald-400 transition-colors">
-                    <Link to={`/work/${project.slug}`} className="flex items-center gap-1.5">
-                      <span>{project.title}</span>
-                      <ArrowUpRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </Link>
-                  </h3>
-
-                  <p className="text-sm text-secondary line-clamp-3 leading-relaxed">
-                    {project.summary}
-                  </p>
-
-                  <div className="flex flex-wrap gap-1.5 pt-2">
-                    {project.stack.slice(0, 4).map((tech) => (
-                      <Badge key={tech} variant="outline">
-                        {tech}
-                      </Badge>
-                    ))}
-                  </div>
+            {featured.length === 0 ? (
+              <div className="lg:col-span-3 p-10 rounded-2xl bg-surface/50 border border-subtle text-center space-y-4">
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 mx-auto flex items-center justify-center">
+                  <Terminal className="w-6 h-6" />
                 </div>
+                <h3 className="text-xl font-bold font-display text-primary">
+                  Case Studies In Preparation
+                </h3>
+                <p className="text-sm text-secondary max-w-md mx-auto leading-relaxed">
+                  Portfolio projects are being prepared and will appear live once published from the admin dashboard.
+                </p>
+                <div className="pt-2">
+                  <Button to="/contact" variant="secondary" size="sm">
+                    Inquire Directly
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              featured.map((project) => (
+                <article
+                  key={project.slug}
+                  className="glass-card flex flex-col justify-between p-6 rounded-2xl border border-subtle group"
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      {project.category && <Badge variant="brand">{project.category}</Badge>}
+                      {project.timeline && <span className="text-xs font-mono text-muted">{project.timeline}</span>}
+                    </div>
 
-                <div className="pt-6 mt-6 border-t border-subtle flex items-center justify-between">
-                  <Link
-                    to={`/work/${project.slug}`}
-                    className="text-xs font-mono text-emerald-400 hover:underline flex items-center gap-1 font-semibold"
-                  >
-                    Read Case Study
-                    <ArrowUpRight className="w-3.5 h-3.5" />
-                  </Link>
-                  {project.liveUrl && (
-                    <a
-                      href={project.liveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs font-mono text-muted hover:text-primary flex items-center gap-1"
-                      aria-label={`Open live demonstration for ${project.title}`}
+                    <h3 className="text-xl font-bold font-display text-primary group-hover:text-emerald-400 transition-colors">
+                      <Link to={`/work/${project.slug}`} className="flex items-center gap-1.5">
+                        <span>{project.title}</span>
+                        <ArrowUpRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </Link>
+                    </h3>
+
+                    <p className="text-sm text-secondary line-clamp-3 leading-relaxed">
+                      {project.summary}
+                    </p>
+
+                    <div className="flex flex-wrap gap-1.5 pt-2">
+                      {(project.technologies || []).slice(0, 4).map((tech) => (
+                        <Badge key={tech} variant="outline">
+                          {tech}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-6 mt-6 border-t border-subtle flex items-center justify-between">
+                    <Link
+                      to={`/work/${project.slug}`}
+                      className="text-xs font-mono text-emerald-400 hover:underline flex items-center gap-1 font-semibold"
                     >
-                      <span>Live Site</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  )}
-                </div>
-              </article>
-            ))}
+                      Read Case Study
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                    </Link>
+                    {project.liveUrl && (
+                      <a
+                        href={project.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-mono text-muted hover:text-primary flex items-center gap-1"
+                        aria-label={`Open live demonstration for ${project.title}`}
+                      >
+                        <span>Live Site</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    )}
+                  </div>
+                </article>
+              ))
+            )}
           </div>
         </Container>
       </section>

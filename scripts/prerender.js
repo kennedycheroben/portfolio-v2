@@ -6,25 +6,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 const distDir = path.resolve(rootDir, "dist");
 const ssrDir = path.resolve(rootDir, "dist-ssr");
+const dbPath = path.resolve(rootDir, "data/projects.json");
 
 const SITE_URL = process.env.VITE_SITE_URL || "https://kennedycheroben.co.ke";
 
-const ROUTES = [
-  "/",
-  "/about",
-  "/work",
-  "/work/benchero",
-  "/work/whatsapp-vault",
-  "/work/jdm-kenya",
-  "/work/mediafusion",
-  "/work/unify-design",
-  "/contact",
-  "/resume",
-  "/404",
-];
-
 async function prerender() {
-  console.log("Starting SSG static pre-rendering pipeline...");
+  console.log("Starting dynamic SSG pre-rendering pipeline...");
 
   const templatePath = path.resolve(distDir, "index.html");
   if (!fs.existsSync(templatePath)) {
@@ -39,9 +26,34 @@ async function prerender() {
 
   const { render } = await import(pathToFileURL(serverEntryPath).href);
 
-  for (const route of ROUTES) {
+  // Read published projects dynamically from database
+  let publishedProjects = [];
+  if (fs.existsSync(dbPath)) {
+    try {
+      const allProjects = JSON.parse(fs.readFileSync(dbPath, "utf-8"));
+      if (Array.isArray(allProjects)) {
+        publishedProjects = allProjects.filter((p) => p.status === "published");
+      }
+    } catch (e) {
+      console.warn("Could not read projects database during prerender, continuing with empty:", e);
+    }
+  }
+
+  const projectsState = {
+    status: "ready",
+    projects: publishedProjects,
+  };
+
+  // Build route list dynamically
+  const staticRoutes = ["/", "/about", "/work", "/contact", "/resume", "/404"];
+  const dynamicRoutes = publishedProjects.map((p) => `/work/${p.slug}`);
+  const routes = [...staticRoutes, ...dynamicRoutes];
+
+  console.log(`Prerendering ${routes.length} routes (${publishedProjects.length} dynamic projects in DB)...`);
+
+  for (const route of routes) {
     console.log(`Prerendering route: ${route}`);
-    const { html, metadata } = render(route);
+    const { html, metadata } = render(route, projectsState);
 
     let pageHtml = rawTemplate.replace("<!--app-html-->", html);
 
@@ -155,7 +167,7 @@ async function prerender() {
     fs.rmSync(ssrDir, { recursive: true, force: true });
   }
 
-  console.log(`Successfully pre-rendered ${ROUTES.length} static routes into dist/`);
+  console.log(`Successfully pre-rendered ${routes.length} routes into dist/`);
 }
 
 prerender().catch((err) => {

@@ -1,6 +1,9 @@
 import React from "react";
 import { useRoutes } from "react-router-dom";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { PublicProjectsProvider } from "./lib/projects/PublicProjectsContext";
+import { AdminAuthProvider } from "./admin/AdminAuthContext";
+import type { PublicProjectsState } from "./lib/projects/types";
 import { routes } from "./routes";
 
 export const AppContent: React.FC = () => {
@@ -8,10 +11,18 @@ export const AppContent: React.FC = () => {
   return element;
 };
 
-export const App: React.FC = () => {
+export interface AppProps {
+  initialProjectsState?: PublicProjectsState;
+}
+
+export const App: React.FC<AppProps> = ({ initialProjectsState }) => {
   return (
     <ThemeProvider>
-      <AppContent />
+      <PublicProjectsProvider initialState={initialProjectsState}>
+        <AdminAuthProvider>
+          <AppContent />
+        </AdminAuthProvider>
+      </PublicProjectsProvider>
     </ThemeProvider>
   );
 };

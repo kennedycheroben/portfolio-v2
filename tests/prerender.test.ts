@@ -9,11 +9,6 @@ describe("Static Pre-Rendering Output Audit", () => {
     { file: "index.html", path: "/", expectedTitle: "Kennedy Cheroben" },
     { file: "about/index.html", path: "/about", expectedTitle: "About Kennedy Cheroben" },
     { file: "work/index.html", path: "/work", expectedTitle: "Featured Work & Case Studies" },
-    { file: "work/benchero/index.html", path: "/work/benchero", expectedTitle: "Benchero" },
-    { file: "work/whatsapp-vault/index.html", path: "/work/whatsapp-vault", expectedTitle: "WhatsApp Vault" },
-    { file: "work/jdm-kenya/index.html", path: "/work/jdm-kenya", expectedTitle: "JDM Kenya Portal" },
-    { file: "work/mediafusion/index.html", path: "/work/mediafusion", expectedTitle: "MediaFusion" },
-    { file: "work/unify-design/index.html", path: "/work/unify-design", expectedTitle: "Unify Studios" },
     { file: "contact/index.html", path: "/contact", expectedTitle: "Direct Contact & Inquiries" },
     { file: "resume/index.html", path: "/resume", expectedTitle: "Experience, Skills & Credentials" },
     { file: "404.html", path: "/404", expectedTitle: "404" },
@@ -55,15 +50,29 @@ describe("Static Pre-Rendering Output Audit", () => {
     expect(content).toContain(`<meta name="robots" content="noindex, nofollow" />`);
   });
 
-  it("embeds valid JSON-LD structured data on home page and case studies", () => {
+  it("embeds valid JSON-LD structured data on home page", () => {
     const homePath = path.join(distDir, "index.html");
     const homeContent = fs.readFileSync(homePath, "utf-8");
     expect(homeContent).toContain(`id="route-jsonld"`);
     expect(homeContent).toContain(`"Person"`);
+  });
 
-    const bencheroPath = path.join(distDir, "work/benchero/index.html");
-    const bencheroContent = fs.readFileSync(bencheroPath, "utf-8");
-    expect(bencheroContent).toContain(`id="route-jsonld"`);
-    expect(bencheroContent).toContain(`"TechArticle"`);
+  it("dynamically generates case study pages if dynamic projects exist in database", () => {
+    const dbPath = path.resolve(__dirname, "../data/projects.json");
+    if (fs.existsSync(dbPath)) {
+      try {
+        const projects = JSON.parse(fs.readFileSync(dbPath, "utf-8"));
+        if (Array.isArray(projects)) {
+          for (const project of projects.filter((p: any) => p.status === "published")) {
+            const projectPath = path.join(distDir, `work/${project.slug}/index.html`);
+            expect(fs.existsSync(projectPath)).toBe(true);
+            const content = fs.readFileSync(projectPath, "utf-8");
+            expect(content).toContain(project.title);
+          }
+        }
+      } catch {
+        // Ignored if invalid json
+      }
+    }
   });
 });

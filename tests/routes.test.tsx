@@ -2,12 +2,13 @@ import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { App } from "../src/App";
+import { LEGACY_MOCK_PROJECTS } from "../src/lib/projects/legacySeed";
 
 describe("Route Skeletons & Navigation", () => {
   it("renders Home page at '/' with verified identity", () => {
     render(
       <MemoryRouter initialEntries={["/"]}>
-        <App />
+        <App initialProjectsState={{ status: "ready", projects: LEGACY_MOCK_PROJECTS }} />
       </MemoryRouter>
     );
 
@@ -20,7 +21,7 @@ describe("Route Skeletons & Navigation", () => {
   it("renders About page at '/about' with narrative and capabilities", () => {
     render(
       <MemoryRouter initialEntries={["/about"]}>
-        <App />
+        <App initialProjectsState={{ status: "ready", projects: [] }} />
       </MemoryRouter>
     );
 
@@ -30,10 +31,10 @@ describe("Route Skeletons & Navigation", () => {
     expect(screen.getAllByText(/Nairobi, Kenya/i).length).toBeGreaterThan(0);
   });
 
-  it("renders Work gallery at '/work' with all 5 verified projects", () => {
+  it("renders Work gallery at '/work' with populated dynamic projects", () => {
     render(
       <MemoryRouter initialEntries={["/work"]}>
-        <App />
+        <App initialProjectsState={{ status: "ready", projects: LEGACY_MOCK_PROJECTS }} />
       </MemoryRouter>
     );
 
@@ -44,16 +45,38 @@ describe("Route Skeletons & Navigation", () => {
     expect(screen.getByText("Unify Studios 3D & Brand Identity")).toBeInTheDocument();
   });
 
-  it("renders dynamic CaseStudy at '/work/benchero'", () => {
+  it("renders Work gallery at '/work' with dynamic empty state when zero projects are published", () => {
+    render(
+      <MemoryRouter initialEntries={["/work"]}>
+        <App initialProjectsState={{ status: "ready", projects: [] }} />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent(/Zero Projects Published/i);
+    expect(screen.getByRole("link", { name: /Access Admin Enclave/i })).toBeInTheDocument();
+  });
+
+  it("renders dynamic CaseStudy at '/work/benchero' when project is published", () => {
     render(
       <MemoryRouter initialEntries={["/work/benchero"]}>
-        <App />
+        <App initialProjectsState={{ status: "ready", projects: LEGACY_MOCK_PROJECTS }} />
       </MemoryRouter>
     );
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Benchero");
     expect(screen.getByText(/Multi-tenant sports club operations/i)).toBeInTheDocument();
     expect(screen.getByText(/Full-Stack Architect & Lead Engineer/i)).toBeInTheDocument();
+  });
+
+  it("renders graceful Not Found state when accessing nonexistent slug at '/work/unknown'", () => {
+    render(
+      <MemoryRouter initialEntries={["/work/unknown-project"]}>
+        <App initialProjectsState={{ status: "ready", projects: [] }} />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/Case Study Not Found/i);
+    expect(screen.getByRole("link", { name: /Explore All Projects/i })).toBeInTheDocument();
   });
 
   it("renders Contact page at '/contact'", () => {
