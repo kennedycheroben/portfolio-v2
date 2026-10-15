@@ -13,30 +13,30 @@ export const NotFound: React.FC = () => {
         canonicalPath="/404"
       />
 
-      <section className="py-32 flex-1 flex items-center justify-center text-center bg-canvas">
+      <div className="py-24 sm:py-36 flex-1 flex items-center justify-center text-center bg-canvas">
         <Container size="editorial">
           <div className="space-y-6">
-            <p className="label-mono">HTTP 404 · Unindexed Path</p>
+            <span className="meta-label">404 / Error State</span>
 
-            <h1 className="text-6xl sm:text-8xl font-extrabold font-display tracking-tight text-primary animate-rise">
-              Signal <span className="text-gradient-brand">Lost</span>
+            <h1 className="display-segerman text-primary">
+              Signal Lost
             </h1>
 
-            <p className="text-lg text-secondary max-w-md mx-auto leading-relaxed">
-              The route or document you requested does not exist in the architectural registry. It may have been moved or unindexed.
+            <p className="text-base sm:text-lg text-secondary max-w-md mx-auto leading-relaxed">
+              The route or document you requested does not exist in the architectural registry. It may have been moved, renamed, or unindexed.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-4 pt-6">
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-7 py-3 text-sm font-semibold text-black hover:bg-emerald-400 transition-colors"
+                className="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-3 text-xs font-mono uppercase tracking-wider font-bold text-canvas hover:opacity-90 transition-opacity"
               >
                 <Home className="h-4 w-4" />
                 <span>Return Home</span>
               </Link>
               <Link
                 to="/work"
-                className="inline-flex items-center gap-2 rounded-full border border-subtle px-7 py-3 text-sm font-semibold text-primary hover:border-emerald-500 transition-colors"
+                className="inline-flex items-center gap-2 rounded-sm border border-subtle bg-surface px-6 py-3 text-xs font-mono uppercase tracking-wider text-primary hover:border-strong transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" />
                 <span>Browse Projects</span>
@@ -44,7 +44,7 @@ export const NotFound: React.FC = () => {
             </div>
           </div>
         </Container>
-      </section>
+      </div>
     </>
   );
 };

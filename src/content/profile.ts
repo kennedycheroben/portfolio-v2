@@ -6,6 +6,7 @@ export interface ProfileData {
   location: string;
   experienceYears: string;
   status: string;
+  email: string;
   skills: {
     engineering: string[];
     design: string[];
@@ -31,6 +32,7 @@ export const profile: ProfileData = {
   location: "Nairobi, Kenya",
   experienceYears: "2+ Years",
   status: "Available for selected engineering & visual design projects",
+  email: "kennedycheroben001@gmail.com",
   skills: {
     engineering: [
       "TypeScript",

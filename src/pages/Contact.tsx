@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import { CheckCircle2, Loader2, AlertTriangle, ArrowRight } from "lucide-react";
+import { CheckCircle2, Loader2, AlertTriangle, ArrowRight, Copy, Check } from "lucide-react";
 import { Container } from "../components/ui/Container";
-import { SectionLabel } from "../components/ui/SectionLabel";
 import { HeadMeta } from "../components/seo/HeadMeta";
 import { profile } from "../content/profile";
 
 const TOPICS = [
   "Full-Stack Web Application",
   "UI/UX & Design Systems",
-  "Systems & Cryptography",
+  "Systems Architecture",
   "General Inquiry",
 ];
 
@@ -23,6 +22,15 @@ export const Contact: React.FC = () => {
 
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyEmail = () => {
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(profile.email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2400);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,58 +83,87 @@ export const Contact: React.FC = () => {
     <>
       <HeadMeta
         title="Contact &amp; Project Inquiries — Kennedy Cheroben"
-        description="Start a project inquiry or collaborate on full-stack architecture, software engineering, or visual design with Kennedy Cheroben."
+        description="Direct contact and project inquiry form for Kennedy Cheroben — Visual Design Specialist &amp; Full-Stack Developer based in Nairobi, Kenya."
         canonicalPath="/contact"
       />
 
-      <section className="py-16 md:py-24 bg-canvas">
-        <Container className="grid gap-14 md:grid-cols-12 items-start">
-          {/* Left Column: Context, Photo & Timezone */}
-          <div className="md:col-span-5 space-y-6">
-            <SectionLabel n="04">Contact</SectionLabel>
-            <h1 className="mt-6 text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display leading-[1.05] text-primary animate-rise">
-              Have something worth building?
-              <span className="sr-only"> — Let's engineer something extraordinary</span>
-            </h1>
-            <p className="text-lg text-secondary leading-relaxed">
-              {profile.contact.messageNote}
-            </p>
-
-            <div className="mt-8 hidden overflow-hidden rounded-md border border-subtle md:block">
-              <img
-                src="/images/contact_section.jpeg"
-                alt="Kennedy Cheroben"
-                className="aspect-[4/3] w-full object-cover"
-                loading="lazy"
-              />
+      <div className="py-16 md:py-24 bg-canvas">
+        <Container className="grid gap-14 lg:grid-cols-12 items-start">
+          {/* Left Column: Direct Contact & Telemetry */}
+          <div className="lg:col-span-5 space-y-8">
+            <div>
+              <span className="meta-label">04 / Communication</span>
+              <h1 className="display-segerman text-primary mt-2">
+                Direct Contact
+                <span className="sr-only"> — Let's engineer something extraordinary</span>
+              </h1>
+              <p className="mt-6 text-lg text-secondary leading-relaxed">
+                Have a project or technical challenge worth engineering? Send an inquiry or reach out directly via email.
+              </p>
             </div>
 
-            <p className="pt-2 label-mono">
-              {profile.contact.city}, {profile.contact.country} · Replies in EAT (UTC+3)
-            </p>
+            {/* Direct Email Card */}
+            <div className="border border-subtle bg-surface p-6 rounded-sm space-y-4">
+              <span className="meta-label">Direct Inbox</span>
+              <div className="flex items-center justify-between">
+                <span className="text-base font-medium text-primary font-mono">{profile.email}</span>
+                <button
+                  type="button"
+                  onClick={handleCopyEmail}
+                  className="inline-flex items-center gap-1.5 border border-subtle bg-surface px-3 py-1.5 rounded-sm text-xs font-mono text-muted hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                  title="Copy email to clipboard"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 text-emerald-400" />
+                      <span className="text-emerald-400">Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5" />
+                      <span>Copy</span>
+                    </>
+                  )}
+                </button>
+              </div>
+              <p className="text-xs text-muted leading-relaxed">
+                Preferred communication for RFPs, technical consulting, and design system contracts.
+              </p>
+            </div>
+
+            <dl className="grid grid-cols-2 gap-4 border-t border-subtle pt-6">
+              <div>
+                <dt className="meta-label">Location</dt>
+                <dd className="meta-value">{profile.contact.city}, {profile.contact.country}</dd>
+              </div>
+              <div>
+                <dt className="meta-label">Response Window</dt>
+                <dd className="meta-value">24–48 Business Hours</dd>
+              </div>
+            </dl>
           </div>
 
           {/* Right Column: Interactive Form */}
-          <div className="md:col-span-7">
+          <div className="lg:col-span-7">
             {status === "success" ? (
               <div
                 role="status"
-                className="rounded-md border border-emerald-500/50 p-8 md:p-10 bg-surface/50 space-y-4 animate-rise"
+                className="rounded-sm border border-subtle p-8 md:p-12 bg-surface space-y-6 animate-rise"
               >
-                <CheckCircle2 className="h-8 w-8 text-emerald-400" />
-                <h2 className="text-3xl font-bold font-display text-primary">
-                  Thanks, {formData.name.split(" ")[0]}.
+                <CheckCircle2 className="h-10 w-10 text-emerald-400" />
+                <h2 className="font-display text-3xl font-bold uppercase tracking-tight text-primary">
+                  Inquiry Received, {formData.name.split(" ")[0]}.
                 </h2>
                 <p className="text-secondary leading-relaxed">
-                  Your project inquiry has been received. I review incoming scopes carefully and typically respond within 24 to 48 business hours.
+                  Thank you for outlining your scope. I review incoming specifications carefully and will reply directly to <span className="text-primary font-mono">{formData.email}</span> within 24 to 48 hours.
                 </p>
-                <div className="pt-4">
+                <div className="pt-4 border-t border-subtle">
                   <button
                     onClick={handleReset}
                     type="button"
-                    className="inline-flex items-center gap-2 text-sm text-emerald-400 link-underline font-mono"
+                    className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-primary link-underline"
                   >
-                    <span>Send another inquiry</span>
+                    <span>Submit another inquiry</span>
                     <ArrowRight className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -135,7 +172,7 @@ export const Contact: React.FC = () => {
               <form
                 noValidate
                 onSubmit={handleSubmit}
-                className="space-y-6 rounded-md border border-subtle bg-surface/30 p-6 md:p-10"
+                className="space-y-6 rounded-sm border border-subtle bg-surface p-6 md:p-10"
               >
                 {/* Honeypot field for anti-bot detection */}
                 <div className="hidden" aria-hidden="true">
@@ -155,9 +192,9 @@ export const Contact: React.FC = () => {
                 {status === "error" && (
                   <div
                     role="alert"
-                    className="flex items-start gap-3 rounded-md border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-300"
+                    className="flex items-start gap-3 rounded-sm border border-rose-500/40 bg-rose-500/10 p-4 text-xs font-mono text-rose-300"
                   >
-                    <AlertTriangle className="h-5 w-5 shrink-0 text-rose-400" />
+                    <AlertTriangle className="h-4 w-4 shrink-0 text-rose-400" />
                     <span>{errorMessage}</span>
                   </div>
                 )}
@@ -167,7 +204,7 @@ export const Contact: React.FC = () => {
                   <div>
                     <label
                       htmlFor="contact-name"
-                      className="block label-mono text-secondary mb-2"
+                      className="block meta-label mb-2"
                     >
                       Your Name *
                     </label>
@@ -179,14 +216,14 @@ export const Contact: React.FC = () => {
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="Jane Doe"
-                      className="w-full rounded-md border border-subtle bg-surface px-4 py-3 text-sm text-primary placeholder:text-muted focus:border-emerald-500 focus:outline-none"
+                      className="w-full rounded-sm border border-subtle bg-canvas px-4 py-3 text-sm text-primary placeholder:text-muted focus:border-strong focus:outline-none"
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor="contact-email"
-                      className="block label-mono text-secondary mb-2"
+                      className="block meta-label mb-2"
                     >
                       Email Address *
                     </label>
@@ -197,17 +234,17 @@ export const Contact: React.FC = () => {
                       autoComplete="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="jane@company.com"
-                      className="w-full rounded-md border border-subtle bg-surface px-4 py-3 text-sm text-primary placeholder:text-muted focus:border-emerald-500 focus:outline-none"
+                      placeholder="jane@organization.com"
+                      className="w-full rounded-sm border border-subtle bg-canvas px-4 py-3 text-sm text-primary placeholder:text-muted focus:border-strong focus:outline-none"
                     />
                   </div>
                 </div>
 
-                {/* Topic / Engagement Scope Pills */}
+                {/* Topic / Engagement Scope */}
                 <div>
-                  <label className="block label-mono text-secondary mb-2">
+                  <span className="block meta-label mb-2">
                     Scope of Engagement
-                  </label>
+                  </span>
                   <div className="flex flex-wrap gap-2">
                     {TOPICS.map((topic) => {
                       const isSelected = formData.category === topic;
@@ -216,10 +253,10 @@ export const Contact: React.FC = () => {
                           key={topic}
                           type="button"
                           onClick={() => setFormData({ ...formData, category: topic })}
-                          className={`rounded-full border px-4 py-2 text-xs font-mono transition-colors ${
+                          className={`rounded-sm border px-3 py-1.5 text-xs font-mono uppercase tracking-wider transition-colors ${
                             isSelected
-                              ? "border-emerald-500 bg-emerald-500 text-black font-semibold"
-                              : "border-subtle bg-surface text-secondary hover:border-emerald-500/50 hover:text-primary"
+                              ? "border-primary bg-primary text-canvas font-bold"
+                              : "border-subtle bg-canvas text-secondary hover:border-strong hover:text-primary"
                           }`}
                         >
                           {topic}
@@ -234,7 +271,7 @@ export const Contact: React.FC = () => {
                   <div className="flex justify-between items-center mb-2">
                     <label
                       htmlFor="contact-message"
-                      className="block label-mono text-secondary"
+                      className="block meta-label"
                     >
                       Project Details *
                     </label>
@@ -249,8 +286,8 @@ export const Contact: React.FC = () => {
                     minLength={10}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder="Describe your architectural requirements, timeline, and design expectations…"
-                    className="w-full rounded-md border border-subtle bg-surface px-4 py-3 text-sm text-primary placeholder:text-muted focus:border-emerald-500 focus:outline-none resize-y"
+                    placeholder="Describe your architectural scope, design expectations, and timeline…"
+                    className="w-full rounded-sm border border-subtle bg-canvas px-4 py-3 text-sm text-primary placeholder:text-muted focus:border-strong focus:outline-none resize-y"
                   />
                 </div>
 
@@ -258,7 +295,7 @@ export const Contact: React.FC = () => {
                 <button
                   type="submit"
                   disabled={status === "loading"}
-                  className="inline-flex h-12 items-center justify-center gap-3 rounded-full bg-emerald-500 px-8 text-sm font-semibold text-black transition-all hover:bg-emerald-400 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                  className="inline-flex h-12 items-center justify-center gap-3 rounded-sm bg-primary px-8 text-xs font-mono uppercase tracking-wider font-bold text-canvas transition-opacity hover:opacity-90 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
                 >
                   {status === "loading" ? (
                     <>
@@ -267,7 +304,7 @@ export const Contact: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      <span>Send inquiry</span>
+                      <span>Transmit inquiry</span>
                       <ArrowRight className="h-4 w-4" />
                     </>
                   )}
@@ -276,7 +313,7 @@ export const Contact: React.FC = () => {
             )}
           </div>
         </Container>
-      </section>
+      </div>
     </>
   );
 };

@@ -18,14 +18,16 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ className }) => {
       onClick={toggleTheme}
       aria-label={`Switch to ${nextTheme} theme`}
       title={`Switch to ${nextTheme} theme`}
-      className={`relative inline-flex items-center justify-center p-2 rounded-xl text-secondary hover:text-primary bg-surface border border-subtle hover:border-emerald-500/40 transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/80 ${className || ""}`}
+      className={`group relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-subtle bg-surface text-secondary hover:border-strong hover:text-primary transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus ${className || ""}`}
     >
       <span className="sr-only">Toggle theme (currently {resolvedTheme})</span>
-      {isDark ? (
-        <Sun className="w-4 h-4 text-amber-400 transition-transform hover:rotate-45" />
-      ) : (
-        <Moon className="w-4 h-4 text-emerald-600 transition-transform hover:-rotate-12" />
-      )}
+      <span className="relative flex h-4 w-4 items-center justify-center transition-transform duration-300 group-hover:scale-110">
+        {isDark ? (
+          <Sun className="h-3.5 w-3.5 text-primary transition-transform duration-300 group-hover:rotate-45" />
+        ) : (
+          <Moon className="h-3.5 w-3.5 text-primary transition-transform duration-300 group-hover:-rotate-12" />
+        )}
+      </span>
     </button>
   );
 };

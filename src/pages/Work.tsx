@@ -2,7 +2,6 @@ import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Search, ArrowUpRight, FolderGit2 } from "lucide-react";
 import { Container } from "../components/ui/Container";
-import { SectionLabel } from "../components/ui/SectionLabel";
 import { ProjectCover } from "../components/ui/ProjectCover";
 import { HeadMeta } from "../components/seo/HeadMeta";
 import { usePublishedProjects } from "../lib/projects/PublicProjectsContext";
@@ -24,37 +23,37 @@ export const Work: React.FC = () => {
       />
 
       {/* Page Header */}
-      <section className="pt-16 pb-12 md:pt-24 md:pb-16 bg-canvas">
+      <section className="pt-16 pb-12 md:pt-24 md:pb-16 bg-canvas border-b border-subtle">
         <Container>
-          <SectionLabel n="01">Work index</SectionLabel>
-          <h1 className="mt-6 max-w-5xl text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold font-display leading-[0.96] text-primary animate-rise">
-            Case files<span className="text-emerald-400">.</span>
+          <span className="meta-label">01 / Index</span>
+          <h1 className="display-segerman text-primary mt-4">
+            Case Files
           </h1>
-          <p className="mt-8 max-w-2xl text-lg text-secondary leading-relaxed">
-            Engineering systems and visual work, each documented from problem space to production outcome.
+          <p className="mt-8 max-w-2xl text-lg text-secondary leading-relaxed md:text-xl">
+            Selected engineering systems, design infrastructure, and visual artifacts documented from problem space to production outcome.
           </p>
         </Container>
       </section>
 
       {/* Main Project Gallery */}
-      <section className="pb-24 bg-canvas">
+      <section className="py-16 md:py-24 bg-canvas">
         <Container>
           {state.status === "loading" || state.status === "idle" ? (
-            <div role="status" aria-label="Loading projects" className="space-y-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-28 animate-pulse rounded-md bg-surface" />
+            <div role="status" aria-label="Loading projects" className="space-y-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-44 animate-pulse rounded-sm bg-surface border border-subtle" />
               ))}
             </div>
           ) : state.status === "error" ? (
             <div
               role="alert"
-              className="flex flex-col items-start gap-4 rounded-md border border-rose-500/30 p-8 bg-surface"
+              className="flex flex-col items-start gap-4 rounded-sm border border-rose-500/30 p-8 bg-surface"
             >
               <p className="font-medium text-rose-400">Projects couldn't load.</p>
               <p className="font-mono text-xs text-muted">{state.message}</p>
               <button
                 onClick={reload}
-                className="rounded-full border border-subtle px-4 py-2 text-sm text-primary hover:border-emerald-500 transition-colors"
+                className="rounded-sm border border-subtle px-4 py-2 text-sm text-primary hover:border-strong transition-colors"
               >
                 Try again
               </button>
@@ -88,11 +87,11 @@ function Gallery({ projects }: { projects: Project[] }) {
 
   if (projects.length === 0) {
     return (
-      <div className="rounded-md border border-dashed border-subtle p-12 text-center space-y-4 bg-surface/30">
-        <div className="mx-auto w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+      <div className="rounded-sm border border-dashed border-subtle p-12 text-center space-y-4 bg-surface/30">
+        <div className="mx-auto w-12 h-12 rounded-full bg-surface text-primary border border-subtle flex items-center justify-center">
           <FolderGit2 className="w-6 h-6" />
         </div>
-        <h3 className="text-xl font-bold font-display text-primary">
+        <h3 className="text-xl font-bold font-display uppercase tracking-tight text-primary">
           Zero Projects Published
         </h3>
         <p className="text-sm text-secondary max-w-md mx-auto leading-relaxed">
@@ -101,13 +100,13 @@ function Gallery({ projects }: { projects: Project[] }) {
         <div className="pt-2 flex justify-center gap-3">
           <Link
             to="/admin/login"
-            className="rounded-full bg-emerald-500 px-6 py-2.5 text-xs font-mono font-semibold text-black hover:bg-emerald-400 transition-colors"
+            className="rounded-sm bg-primary px-6 py-2.5 text-xs font-mono uppercase tracking-wider text-canvas hover:opacity-90 transition-opacity"
           >
             Access Admin Enclave
           </Link>
           <Link
             to="/contact"
-            className="rounded-full border border-subtle px-6 py-2.5 text-xs font-mono text-secondary hover:text-primary transition-colors"
+            className="rounded-sm border border-subtle px-6 py-2.5 text-xs font-mono uppercase tracking-wider text-secondary hover:text-primary transition-colors"
           >
             Contact Directly
           </Link>
@@ -119,7 +118,7 @@ function Gallery({ projects }: { projects: Project[] }) {
   return (
     <>
       {/* Sticky Interactive Filter & Search Bar */}
-      <div className="sticky top-16 z-20 -mx-4 px-4 sm:-mx-6 sm:px-6 md:-mx-8 md:px-8 border-y border-subtle bg-canvas/90 backdrop-blur-md py-4 flex flex-col md:flex-row md:items-center gap-4">
+      <div className="sticky top-16 z-20 border-b border-subtle bg-canvas/90 backdrop-blur-md py-4 mb-12 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <label className="relative flex-1 md:max-w-xs">
           <span className="sr-only">Search projects</span>
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
@@ -128,7 +127,7 @@ function Gallery({ projects }: { projects: Project[] }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search title, tech…"
-            className="h-10 w-full rounded-full border border-subtle bg-surface pl-10 pr-4 text-sm text-primary placeholder:text-muted focus:border-emerald-500 focus:outline-none"
+            className="h-10 w-full rounded-sm border border-subtle bg-surface pl-10 pr-4 text-xs font-mono text-primary placeholder:text-muted focus:border-strong focus:outline-none"
           />
         </label>
 
@@ -145,10 +144,10 @@ function Gallery({ projects }: { projects: Project[] }) {
                 type="button"
                 onClick={() => setCat(c)}
                 aria-pressed={isSelected}
-                className={`shrink-0 rounded-full border px-4 py-2 text-xs font-medium transition-colors ${
+                className={`shrink-0 rounded-sm border px-3 py-1.5 text-xs font-mono uppercase tracking-wider transition-colors ${
                   isSelected
-                    ? "border-emerald-500 bg-emerald-500 text-black font-semibold"
-                    : "border-subtle bg-surface text-secondary hover:border-emerald-500/60 hover:text-primary"
+                    ? "border-primary bg-primary text-canvas font-bold"
+                    : "border-subtle bg-surface text-secondary hover:border-strong hover:text-primary"
                 }`}
               >
                 {c ?? "All"}
@@ -157,73 +156,85 @@ function Gallery({ projects }: { projects: Project[] }) {
           })}
         </div>
 
-        <p aria-live="polite" className="label-mono md:ml-auto">
-          {filtered.length} / {projects.length}
+        <p aria-live="polite" className="meta-label text-right mb-0 md:ml-auto">
+          {filtered.length} / {projects.length} Published
         </p>
       </div>
 
-      {/* Projects Grid */}
-      <div className="mt-12">
+      {/* Projects Grid with Segerman Editorial Presentation */}
+      <div>
         {filtered.length === 0 ? (
-          <div className="rounded-md border border-dashed border-subtle p-12 text-center space-y-3 bg-surface/30">
+          <div className="rounded-sm border border-dashed border-subtle p-12 text-center space-y-3 bg-surface/30">
             <p className="text-secondary font-medium">Nothing matches that search.</p>
             <button
               onClick={() => {
                 setQuery("");
                 setCat(null);
               }}
-              className="text-xs font-mono text-emerald-400 hover:underline"
+              className="text-xs font-mono text-primary hover:underline uppercase"
             >
               Clear filters
             </button>
           </div>
         ) : (
-          <div className="grid gap-x-10 gap-y-16 md:grid-cols-12 items-start">
+          <div className="grid gap-x-12 gap-y-16 md:grid-cols-12 items-start">
             {filtered.map((p, i) => {
               const idx = projects.indexOf(p);
-              // Asymmetric repeating rhythm: wide lead feature, then offset pair (7 & 5 cols)
-              const pos = i % 3;
-              const span =
-                pos === 0
-                  ? "md:col-span-12"
-                  : pos === 1
-                  ? "md:col-span-7"
-                  : "md:col-span-5 md:mt-20";
+              const isLead = i % 3 === 0;
+              const span = isLead ? "md:col-span-12" : i % 3 === 1 ? "md:col-span-7" : "md:col-span-5 md:mt-12";
 
               return (
-                <div key={p.id} className={span}>
+                <article key={p.id} className={span}>
                   <Link
                     to={`/work/${p.slug}`}
-                    className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-md"
+                    className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded-sm"
                   >
                     <div
-                      className={`overflow-hidden rounded-md border border-subtle transition-colors group-hover:border-emerald-500/60 ${
-                        pos === 0 ? "aspect-[16/10]" : "aspect-[4/3]"
+                      className={`media-wrapper rounded-sm overflow-hidden border border-subtle transition-colors group-hover:border-strong ${
+                        isLead ? "aspect-[1.736/1]" : "aspect-[1.54/1]"
                       }`}
                     >
                       <ProjectCover
                         project={p}
                         index={idx}
-                        size={pos === 0 ? "lg" : "md"}
+                        size={isLead ? "lg" : "md"}
                       />
                     </div>
-                    <div className="mt-5 flex items-start justify-between gap-4">
+
+                    <div className="mt-5 flex items-start justify-between gap-4 border-b border-subtle pb-6">
                       <div>
+                        <div className="flex items-center gap-3 text-xs font-mono text-muted mb-1.5">
+                          <span>0{idx + 1}</span>
+                          <span aria-hidden="true">·</span>
+                          <span className="uppercase text-emerald-400">{p.category || "Case Study"}</span>
+                        </div>
                         <h2
-                          className={`font-display font-bold text-primary ${
-                            pos === 0 ? "text-3xl md:text-5xl" : "text-2xl"
+                          className={`font-display font-bold uppercase tracking-tight text-primary group-hover:opacity-80 transition-opacity ${
+                            isLead ? "text-2xl sm:text-4xl" : "text-xl sm:text-2xl"
                           }`}
                         >
                           {p.title}
                         </h2>
-                        <p className="mt-2 max-w-xl text-sm text-secondary">
-                          {p.role || p.summary}
+                        <p className="mt-2 max-w-2xl text-xs sm:text-sm text-secondary leading-relaxed">
+                          {p.summary}
                         </p>
                       </div>
-                      <ArrowUpRight className="mt-2 h-5 w-5 shrink-0 text-muted transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-emerald-400" />
+
+                      <ArrowUpRight className="mt-2 h-6 w-6 shrink-0 text-muted transition-transform group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-primary" />
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {p.technologies.slice(0, 4).map((tech) => (
+                        <span
+                          key={tech}
+                          className="font-mono text-[0.68rem] uppercase text-muted bg-surface px-2 py-0.5 border border-subtle rounded-sm"
+                        >
+                          {tech}
+                        </span>
+                      ))}
                     </div>
                   </Link>
-                </div>
+                </article>
               );
             })}
           </div>

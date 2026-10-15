@@ -1,34 +1,19 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
 import { Container } from "../components/ui/Container";
-import { SectionLabel } from "../components/ui/SectionLabel";
-import { ProjectCover } from "../components/ui/ProjectCover";
 import { HeadMeta } from "../components/seo/HeadMeta";
 import { profile } from "../content/profile";
 import { usePublishedProjects } from "../lib/projects/PublicProjectsContext";
-import { featuredProjects, publishedOnly, sortForDisplay } from "../lib/projects/selectors";
-import type { Project } from "../lib/projects/types";
-
-const DUALITY = [
-  {
-    side: "Surface",
-    title: "Visual design",
-    items: profile.skills.design,
-  },
-  {
-    side: "Structure",
-    title: "Software engineering",
-    items: [
-      ...profile.skills.engineering.slice(0, 4),
-      ...profile.skills.systems.slice(0, 2),
-    ],
-  },
-];
+import { publishedOnly, sortForDisplay } from "../lib/projects/selectors";
 
 export const Home: React.FC = () => {
-  const { state, reload } = usePublishedProjects();
-  const allProjects = state.status === "ready" ? state.projects : [];
+  const navigate = useNavigate();
+  const { state } = usePublishedProjects();
+  const allProjects = state.status === "ready" ? sortForDisplay(publishedOnly(state.projects)) : [];
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const activeProject = allProjects[activeIndex] || allProjects[0];
 
   const homeJsonLd = {
     "@context": "https://schema.org",
@@ -48,273 +33,305 @@ export const Home: React.FC = () => {
     <>
       <HeadMeta
         title="Visual Design Specialist &amp; Full-Stack Developer"
-        description="Personal portfolio of Kennedy Cheroben — Visual Design Specialist &amp; Full-Stack Developer based in Nairobi, Kenya. Structurally sound underneath, visually considered on the surface."
+        description="Personal portfolio of Kennedy Cheroben — Visual Design Specialist &amp; Full-Stack Developer based in Nairobi, Kenya. Bridging technical engineering with high-craft visual design."
         canonicalPath="/"
         jsonLd={homeJsonLd}
       />
 
-      {/* Opening Hero Section - Full Bleed Portrait with Architectural Masking */}
-      <section className="relative isolate overflow-hidden border-b border-subtle">
-        <picture className="absolute inset-0 -z-10 select-none pointer-events-none">
-          <source media="(max-width: 767px)" srcSet="/images/hero_section_phone.jpeg" />
-          <img
-            src="/images/hero_section.jpeg"
-            alt="Kennedy Cheroben portrait"
-            className="h-full w-full object-cover object-[70%_center] opacity-40 dark:opacity-65 md:object-right"
-            loading="eager"
-            fetchPriority="high"
-          />
-        </picture>
-        <div className="absolute inset-0 -z-10 hidden veil-x md:block" />
-        <div className="absolute inset-0 -z-10 bg-black/50 md:hidden" />
-        <div className="absolute inset-0 -z-10 veil-up md:hidden" />
+      {/* Main Theatrical Stage */}
+      <div className="relative w-full overflow-hidden">
+        {/* Hero Section */}
+        <section className="relative border-b border-subtle pt-16 pb-20 md:pt-24 md:pb-32">
+          <Container>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+              {/* Left Column: Editorial Display Typography */}
+              <div className="lg:col-span-8 flex flex-col justify-between">
+                <div>
+                  <span className="meta-label">
+                    Visual Design Specialist &amp; Full-Stack Developer
+                  </span>
+                  <h1 className="display-segerman text-primary mt-4">
+                    Kennedy
+                    <br />
+                    Cheroben
+                    <span className="sr-only">
+                      {" "}— Bridging technical engineering with high-craft visual design.
+                    </span>
+                  </h1>
 
-        <Container className="flex min-h-[calc(100svh-4rem)] flex-col justify-end pb-12 pt-24 md:justify-center md:pb-24">
-          <h1 className="display-xl animate-rise text-primary">
-            Kennedy
-            <br />
-            Cheroben<span className="text-emerald-400">.</span>
-            <span className="sr-only"> — Bridging technical engineering with high-craft visual design.</span>
-          </h1>
+                  <p className="mt-8 max-w-xl text-lg text-secondary leading-relaxed md:text-xl">
+                    Building resilient, high-performance web applications with refined visual craft
+                    and architectural depth beneath the surface.
+                  </p>
+                </div>
 
-          <p
-            className="mt-8 max-w-xl text-lg text-secondary animate-rise md:text-xl leading-relaxed"
-            style={{ animationDelay: "160ms" }}
-          >
-            <span className="text-primary font-semibold">Visual Design Specialist &amp; Full-Stack Developer.</span>{" "}
-            Structurally sound underneath, visually considered on the surface.
-          </p>
+                {/* Hero Actions & Telemetry */}
+                <div className="mt-12 flex flex-wrap items-center gap-6">
+                  <Link
+                    to="/work"
+                    className="group inline-flex items-center gap-3 border border-primary bg-primary px-6 py-3.5 text-xs font-mono uppercase tracking-wider text-canvas hover:opacity-90 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded-sm"
+                  >
+                    <span>Selected Works</span>
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
 
-          <div
-            className="mt-10 flex flex-wrap gap-4 animate-rise items-center"
-            style={{ animationDelay: "240ms" }}
-          >
-            <Link
-              to="/work"
-              className="group inline-flex h-12 items-center gap-3 rounded-full bg-emerald-500 px-7 text-sm font-semibold text-black transition-all hover:gap-4 hover:bg-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-            >
-              <span>See selected work</span>
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-            <Link
-              to="/contact"
-              className="inline-flex h-12 items-center gap-3 rounded-full border border-subtle bg-surface/60 px-7 text-sm font-semibold text-primary transition-all hover:border-emerald-500/80 hover:text-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-            >
-              Start a project
-            </Link>
-          </div>
+                  <Link
+                    to="/about"
+                    className="inline-flex items-center gap-2 border border-subtle bg-surface px-6 py-3.5 text-xs font-mono uppercase tracking-wider text-primary hover:border-strong transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded-sm"
+                  >
+                    <span>Design Philosophy</span>
+                  </Link>
+                </div>
 
-          <dl className="mt-16 grid max-w-xl grid-cols-2 sm:grid-cols-3 gap-6 border-t border-subtle pt-5">
-            <div>
-              <dt className="label-mono">Based</dt>
-              <dd className="mt-1 text-sm font-medium text-primary">{profile.location}</dd>
+                {/* Structured Metas Grid */}
+                <dl className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-6 border-t border-subtle pt-6">
+                  <div>
+                    <dt className="meta-label">Location</dt>
+                    <dd className="meta-value">{profile.location}</dd>
+                  </div>
+                  <div>
+                    <dt className="meta-label">Practice</dt>
+                    <dd className="meta-value">{profile.experienceYears}</dd>
+                  </div>
+                  <div>
+                    <dt className="meta-label">Discipline</dt>
+                    <dd className="meta-value">UI/UX &amp; Engineering</dd>
+                  </div>
+                  <div>
+                    <dt className="meta-label">Status</dt>
+                    <dd className="meta-value text-emerald-400">Available Q1–Q2</dd>
+                  </div>
+                </dl>
+              </div>
+
+              {/* Right Column: Hero Portrait Media Wrapper */}
+              <div className="lg:col-span-4 hidden lg:block">
+                <div className="media-wrapper aspect-[3/4] rounded-sm shadow-xl">
+                  <picture>
+                    <source media="(max-width: 767px)" srcSet="/images/hero_section_phone.jpeg" />
+                    <img
+                      src="/images/hero_section.jpeg"
+                      alt="Kennedy Cheroben"
+                      className="w-full h-full object-cover grayscale contrast-110"
+                      loading="eager"
+                      fetchPriority="high"
+                    />
+                  </picture>
+                </div>
+                <div className="mt-3 flex justify-between text-[0.7rem] font-mono text-muted">
+                  <span>FIGURE 01</span>
+                  <span>NAIROBI, KE</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <dt className="label-mono">Practice</dt>
-              <dd className="mt-1 text-sm font-medium text-primary">{profile.experienceYears}</dd>
-            </div>
-            <div className="col-span-2 sm:col-span-1">
-              <dt className="label-mono">Focus</dt>
-              <dd className="mt-1 text-sm font-medium text-primary">Design × Code</dd>
-            </div>
-          </dl>
-        </Container>
-      </section>
+          </Container>
+        </section>
 
-      {/* Duality Section: Two Disciplines, One Practice */}
-      <section className="border-b border-subtle bg-canvas">
-        <Container className="py-20 md:py-28">
-          <SectionLabel n="01">Two disciplines, one practice</SectionLabel>
-          <h2 className="mt-6 max-w-4xl text-4xl font-bold font-display leading-tight text-primary md:text-6xl">
-            Most products get one half right. I work on <span className="text-gradient-brand">both halves</span> at once.
-          </h2>
+        {/* Selected Work Section with Segerman Desktop Index & Showcase */}
+        <section className="relative py-20 md:py-28">
+          <Container>
+            <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-subtle pb-6 mb-12">
+              <div>
+                <span className="meta-label">Work Index</span>
+                <h2 className="font-display text-3xl font-bold uppercase tracking-tight text-primary mt-1 md:text-5xl">
+                  Selected Projects
+                </h2>
+              </div>
+              <p className="mt-3 text-xs font-mono text-muted md:mt-0 uppercase">
+                Supabase CMS-Backed Catalog · {allProjects.length} Projects Loaded
+              </p>
+            </div>
 
-          <div className="mt-16 grid border-t border-subtle md:grid-cols-2">
-            {DUALITY.map((d, i) => (
-              <div
-                key={d.side}
-                className={`py-10 ${
-                  i === 0 ? "md:border-r md:pr-10" : "border-t md:border-t-0 md:pl-10"
-                } border-subtle`}
-              >
-                <p className="label-mono">{d.side}</p>
-                <h3 className="mt-3 text-3xl font-bold font-display text-primary">{d.title}</h3>
-                <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-2.5 font-mono text-sm text-secondary">
-                  {d.items.map((s) => (
-                    <li key={s} className="flex items-center gap-1.5">
-                      <span className="text-emerald-400">›</span>
-                      <span>{s}</span>
-                    </li>
-                  ))}
+            {/* Desktop Theatrical Showcase with Synchronized Index */}
+            <div className="hidden lg:grid lg:grid-cols-12 gap-12 items-start">
+              {/* Left/Center 8 cols: Large Active Showcase Card */}
+              {activeProject ? (
+                <div className="lg:col-span-8 flex flex-col">
+                  <Link
+                    to={`/work/${activeProject.slug}`}
+                    className="group block relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded-sm"
+                  >
+                    <div className="media-wrapper aspect-[1.736/1] rounded-sm">
+                      <img
+                        src={activeProject.coverImageUrl || "/images/placeholder.webp"}
+                        alt={activeProject.coverImageAlt || activeProject.title}
+                        className="w-full h-full object-cover"
+                        loading="eager"
+                      />
+                    </div>
+                  </Link>
+
+                  <div className="mt-6 flex items-start justify-between border-b border-subtle pb-8">
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-xs text-muted">
+                          0{activeIndex + 1} / 0{allProjects.length}
+                        </span>
+                        <span className="text-muted" aria-hidden="true">·</span>
+                        <span className="font-mono text-xs text-emerald-400 uppercase">
+                          {activeProject.category || "Full-Stack Web"}
+                        </span>
+                      </div>
+                      <Link
+                        to={`/work/${activeProject.slug}`}
+                        className="group inline-flex items-center gap-3 mt-2 text-primary focus-visible:outline-none"
+                      >
+                        <h3 className="font-display text-3xl font-bold uppercase tracking-tight group-hover:opacity-80 transition-opacity">
+                          {activeProject.title}
+                        </h3>
+                        <ArrowUpRight className="h-6 w-6 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                      </Link>
+                      <p className="mt-2 text-sm text-secondary max-w-2xl leading-relaxed">
+                        {activeProject.summary}
+                      </p>
+                    </div>
+
+                    <Link
+                      to={`/work/${activeProject.slug}`}
+                      className="shrink-0 border border-subtle bg-surface px-5 py-2.5 text-xs font-mono uppercase tracking-wider text-primary hover:border-strong transition-colors rounded-sm"
+                    >
+                      Case Study
+                    </Link>
+                  </div>
+
+                  {/* Active Project Tech Badges */}
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {activeProject.technologies.map((tech) => (
+                      <span
+                        key={tech}
+                        className="font-mono text-[0.7rem] uppercase text-muted bg-surface px-2.5 py-1 border border-subtle rounded-sm"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="lg:col-span-8 p-12 border border-subtle text-center text-muted font-mono text-sm">
+                  Loading projects from Supabase...
+                </div>
+              )}
+
+              {/* Right 4 cols: Segerman Signature Index List */}
+              <div className="lg:col-span-4 sticky top-28 flex flex-col items-end">
+                <span className="meta-label mb-4 text-right">Quick Index</span>
+                <ul className="flex flex-col items-end gap-2 list-none w-full">
+                  {allProjects.map((project, idx) => {
+                    const isSelected = idx === activeIndex;
+                    return (
+                      <li key={project.id} className="w-full text-right">
+                        <button
+                          type="button"
+                          onMouseEnter={() => setActiveIndex(idx)}
+                          onFocus={() => setActiveIndex(idx)}
+                          onClick={() => navigate(`/work/${project.slug}`)}
+                          className={`w-full py-2 px-3 text-right text-sm transition-all rounded-sm flex items-center justify-end gap-3 ${
+                            isSelected
+                              ? "bg-surface text-primary font-bold border-r-2 border-primary"
+                              : "text-muted hover:text-primary hover:bg-surface/50"
+                          }`}
+                        >
+                          <span className="font-mono text-xs text-muted">0{idx + 1}</span>
+                          <span className="font-display tracking-tight text-base uppercase">
+                            {project.title}
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </section>
 
-      {/* Selected Work Section: Dynamic Case Studies */}
-      <section className="bg-canvas">
-        <Container className="py-20 md:py-28">
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <div>
-              <SectionLabel n="02">Selected work</SectionLabel>
-              <h2 className="mt-6 text-4xl font-bold font-display text-primary md:text-6xl">
-                Case files
-              </h2>
+                {/* Direct Link to full catalog */}
+                <div className="mt-10 pt-6 border-t border-subtle w-full text-right">
+                  <Link
+                    to="/work"
+                    className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-secondary hover:text-primary transition-colors link-underline"
+                  >
+                    <span>View all case studies</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+              </div>
             </div>
-            <Link
-              to="/work"
-              className="link-underline text-sm font-mono text-secondary hover:text-primary transition-colors"
-            >
-              View full index →
-            </Link>
-          </div>
 
-          <div className="mt-14">
-            {state.status === "loading" || state.status === "idle" ? (
-              <div role="status" aria-label="Loading projects" className="space-y-4">
-                {[1, 2, 3].map((n) => (
-                  <div key={n} className="h-28 animate-pulse rounded-md bg-surface" />
-                ))}
-              </div>
-            ) : state.status === "error" ? (
-              <div
-                role="alert"
-                className="flex flex-col items-start gap-4 rounded-md border border-rose-500/30 p-6 bg-surface"
-              >
-                <p className="font-medium text-rose-400">Projects couldn't load.</p>
-                <p className="font-mono text-xs text-muted">{state.message}</p>
-                <button
-                  onClick={reload}
-                  className="rounded-full border border-subtle px-4 py-2 text-sm text-primary hover:border-emerald-500 transition-colors"
+            {/* Mobile / Tablet Vertical Project Stack */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:hidden">
+              {allProjects.map((project, idx) => (
+                <article
+                  key={project.id}
+                  className="flex flex-col border border-subtle bg-surface p-4 rounded-sm"
                 >
-                  Try again
-                </button>
+                  <Link
+                    to={`/work/${project.slug}`}
+                    className="block relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded-sm"
+                  >
+                    <div className="media-wrapper aspect-[1.736/1]">
+                      <img
+                        src={project.coverImageUrl || "/images/placeholder.webp"}
+                        alt={project.coverImageAlt || project.title}
+                        className="w-full h-full object-cover"
+                        loading={idx < 2 ? "eager" : "lazy"}
+                      />
+                    </div>
+                  </Link>
+
+                  <div className="mt-4 flex items-center justify-between text-xs font-mono text-muted">
+                    <span>0{idx + 1}</span>
+                    <span className="uppercase text-emerald-400">{project.category || "Project"}</span>
+                  </div>
+
+                  <Link
+                    to={`/work/${project.slug}`}
+                    className="group mt-2 inline-flex items-baseline justify-between text-primary"
+                  >
+                    <h3 className="font-display text-xl font-bold uppercase tracking-tight group-hover:opacity-80">
+                      {project.title}
+                    </h3>
+                    <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+
+                  <p className="mt-2 text-xs text-secondary line-clamp-2 leading-relaxed">
+                    {project.summary}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </Container>
+        </section>
+
+        {/* Philosophy & Capabilities Statement */}
+        <section className="border-t border-subtle py-20 md:py-28 bg-surface/30">
+          <Container>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-baseline">
+              <div className="lg:col-span-4">
+                <span className="meta-label">Engineering Discipline</span>
+                <h2 className="font-display text-2xl font-bold uppercase tracking-tight text-primary mt-2 sm:text-3xl">
+                  Surface &amp; Structure
+                </h2>
               </div>
-            ) : (
-              <SelectedWorkGrid projects={allProjects} />
-            )}
-          </div>
-        </Container>
-      </section>
+
+              <div className="lg:col-span-8 space-y-6 text-base text-secondary leading-relaxed md:text-lg">
+                <p>
+                  Most digital products suffer either from visual neglect or technical fragility.
+                  My practice bridges this gap: architecting robust databases, secure authorization
+                  enclaves, and performant APIs underneath, while sculpting disciplined typography,
+                  responsive grids, and deliberate micro-interactions on the surface.
+                </p>
+                <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-6 font-mono text-xs text-muted">
+                  <div className="border-l border-subtle pl-4">
+                    <p className="text-primary font-bold uppercase mb-1">01 / Visual Design</p>
+                    <p>Design Systems, Figma Token Sync, Typographic Hierarchy, WCAG 2.2 AA Contrast.</p>
+                  </div>
+                  <div className="border-l border-subtle pl-4">
+                    <p className="text-primary font-bold uppercase mb-1">02 / Technical Engineering</p>
+                    <p>React 19, TypeScript, PostgreSQL / Supabase, Cloudflare, Node.js, Zero-Discrepancy SSG.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Container>
+        </section>
+      </div>
     </>
   );
 };
-
-function SelectedWorkGrid({ projects }: { projects: Project[] }) {
-  const published = sortForDisplay(publishedOnly(projects));
-  const featured = featuredProjects(published, 3);
-  const rest = published.filter((p) => !featured.some((f) => f.id === p.id));
-
-  if (published.length === 0) {
-    return (
-      <div className="rounded-md border border-dashed border-subtle p-12 text-center space-y-3 bg-surface/30">
-        <p className="text-secondary font-medium text-lg font-display">New case studies are being prepared.</p>
-        <p className="text-xs font-mono text-muted max-w-md mx-auto">
-          Portfolio projects are managed directly through the admin dashboard and will display here once published.
-        </p>
-        <div className="pt-2 flex justify-center gap-3">
-          <Link
-            to="/contact"
-            className="rounded-full border border-subtle px-4 py-2 text-xs font-mono text-primary hover:border-emerald-400 transition-colors"
-          >
-            Start a project inquiry
-          </Link>
-          <Link
-            to="/admin/login"
-            className="rounded-full border border-subtle px-4 py-2 text-xs font-mono text-muted hover:text-primary transition-colors"
-          >
-            Admin Sign In
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const [lead, ...pair] = featured;
-
-  return (
-    <>
-      {lead && (
-        <ProjectTile project={lead} index={published.indexOf(lead)} variant="feature" />
-      )}
-
-      {pair.length > 0 && (
-        <div className="mt-16 grid gap-12 md:grid-cols-12 items-start">
-          {pair.map((p, i) => (
-            <div
-              key={p.id}
-              className={i === 0 ? "md:col-span-7" : "md:col-span-5 md:mt-24"}
-            >
-              <ProjectTile project={p} index={published.indexOf(p)} variant="tile" />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {rest.length > 0 && (
-        <div className="mt-20 border-b border-subtle">
-          <p className="mb-4 label-mono">Also in the archive</p>
-          {rest.map((p) => (
-            <Link
-              key={p.id}
-              to={`/work/${p.slug}`}
-              className="group grid grid-cols-[auto_1fr_auto] items-baseline gap-4 border-t border-subtle py-6 transition-colors hover:bg-surface/50 md:grid-cols-[4rem_1.2fr_1fr_auto] md:gap-8 md:px-3"
-            >
-              <span className="font-mono text-xs text-emerald-400">
-                {String(published.indexOf(p) + 1).padStart(2, "0")}
-              </span>
-              <span className="font-display text-2xl font-bold tracking-tight text-primary md:text-3xl">
-                {p.title}
-              </span>
-              <span className="col-span-3 row-start-2 text-sm text-secondary md:col-span-1 md:row-start-auto">
-                {p.category}
-              </span>
-              <ArrowUpRight className="col-start-3 row-start-1 h-5 w-5 text-muted transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-emerald-400 md:col-start-auto" />
-            </Link>
-          ))}
-        </div>
-      )}
-    </>
-  );
-}
-
-function ProjectTile({
-  project,
-  index,
-  variant = "tile",
-}: {
-  project: Project;
-  index: number;
-  variant?: "feature" | "tile";
-}) {
-  return (
-    <Link to={`/work/${project.slug}`} className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-md">
-      <div
-        className={`overflow-hidden rounded-md border border-subtle transition-colors group-hover:border-emerald-500/60 ${
-          variant === "feature" ? "aspect-[16/10]" : "aspect-[4/3]"
-        }`}
-      >
-        <ProjectCover
-          project={project}
-          index={index}
-          size={variant === "feature" ? "lg" : "md"}
-        />
-      </div>
-      <div className="mt-5 flex items-start justify-between gap-4">
-        <div>
-          <h3
-            className={`font-display font-bold text-primary ${
-              variant === "feature" ? "text-3xl md:text-5xl" : "text-2xl"
-            }`}
-          >
-            {project.title}
-          </h3>
-          <p className="mt-2 max-w-xl text-sm text-secondary">{project.role}</p>
-        </div>
-        <ArrowUpRight className="mt-2 h-5 w-5 shrink-0 text-muted transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-emerald-400" />
-      </div>
-    </Link>
-  );
-}

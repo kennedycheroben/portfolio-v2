@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Compass, BookOpen, ShieldCheck, Mail, ArrowRight } from "lucide-react";
+import { Compass, BookOpen, ShieldCheck, Mail, ArrowRight, ArrowLeft } from "lucide-react";
 import { Container } from "../components/ui/Container";
-import { SectionLabel } from "../components/ui/SectionLabel";
 import { HeadMeta } from "../components/seo/HeadMeta";
+import { profile } from "../content/profile";
 
 interface GuideSection {
   id: string;
@@ -49,7 +49,7 @@ const VISITOR_SECTIONS: GuideSection[] = [
       "Complete the form: Provide your name, verified email address, select a scope of engagement, and describe your project requirements.",
       "Input validation: Submissions are checked for validity and protected by anti-bot honeypot and rate limiting.",
       "Review & Response: Direct inquiries are reviewed personally. You can expect a response within 24 to 48 business hours (EAT, UTC+3).",
-      "Alternative Contact: You can also reach out directly via email at kennedycheroben001@gmail.com.",
+      `Alternative Contact: You can also reach out directly via email at ${profile.email}.`,
     ],
   },
   {
@@ -94,100 +94,113 @@ export const Guide: React.FC = () => {
         canonicalPath="/guide"
       />
 
-      <section className="relative isolate overflow-hidden border-b border-subtle bg-canvas">
-        <Container className="py-16 md:py-24">
-          <SectionLabel n="05">Handbook</SectionLabel>
-          <h1 className="mt-6 text-4xl sm:text-5xl md:text-6xl font-extrabold font-display leading-[0.96] text-primary animate-rise">
-            Visitor Guide &amp; FAQ<span className="text-emerald-400">.</span>
-          </h1>
-          <p className="mt-4 text-lg text-secondary max-w-2xl leading-relaxed">
-            A practical guide to exploring this portfolio, understanding the case studies, and initiating a collaboration.
-          </p>
-        </Container>
-      </section>
+      <div className="relative w-full overflow-hidden bg-canvas">
+        <section className="pt-12 pb-16 md:pt-20 md:pb-20 border-b border-subtle">
+          <Container>
+            <div className="flex items-center justify-between mb-8">
+              <Link
+                to="/work"
+                className="group inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-muted hover:text-primary transition-colors"
+              >
+                <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" />
+                <span className="link-underline">Index</span>
+              </Link>
+              <span className="meta-label">05 / Visitor Handbook</span>
+            </div>
 
-      <section className="py-16 md:py-24 bg-canvas">
-        <Container className="space-y-20 max-w-5xl">
-          {/* Main Visitor Sections */}
-          <div className="grid gap-10 md:grid-cols-2">
-            {VISITOR_SECTIONS.map((sec) => {
-              const Icon = sec.icon;
-              return (
-                <div
-                  key={sec.id}
-                  className="rounded-md border border-subtle bg-surface/30 p-8 flex flex-col justify-between space-y-6"
-                >
-                  <div>
-                    <div className="flex items-center gap-3 text-emerald-400">
-                      <Icon className="h-5 w-5" />
-                      <span className="label-mono">Guide Section</span>
+            <h1 className="display-segerman text-primary">
+              Visitor Guide &amp; FAQ
+            </h1>
+            <p className="mt-6 text-lg text-secondary max-w-2xl leading-relaxed">
+              A practical guide to exploring this portfolio, understanding the case studies, and initiating a collaboration.
+            </p>
+          </Container>
+        </section>
+
+        <section className="py-16 md:py-24">
+          <Container className="space-y-20 max-w-5xl">
+            {/* Main Visitor Sections */}
+            <div className="grid gap-8 md:grid-cols-2">
+              {VISITOR_SECTIONS.map((sec) => {
+                const Icon = sec.icon;
+                return (
+                  <div
+                    key={sec.id}
+                    className="rounded-sm border border-subtle bg-surface p-8 flex flex-col justify-between space-y-6"
+                  >
+                    <div>
+                      <div className="flex items-center gap-2.5 text-primary">
+                        <Icon className="h-4 w-4" />
+                        <span className="meta-label mb-0">Guide Section</span>
+                      </div>
+                      <h2 className="mt-4 text-xl font-bold font-display uppercase tracking-tight text-primary">
+                        {sec.title}
+                      </h2>
+                      <p className="mt-2 text-sm text-secondary leading-relaxed">
+                        {sec.summary}
+                      </p>
+                      <ul className="mt-6 space-y-2.5 text-xs text-muted leading-relaxed list-none p-0">
+                        {sec.steps.map((st, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <span className="text-primary font-mono select-none">›</span>
+                            <span>{st}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <h2 className="mt-3 text-2xl font-bold font-display text-primary">
-                      {sec.title}
-                    </h2>
-                    <p className="mt-2 text-sm text-secondary leading-relaxed">
-                      {sec.summary}
-                    </p>
-                    <ul className="mt-6 space-y-2.5 text-xs text-secondary leading-relaxed">
-                      {sec.steps.map((st, i) => (
-                        <li key={i} className="flex items-start gap-2">
-                          <span className="text-emerald-400 font-mono mt-0.5">›</span>
-                          <span>{st}</span>
-                        </li>
-                      ))}
-                    </ul>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Frequently Asked Questions */}
-          <div className="border-t border-subtle pt-16 space-y-8">
-            <div>
-              <SectionLabel n="FAQ">Common Questions</SectionLabel>
-              <h2 className="mt-4 text-3xl font-bold font-display text-primary">
-                Frequently Asked Questions
-              </h2>
+                );
+              })}
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
-              {FAQS.map((faq, idx) => (
-                <div
-                  key={idx}
-                  className="rounded-md border border-subtle bg-surface p-6 space-y-3"
-                >
-                  <h3 className="text-lg font-bold font-display text-primary">
-                    {faq.q}
-                  </h3>
-                  <p className="text-sm text-secondary leading-relaxed">
-                    {faq.a}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
+            {/* Frequently Asked Questions */}
+            <div className="border-t border-subtle pt-16 space-y-8">
+              <div>
+                <span className="meta-label">Common Questions</span>
+                <h2 className="mt-2 text-2xl sm:text-3xl font-bold font-display uppercase tracking-tight text-primary">
+                  Frequently Asked Questions
+                </h2>
+              </div>
 
-          {/* Call to action */}
-          <div className="rounded-md border border-emerald-500/30 bg-surface/50 p-8 sm:p-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <div>
-              <h3 className="text-2xl font-bold font-display text-primary">
-                Ready to discuss a project?
-              </h3>
-              <p className="text-secondary text-sm mt-1 max-w-lg">
-                Submit an inquiry via the contact form or email directly to get the conversation started.
-              </p>
+              <div className="grid gap-6 md:grid-cols-2">
+                {FAQS.map((faq, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-sm border border-subtle bg-surface p-6 space-y-3"
+                  >
+                    <h3 className="text-base font-bold font-display uppercase tracking-tight text-primary">
+                      {faq.q}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-secondary leading-relaxed">
+                      {faq.a}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
-            <Link
-              to="/contact"
-              className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-6 py-3 text-sm font-semibold text-black hover:bg-emerald-400 transition-colors"
-            >
-              <span>Get in touch</span>
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </Container>
-      </section>
+
+            {/* Call to action */}
+            <div className="rounded-sm border border-subtle bg-surface p-8 sm:p-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+              <div>
+                <span className="meta-label">Next Step</span>
+                <h3 className="text-2xl font-bold font-display uppercase tracking-tight text-primary mt-1">
+                  Ready to discuss a project?
+                </h3>
+                <p className="text-secondary text-sm mt-1 max-w-lg">
+                  Submit an inquiry via the contact form or email directly to begin technical scoping.
+                </p>
+              </div>
+              <Link
+                to="/contact"
+                className="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-3 text-xs font-mono uppercase tracking-wider font-bold text-canvas hover:opacity-90 transition-opacity"
+              >
+                <span>Transmit Inquiry</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </Container>
+        </section>
+      </div>
     </>
   );
 };

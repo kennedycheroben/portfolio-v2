@@ -1,86 +1,87 @@
 :root {
   /* =========================================================================
-     DARK THEME (DEFAULT / BASELINE)
+     SEGERMAN ARCHITECTURAL DESIGN SYSTEM (KENNEDY CHEROBEN EDITORIAL)
      ========================================================================= */
-  --bg-canvas: #090d10;              /* Deep obsidian slate */
-  --bg-surface: #10161b;             /* Elevated card background */
-  --bg-surface-elevated: #161f26;    /* Secondary elevation / hover */
-  --bg-glass: rgba(16, 22, 27, 0.75);/* Frosted glass overlay */
-  --border-subtle: rgba(255, 255, 255, 0.08); /* Architectural hairline border */
-  --border-focus: rgba(16, 185, 129, 0.6);   /* Accessible active focus ring */
 
-  --text-primary: #f0f6fc;           /* Crisp high-contrast heading text (14.2:1) */
-  --text-secondary: #94a3b8;         /* Subheading and descriptive body (6.8:1) */
-  --text-muted: #64748b;             /* Metadata, timestamps, captions (4.6:1) */
+  /* Segerman Signature Color Foundations */
+  --c-black: #00031F;              /* Deep midnight obsidian navy */
+  --c-white: #ffffff;              /* Pure crisp porcelain white */
 
-  /* Brand Accents */
-  --accent-emerald: #10b981;         /* Primary brand accent (terminal emerald) */
-  --accent-emerald-glow: rgba(16, 185, 129, 0.25);
-  --accent-cyan: #06b6d4;            /* Secondary system accent (cyber cyan) */
-  --accent-cyan-glow: rgba(6, 182, 212, 0.20);
-  --accent-amber: #f59e0b;           /* Warning / Attention indicator */
-  --accent-rose: #f43f5e;            /* Error / Alert indicator */
+  /* Dark Theme (Default) */
+  --bg-canvas: #00031F;            /* Midnight canvas */
+  --bg-surface: #050a2b;           /* Structural surface */
+  --bg-surface-elevated: #0c1340;  /* Elevated card / hover state */
+  --bg-glass: rgba(0, 3, 31, 0.88);/* Crisp architectural glass */
+  --border-subtle: rgba(255, 255, 255, 0.12); /* Hairline border */
+  --border-strong: rgba(255, 255, 255, 0.28); /* Focused border */
+  --border-focus: #ffffff;
 
-  /* Gradients */
-  --gradient-brand: linear-gradient(100deg, #34d399 0%, #22d3ee 100%);
-  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
-  --glow-hero: radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.12) 0%, transparent 70%);
+  --text-primary: #ffffff;         /* Pure white contrast (19.8:1) */
+  --text-secondary: rgba(255, 255, 255, 0.72); /* Supporting editorial text */
+  --text-muted: rgba(255, 255, 255, 0.45);     /* Meta, dates, labels (5.1:1) */
 
-  /* Lovable Engineering Dossier Photo Veils & Grids */
-  --grid-line: rgba(255, 255, 255, 0.04);
-  --photo-veil: linear-gradient(90deg, var(--bg-canvas) 0%, rgba(9, 13, 16, 0.75) 45%, transparent 75%);
-  --photo-veil-up: linear-gradient(0deg, var(--bg-canvas) 0%, rgba(9, 13, 16, 0.65) 50%, transparent 100%);
+  /* Accents */
+  --accent-emerald: #10b981;       /* Operational status indicator */
+  --accent-cyan: #06b6d4;          /* Secondary accent */
 
-  /* Radii Tokens */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-pill: 9999px;
+  /* Segerman Measured Layout Spacers & Aspect Ratios */
+  --col: 11.8rem;
+  --unit: 2.4rem;
+  --ar: 1.736 / 1;
 
-  /* Fonts */
-  --font-family-display: "Syne", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-family-body: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-family-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  /* Typography */
+  --font-family-display: "Syne", "Newake", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-body: "Plus Jakarta Sans", "Aktiv Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Motion */
-  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-base: 250ms cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-slow: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* Motion & Easing Curves (Aligned with Segerman GSAP measurements) */
+  --ease-cinematic: cubic-bezier(0.76, 0, 0.24, 1); /* power3.inOut */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);       /* power2.out */
+  --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);     /* power1.out */
+  
+  --dur-fast: 200ms;
+  --dur-base: 400ms;
+  --dur-scenic: 1100ms;
+
+  --transition-fast: var(--dur-fast) var(--ease-out);
+  --transition-base: var(--dur-base) var(--ease-out);
+  --transition-slow: var(--dur-scenic) var(--ease-cinematic);
 
   color-scheme: dark;
 }
 
+/* Tablet & Coarse Pointer (<1100px or touch) */
+@media screen and (max-width: 1099px), screen and (max-width: 1365px) and (pointer: coarse) {
+  :root {
+    --col: 10.5rem;
+    --unit: 2rem;
+  }
+}
+
+/* Mobile (<768px) */
+@media screen and (max-width: 767px) {
+  :root {
+    --col: 7.4rem;
+    --unit: 1.6rem;
+  }
+}
+
 [data-theme="light"] {
-  /* =========================================================================
-     LIGHT THEME (ACCESSIBLE INVERSION)
-     ========================================================================= */
-  --bg-canvas: #f8fafc;              /* Crisp clean porcelain */
-  --bg-surface: #ffffff;             /* Crisp white surface cards */
-  --bg-surface-elevated: #f1f5f9;    /* Elevated surface */
-  --bg-glass: rgba(255, 255, 255, 0.85); /* Frosted light overlay */
-  --border-subtle: rgba(0, 0, 0, 0.08);
-  --border-focus: rgba(5, 150, 105, 0.8);
+  /* Light Theme (Accessible Clean Editorial Inversion) */
+  --bg-canvas: #ffffff;
+  --bg-surface: #f7f8fb;
+  --bg-surface-elevated: #ebeef5;
+  --bg-glass: rgba(255, 255, 255, 0.92);
+  --border-subtle: rgba(0, 3, 31, 0.10);
+  --border-strong: rgba(0, 3, 31, 0.25);
+  --border-focus: #00031F;
 
-  --text-primary: #0f172a;           /* Deep obsidian ink (15.5:1) */
-  --text-secondary: #334155;         /* Charcoal body text (8.5:1) */
-  --text-muted: #64748b;             /* Supporting slate (4.8:1) */
+  --text-primary: #00031F;
+  --text-secondary: rgba(0, 3, 31, 0.72);
+  --text-muted: rgba(0, 3, 31, 0.45);
 
-  /* Brand Accents (Darkened for contrast on light background) */
-  --accent-emerald: #059669;         /* Dark emerald (4.8:1 on #ffffff) */
-  --accent-emerald-glow: rgba(5, 150, 105, 0.18);
-  --accent-cyan: #0891b2;            /* Deep cyan (5.2:1 on #ffffff) */
-  --accent-cyan-glow: rgba(8, 145, 178, 0.15);
-  --accent-amber: #d97706;
-  --accent-rose: #e11d48;
-
-  --gradient-brand: linear-gradient(100deg, #059669 0%, #0891b2 100%);
-  --gradient-glass: linear-gradient(135deg, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0.01) 100%);
-  --glow-hero: radial-gradient(circle at 50% 30%, rgba(5, 150, 105, 0.08) 0%, transparent 70%);
-
-  --grid-line: rgba(0, 0, 0, 0.05);
-  --photo-veil: linear-gradient(90deg, var(--bg-canvas) 0%, rgba(248, 250, 252, 0.75) 45%, transparent 75%);
-  --photo-veil-up: linear-gradient(0deg, var(--bg-canvas) 0%, rgba(248, 250, 252, 0.65) 50%, transparent 100%);
+  --accent-emerald: #059669;
+  --accent-cyan: #0891b2;
 
   color-scheme: light;
 }

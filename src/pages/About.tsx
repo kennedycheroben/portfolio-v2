@@ -1,23 +1,22 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 import { Container } from "../components/ui/Container";
-import { SectionLabel } from "../components/ui/SectionLabel";
 import { HeadMeta } from "../components/seo/HeadMeta";
 import { profile } from "../content/profile";
 
 const PRINCIPLES = [
   {
-    k: "Structure first",
-    v: "Data models, access rules and failure states are designed before pixels — so the interface never has to lie about what the system can do.",
+    k: "Structure First",
+    v: "Data models, authorization boundaries, and failure states are architected before pixels — ensuring the interface never misrepresents system capabilities.",
   },
   {
-    k: "Craft is visible",
-    v: "Typography, spacing and motion are treated as functional decisions that carry meaning, not as decoration applied at the end.",
+    k: "Craft as Function",
+    v: "Typography, rhythmic spacing, and purposeful motion are treated as communicative decisions that carry meaning, not superficial decoration.",
   },
   {
-    k: "Accessible by default",
-    v: "Readable contrast, keyboard paths and reduced-motion support are part of the definition of done.",
+    k: "Accessible by Standard",
+    v: "Rigorous contrast ratios, semantic HTML, keyboard paths, and reduced-motion fallbacks are treated as mandatory baseline quality.",
   },
 ];
 
@@ -32,102 +31,158 @@ export const About: React.FC = () => {
         canonicalPath="/about"
       />
 
-      {/* Hero Opening */}
-      <section className="relative isolate overflow-hidden border-b border-subtle bg-canvas">
-        <Container className="grid gap-10 py-16 md:grid-cols-12 md:items-end md:py-24">
-          <div className="md:col-span-7">
-            <SectionLabel n="02">About</SectionLabel>
-            <h1 className="mt-6 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold font-display leading-[0.96] text-primary animate-rise">
-              Between the <span className="text-gradient-brand">wireframe</span> and the <span className="italic">schema</span>.
-              <span className="sr-only"> — Structural integrity beneath the surface, visual craft on top.</span>
-            </h1>
-          </div>
-          <p className="text-lg text-secondary md:col-span-5 leading-relaxed">
-            {lead}
-          </p>
-        </Container>
-
-        <div className="relative border-t border-subtle overflow-hidden bg-black/20">
-          <picture className="block">
-            <source media="(max-width: 767px)" srcSet="/images/about_section_phone.jpeg" />
-            <img
-              src="/images/about_section.jpeg"
-              alt="Kennedy Cheroben"
-              className="aspect-[4/5] w-full object-cover object-[center_35%] md:aspect-[21/9] dark:opacity-90"
-              loading="lazy"
-            />
-          </picture>
-          <div className="absolute inset-0 pointer-events-none ring-1 ring-inset ring-white/10 dark:ring-white/5" />
-        </div>
-      </section>
-
-      {/* Practice Narrative */}
-      <Container className="grid gap-12 py-20 md:grid-cols-12 md:py-28">
-        <div className="md:col-span-4">
-          <SectionLabel n="A">Practice</SectionLabel>
-        </div>
-        <div className="space-y-6 text-xl leading-relaxed text-secondary md:col-span-8 md:text-2xl font-light">
-          {rest.map((p, idx) => (
-            <p key={idx}>{p}</p>
-          ))}
-        </div>
-      </Container>
-
-      {/* Working Principles */}
-      <section className="border-y border-subtle bg-surface/50">
-        <Container className="py-20 md:py-28">
-          <SectionLabel n="B">Working principles</SectionLabel>
-          <ol className="mt-12 grid gap-px overflow-hidden rounded-md border border-subtle bg-subtle md:grid-cols-3">
-            {PRINCIPLES.map((p, i) => (
-              <li key={p.k} className="bg-canvas p-8 flex flex-col justify-between">
-                <div>
-                  <span className="font-mono text-xs text-emerald-400">0{i + 1}</span>
-                  <h2 className="mt-6 text-2xl font-bold font-display text-primary">{p.k}</h2>
-                  <p className="mt-3 text-secondary leading-relaxed text-sm">{p.v}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </Container>
-      </section>
-
-      {/* Capabilities Matrix */}
-      <Container className="py-20 md:py-28">
-        <SectionLabel n="C">Capabilities</SectionLabel>
-        <div className="mt-12 grid gap-12 md:grid-cols-3">
-          {(Object.entries(profile.skills) as [string, string[]][]).map(([group, items]) => (
-            <div key={group}>
-              <h3 className="border-b border-subtle pb-3 text-xl font-bold font-display text-primary capitalize">
-                {group}
-              </h3>
-              <ul className="mt-4 space-y-2.5 font-mono text-sm text-secondary">
-                {items.map((s) => (
-                  <li key={s} className="flex items-center gap-1.5">
-                    <span className="text-emerald-400">›</span>
-                    <span>{s}</span>
-                  </li>
-                ))}
-              </ul>
+      <div className="relative w-full overflow-hidden bg-canvas">
+        {/* Segerman Giant Editorial Heading & Hero */}
+        <section className="pt-12 pb-20 md:pt-20 md:pb-32 border-b border-subtle">
+          <Container>
+            <div className="flex items-center justify-between mb-10">
+              <Link
+                to="/work"
+                className="group inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-muted hover:text-primary transition-colors"
+              >
+                <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" />
+                <span className="link-underline">Index</span>
+              </Link>
+              <span className="meta-label">About · Practice Dossier</span>
             </div>
-          ))}
-        </div>
 
-        <div className="mt-16 flex flex-wrap gap-4 items-center">
-          <Link
-            to="/work"
-            className="group inline-flex h-12 items-center gap-3 rounded-full bg-emerald-500 px-7 text-sm font-semibold text-black transition-all hover:gap-4 hover:bg-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-          >
-            <span>See the work</span>
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-          <Link
-            to="/resume"
-            className="inline-flex h-12 items-center gap-3 rounded-full border border-subtle px-7 text-sm font-semibold text-primary transition-all hover:border-emerald-500 hover:text-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-          >
-            Read the resume
-          </Link>
-        </div>
-      </Container>
+            {/* Giant Title with Segerman Stagger */}
+            <div>
+              <h1 className="display-giant text-primary">
+                About
+                <span className="sr-only">
+                  {" "}— Structural integrity beneath the surface, visual craft on top.
+                </span>
+              </h1>
+            </div>
+
+            {/* Lead Narrative & Asymmetric Media Card */}
+            <div className="mt-14 grid gap-12 lg:grid-cols-12 items-start">
+              <div className="lg:col-span-7 space-y-6">
+                <p className="text-xl sm:text-2xl text-primary font-light leading-relaxed">
+                  {lead}
+                </p>
+                <p className="text-base sm:text-lg text-secondary leading-relaxed">
+                  Based in <strong className="text-primary font-semibold">Nairobi, Kenya</strong>,
+                  I operate at the intersection of structural engineering and fine visual design.
+                  I believe software should be as resilient and architecturally honest underneath
+                  as it is compelling on the surface.
+                </p>
+              </div>
+
+              {/* Media Card */}
+              <div className="lg:col-span-5">
+                <div className="media-wrapper aspect-[4/5] rounded-sm shadow-xl">
+                  <picture>
+                    <source media="(max-width: 767px)" srcSet="/images/about_section_phone.jpeg" />
+                    <img
+                      src="/images/about_section.jpeg"
+                      alt="Kennedy Cheroben"
+                      className="w-full h-full object-cover grayscale contrast-110"
+                      loading="lazy"
+                    />
+                  </picture>
+                </div>
+                <div className="mt-3 flex justify-between text-[0.7rem] font-mono text-muted">
+                  <span>FIGURE 02</span>
+                  <span>NAIROBI, KENYA</span>
+                </div>
+              </div>
+            </div>
+          </Container>
+        </section>
+
+        {/* Practice Narrative */}
+        <section className="py-20 md:py-28 border-b border-subtle">
+          <Container className="grid gap-12 lg:grid-cols-12">
+            <div className="lg:col-span-4">
+              <span className="meta-label">Practice Narrative</span>
+              <h2 className="font-display text-2xl font-bold uppercase tracking-tight text-primary mt-2">
+                Engineering Discipline
+              </h2>
+            </div>
+            <div className="space-y-6 text-base sm:text-lg text-secondary leading-relaxed lg:col-span-8 font-light">
+              {rest.map((p, idx) => (
+                <p key={idx}>{p}</p>
+              ))}
+            </div>
+          </Container>
+        </section>
+
+        {/* Segerman Structured Metas: Tools & Credentials */}
+        <section className="py-20 md:py-28 border-b border-subtle bg-surface/30">
+          <Container>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+              <div>
+                <span className="meta-label">Core Tools &amp; Stack</span>
+                <p className="mt-3 text-sm text-secondary leading-relaxed">
+                  React 19, TypeScript, PostgreSQL, Supabase, Tailwind CSS, Vite, Node.js,
+                  Vitest, Zod, Figma, GSAP, Linux, Cloudflare Workers.
+                </p>
+              </div>
+
+              <div>
+                <span className="meta-label">Engineering Focus</span>
+                <p className="mt-3 text-sm text-secondary leading-relaxed">
+                  Design Systems, Relational Schemas, Authentication Enclaves, Static Site Generation,
+                  Zero Hydration Discrepancy, WCAG 2.2 AA Accessibility.
+                </p>
+              </div>
+
+              <div>
+                <span className="meta-label">Location &amp; Status</span>
+                <p className="mt-3 text-sm text-secondary leading-relaxed">
+                  Nairobi, Kenya · East Africa Time (UTC+3)
+                  <br />
+                  <span className="text-emerald-400 font-mono text-xs">Available for Q1–Q2 2026</span>
+                </p>
+              </div>
+            </div>
+          </Container>
+        </section>
+
+        {/* Working Principles */}
+        <section className="py-20 md:py-28">
+          <Container>
+            <span className="meta-label">Methodology</span>
+            <h2 className="font-display text-3xl font-bold uppercase tracking-tight text-primary mt-2">
+              Working Principles
+            </h2>
+
+            <div className="mt-12 grid gap-8 md:grid-cols-3">
+              {PRINCIPLES.map((p, i) => (
+                <div
+                  key={p.k}
+                  className="border border-subtle bg-surface p-8 rounded-sm flex flex-col justify-between"
+                >
+                  <div>
+                    <span className="font-mono text-xs text-muted">0{i + 1}</span>
+                    <h3 className="mt-4 text-xl font-bold font-display uppercase tracking-tight text-primary">
+                      {p.k}
+                    </h3>
+                    <p className="mt-3 text-secondary leading-relaxed text-sm">
+                      {p.v}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-16 pt-8 border-t border-subtle flex flex-col sm:flex-row items-center justify-between gap-6">
+              <span className="text-xs font-mono text-muted uppercase">
+                Want to review formal experience &amp; credentials?
+              </span>
+              <Link
+                to="/resume"
+                className="inline-flex items-center gap-2 border border-subtle bg-surface px-6 py-3 text-xs font-mono uppercase tracking-wider text-primary hover:border-strong transition-colors rounded-sm"
+              >
+                <span>Read Full Resume</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </Container>
+        </section>
+      </div>
     </>
   );
 };
