@@ -1,331 +1,289 @@
 import React from "react";
 import { useParams, Link } from "react-router-dom";
-import {
-  ArrowLeft,
-  ExternalLink,
-  ShieldCheck,
-  GitBranch,
-  Layers,
-  Sparkles,
-} from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Code, ExternalLink } from "lucide-react";
 import { Container } from "../components/ui/Container";
-import { Button } from "../components/ui/Button";
-import { Badge } from "../components/ui/Badge";
+import { SectionLabel } from "../components/ui/SectionLabel";
+import { ProjectCover } from "../components/ui/ProjectCover";
 import { HeadMeta } from "../components/seo/HeadMeta";
-import { LoadingState } from "../components/ui/LoadingState";
 import { usePublishedProjects } from "../lib/projects/PublicProjectsContext";
-import { findBySlug, sortForDisplay } from "../lib/projects/selectors";
+import { findBySlug, publishedOnly, sortForDisplay } from "../lib/projects/selectors";
+import type { Project } from "../lib/projects/types";
+
+const SECTIONS: { key: keyof Project; n: string; label: string }[] = [
+  { key: "problem", n: "01", label: "Problem Space" },
+  { key: "objectives", n: "02", label: "Architectural Objectives" },
+  { key: "approach", n: "03", label: "Engineering & Design Approach" },
+  { key: "implementation", n: "04", label: "Implementation Details" },
+  { key: "outcomes", n: "05", label: "Outcomes & Impact" },
+];
 
 export const CaseStudy: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { state } = usePublishedProjects();
+  const { state, reload } = usePublishedProjects();
 
-  const allProjects = state.status === "ready" ? sortForDisplay(state.projects) : [];
-  const project = findBySlug(allProjects, slug);
-
-  // If loading and project not yet resolved
-  if (state.status === "loading" && !project) {
+  if (state.status === "loading" || state.status === "idle") {
     return (
-      <section className="py-24 text-center blueprint">
-        <Container size="editorial">
-          <LoadingState message="Loading architectural case study..." />
-        </Container>
-      </section>
+      <Container className="py-24">
+        <div role="status" aria-label="Loading case study" className="space-y-6">
+          <div className="h-6 w-32 animate-pulse rounded-md bg-surface" />
+          <div className="h-16 w-3/4 animate-pulse rounded-md bg-surface" />
+          <div className="h-96 w-full animate-pulse rounded-md bg-surface" />
+        </div>
+      </Container>
     );
   }
 
-  // If not found in published records
-  if (!project) {
+  if (state.status === "error") {
     return (
-      <section className="py-24 text-center blueprint">
-        <Container size="editorial">
-          <Badge variant="warning" className="mb-4">Project Not Found</Badge>
-          <h1 className="text-3xl sm:text-4xl font-bold font-display text-primary mb-4">
-            Case Study Not Found
-          </h1>
-          <p className="text-secondary max-w-md mx-auto mb-8 leading-relaxed">
-            The requested project under slug <code className="font-mono text-emerald-400">"{slug}"</code> does not exist in the published case-study index.
-          </p>
-          <div className="flex justify-center">
-            <Button to="/work" variant="primary" icon={<ArrowLeft className="w-4 h-4" />}>
-              Explore All Projects
-            </Button>
-          </div>
-        </Container>
-      </section>
+      <Container className="py-24">
+        <div role="alert" className="rounded-md border border-rose-500/30 p-8 bg-surface space-y-4">
+          <p className="font-medium text-rose-400">Failed to load project record.</p>
+          <p className="font-mono text-xs text-muted">{state.message}</p>
+          <button
+            onClick={reload}
+            className="rounded-full border border-subtle px-4 py-2 text-sm text-primary hover:border-emerald-500"
+          >
+            Retry
+          </button>
+        </div>
+      </Container>
     );
   }
 
-  // Dynamic prev / next navigation
-  const currentIndex = allProjects.findIndex((p) => p.id === project.id);
-  const prevProject =
-    allProjects.length > 1
-      ? currentIndex > 0
-        ? allProjects[currentIndex - 1]
-        : allProjects[allProjects.length - 1]
-      : null;
+  const allPublished = sortForDisplay(publishedOnly(state.projects));
+  const project = slug ? findBySlug(state.projects, slug) : undefined;
 
+  if (!project || project.status !== "published") {
+    return (
+      <Container className="py-32">
+        <p className="label-mono">Error 404 · Case File Not Found</p>
+        <h1 className="mt-6 text-5xl font-extrabold font-display text-primary md:text-7xl">
+          Case Study Not Found
+        </h1>
+        <p className="mt-4 text-secondary text-lg max-w-xl leading-relaxed">
+          The requested project record does not exist or has not been published yet.
+        </p>
+        <div className="mt-10">
+          <Link
+            to="/work"
+            className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-6 py-3 text-sm font-semibold text-black hover:bg-emerald-400 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Explore All Projects</span>
+          </Link>
+        </div>
+      </Container>
+    );
+  }
+
+  const index = allPublished.indexOf(project);
   const nextProject =
-    allProjects.length > 1
-      ? currentIndex < allProjects.length - 1
-        ? allProjects[currentIndex + 1]
-        : allProjects[0]
+    allPublished.length > 1
+      ? allPublished[(index + 1) % allPublished.length]
       : null;
+  const activeSections = SECTIONS.filter((s) => Boolean(project[s.key]));
+
+  const caseJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: project.title,
+    description: project.summary,
+    author: {
+      "@type": "Person",
+      name: "Kennedy Cheroben",
+    },
+    url: `https://kennedycheroben.co.ke/work/${project.slug}`,
+  };
 
   return (
     <>
       <HeadMeta
-        title={project.seoTitle || `${project.title} — Architectural Case Study`}
+        title={`${project.title} — Technical Case Study · Kennedy Cheroben`}
         description={project.seoDescription || project.summary}
         canonicalPath={`/work/${project.slug}`}
-        ogType="article"
+        jsonLd={caseJsonLd}
       />
 
-      <article className="py-12 sm:py-20 blueprint">
-        <Container size="editorial">
-          {/* Back Navigation Link */}
-          <div className="mb-8">
-            <Link
-              to="/work"
-              className="inline-flex items-center gap-1.5 text-xs font-mono text-muted hover:text-primary transition-colors"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to all case studies</span>
-            </Link>
-          </div>
+      <article className="pb-24 bg-canvas">
+        {/* Dossier Header */}
+        <Container className="pt-12 md:pt-16">
+          <Link
+            to="/work"
+            className="inline-flex items-center gap-2 label-mono text-secondary hover:text-emerald-400 transition-colors"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>All work</span>
+          </Link>
 
-          {/* Hero Header */}
-          <header className="space-y-6 mb-12 animate-rise">
-            <div className="flex flex-wrap items-center gap-2">
-              {project.category && <Badge variant="brand">{project.category}</Badge>}
-              {project.timeline && (
-                <span className="text-xs font-mono text-muted">{project.timeline}</span>
-              )}
-              {project.projectType && (
-                <Badge variant="outline">{project.projectType}</Badge>
-              )}
-            </div>
-
-            <h1 className="text-3xl sm:text-5xl font-extrabold font-display tracking-tight text-primary">
-              {project.title}
-            </h1>
-
-            <p className="text-lg sm:text-xl text-secondary leading-relaxed">
-              {project.summary}
-            </p>
-
-            {project.seoDescription && project.seoDescription !== project.summary && (
-              <p className="text-sm font-mono text-muted leading-relaxed">
-                {project.seoDescription}
+          <div className="mt-10 grid gap-10 md:grid-cols-12 items-start">
+            <div className="md:col-span-8">
+              <p className="label-mono">
+                <span className="text-emerald-400 font-bold">
+                  Case {String((index >= 0 ? index : 0) + 1).padStart(2, "0")}
+                </span>{" "}
+                · {project.category}
               </p>
-            )}
-
-            {/* Metadata Bar */}
-            <div className="p-5 rounded-2xl bg-surface border border-subtle grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono mt-6 glass-panel">
-              {project.role && (
-                <div>
-                  <span className="text-muted block text-[10px] tracking-wider uppercase">ROLE</span>
-                  <span className="text-primary font-medium mt-0.5 block">{project.role}</span>
-                </div>
+              <h1 className="mt-5 text-5xl font-extrabold font-display leading-[0.9] text-primary md:text-8xl animate-rise">
+                {project.title}
+              </h1>
+              <p className="mt-8 max-w-2xl text-xl leading-relaxed text-secondary font-light">
+                {project.summary}
+              </p>
+              {project.description && (
+                <p className="mt-4 max-w-2xl text-base leading-relaxed text-secondary/90 font-light">
+                  {project.description}
+                </p>
               )}
-              {project.timeline && (
-                <div>
-                  <span className="text-muted block text-[10px] tracking-wider uppercase">TIMELINE</span>
-                  <span className="text-primary font-medium mt-0.5 block">{project.timeline}</span>
-                </div>
-              )}
-              {project.liveUrl && (
-                <div>
-                  <span className="text-muted block text-[10px] tracking-wider uppercase">LIVE DEMO</span>
-                  <a
-                    href={project.liveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-emerald-400 hover:underline flex items-center gap-1 font-medium mt-0.5"
-                  >
-                    <span>Visit Live Site</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                </div>
-              )}
-              {project.repositoryUrl && (
-                <div>
-                  <span className="text-muted block text-[10px] tracking-wider uppercase">REPOSITORY</span>
-                  <a
-                    href={project.repositoryUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-cyan-400 hover:underline flex items-center gap-1 font-medium mt-0.5"
-                  >
-                    <span>Code Repository</span>
-                    <GitBranch className="w-3 h-3" />
-                  </a>
-                </div>
+              {project.seoDescription && project.seoDescription !== project.summary && (
+                <p className="mt-2 max-w-2xl text-xs font-mono text-muted">
+                  {project.seoDescription}
+                </p>
               )}
             </div>
-          </header>
 
-          {/* Cover Image */}
-          {project.coverImageUrl && (
-            <div className="mb-12 rounded-2xl overflow-hidden border border-subtle bg-surface-elevated max-h-[460px] shadow-2xl">
-              <img
-                src={project.coverImageUrl}
-                alt={project.coverImageAlt || `${project.title} preview`}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
-
-          {/* Tech Stack Pills */}
-          {project.technologies && project.technologies.length > 0 && (
-            <section className="mb-12">
-              <h2 className="text-xs font-mono uppercase tracking-wider text-muted mb-3 flex items-center gap-2">
-                <Layers className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Verified Technical Stack</span>
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {project.technologies.map((tech) => (
-                  <Badge key={tech} variant="outline">
-                    {tech}
-                  </Badge>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Description Body if present */}
-          {project.description && (
-            <section className="space-y-4 mb-12 text-secondary text-base leading-relaxed">
-              <h2 className="text-2xl font-bold font-display text-primary">
-                Executive Overview
-              </h2>
-              <p className="whitespace-pre-line">{project.description}</p>
-            </section>
-          )}
-
-          {/* Problem Statement */}
-          {project.problem && (
-            <section className="space-y-4 mb-12 text-secondary text-base leading-relaxed">
-              <h2 className="text-2xl font-bold font-display text-primary">
-                Problem &amp; Challenge
-              </h2>
-              <p className="whitespace-pre-line">{project.problem}</p>
-            </section>
-          )}
-
-          {/* Objectives */}
-          {project.objectives && (
-            <section className="space-y-4 mb-12 text-secondary text-base leading-relaxed">
-              <h2 className="text-2xl font-bold font-display text-primary">
-                Key Objectives
-              </h2>
-              <p className="whitespace-pre-line">{project.objectives}</p>
-            </section>
-          )}
-
-          {/* Approach & Implementation */}
-          {(project.approach || project.implementation) && (
-            <section className="space-y-4 mb-12 text-secondary text-base leading-relaxed">
-              <h2 className="text-2xl font-bold font-display text-primary">
-                Architecture &amp; Implementation
-              </h2>
-              {project.approach && (
-                <div className="space-y-2">
-                  <h3 className="text-sm font-mono text-muted uppercase tracking-wider">Approach</h3>
-                  <p className="whitespace-pre-line">{project.approach}</p>
-                </div>
-              )}
-              {project.implementation && (
-                <div className="space-y-2 pt-2">
-                  <h3 className="text-sm font-mono text-muted uppercase tracking-wider">Implementation Details</h3>
-                  <p className="whitespace-pre-line">{project.implementation}</p>
-                </div>
-              )}
-            </section>
-          )}
-
-          {/* Outcomes & Impact */}
-          {project.outcomes && (
-            <section className="space-y-4 mb-12 text-secondary text-base leading-relaxed">
-              <h2 className="text-2xl font-bold font-display text-primary flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-emerald-400" />
-                <span>Outcomes &amp; Technical Results</span>
-              </h2>
-              <p className="whitespace-pre-line">{project.outcomes}</p>
-            </section>
-          )}
-
-          {/* Gallery Images if present */}
-          {project.gallery && project.gallery.length > 0 && (
-            <section className="mb-12 space-y-4">
-              <h2 className="text-2xl font-bold font-display text-primary">
-                Project Gallery
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {project.gallery.map((img, i) => (
-                  <div key={i} className="rounded-xl overflow-hidden border border-subtle bg-surface">
-                    <img
-                      src={img.url || `/${img.path}`}
-                      alt={img.alt || `${project.title} screenshot ${i + 1}`}
-                      className="w-full h-48 object-cover"
-                      loading="lazy"
-                    />
-                    {img.alt && (
-                      <p className="p-2 text-xs font-mono text-muted text-center border-t border-subtle">
-                        {img.alt}
-                      </p>
-                    )}
+            {/* Technical Metadata Sidebar */}
+            <dl className="grid h-fit grid-cols-2 gap-px overflow-hidden rounded-md border border-subtle bg-subtle md:col-span-4 md:grid-cols-1">
+              {[
+                ["Role", project.role],
+                ["Timeline", project.timeline],
+                ["Type", project.projectType],
+              ]
+                .filter(([, v]) => Boolean(v))
+                .map(([k, v]) => (
+                  <div key={k} className="bg-canvas p-4">
+                    <dt className="label-mono">{k}</dt>
+                    <dd className="mt-1 text-sm font-medium text-primary">{v}</dd>
                   </div>
                 ))}
-              </div>
-            </section>
-          )}
 
-          {/* Verified Engineering Badge */}
-          <section className="p-6 rounded-2xl bg-surface border border-subtle space-y-3 mb-16">
-            <div className="flex items-center gap-2 text-emerald-400">
-              <ShieldCheck className="w-5 h-5" />
-              <h3 className="text-sm font-bold font-display uppercase tracking-wide">
-                Verified Architectural Authenticity
-              </h3>
-            </div>
-            <p className="text-xs font-mono text-muted leading-relaxed">
-              This case study is verified and published through the private administrative management console. All architectural patterns, code repositories, and system implementations reflect genuine engineering achievements.
-            </p>
-          </section>
-
-          {/* Reciprocal Project Navigation */}
-          {allProjects.length > 1 && prevProject && nextProject && (
-            <nav
-              aria-label="Previous and Next Project"
-              className="pt-8 border-t border-subtle grid grid-cols-1 sm:grid-cols-2 gap-4"
-            >
-              <Link
-                to={`/work/${prevProject.slug}`}
-                className="p-4 rounded-xl bg-surface hover:bg-surface-elevated border border-subtle transition-colors group"
-              >
-                <span className="text-[11px] font-mono text-muted block mb-1">
-                  ← PREVIOUS CASE STUDY
-                </span>
-                <span className="font-display font-semibold text-primary group-hover:text-emerald-400 text-sm">
-                  {prevProject.title}
-                </span>
-              </Link>
-
-              <Link
-                to={`/work/${nextProject.slug}`}
-                className="p-4 rounded-xl bg-surface hover:bg-surface-elevated border border-subtle transition-colors group text-right"
-              >
-                <span className="text-[11px] font-mono text-muted block mb-1">
-                  NEXT CASE STUDY →
-                </span>
-                <span className="font-display font-semibold text-primary group-hover:text-emerald-400 text-sm">
-                  {nextProject.title}
-                </span>
-              </Link>
-            </nav>
-          )}
+              {(project.liveUrl || project.repositoryUrl) && (
+                <div className="col-span-2 flex flex-wrap gap-4 bg-canvas p-4 md:col-span-1">
+                  {project.liveUrl && (
+                    <a
+                      href={project.liveUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 text-sm text-emerald-400 link-underline font-mono"
+                    >
+                      <span>Visit live</span>
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  )}
+                  {project.repositoryUrl && (
+                    <a
+                      href={project.repositoryUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 text-sm text-emerald-400 link-underline font-mono"
+                    >
+                      <Code className="h-3.5 w-3.5" />
+                      <span>Source repository</span>
+                    </a>
+                  )}
+                </div>
+              )}
+            </dl>
+          </div>
         </Container>
+
+        {/* Hero Cover Preview */}
+        <Container className="mt-14">
+          <div className="aspect-[21/9] overflow-hidden rounded-md border border-subtle">
+            <ProjectCover
+              project={project}
+              index={index >= 0 ? index : 0}
+              size="lg"
+            />
+          </div>
+        </Container>
+
+        {/* Architectural Numbered Sections */}
+        <Container className="mt-20">
+          <div className="grid gap-16 md:grid-cols-12">
+            <div className="space-y-16 md:col-span-8">
+              {activeSections.map((s) => (
+                <section key={s.n} className="border-t border-subtle pt-10">
+                  <SectionLabel n={s.n}>{s.label}</SectionLabel>
+                  <div className="mt-6 text-lg leading-relaxed text-secondary whitespace-pre-line font-light">
+                    {String(project[s.key])}
+                  </div>
+                </section>
+              ))}
+
+              {/* Technologies Stack */}
+              {project.technologies && project.technologies.length > 0 && (
+                <section className="border-t border-subtle pt-10">
+                  <SectionLabel n="06">Technologies &amp; Architecture</SectionLabel>
+                  <ul className="mt-6 flex flex-wrap gap-2">
+                    {project.technologies.map((t) => (
+                      <li
+                        key={t}
+                        className="rounded-full border border-subtle bg-surface px-3.5 py-1.5 text-xs font-mono text-secondary hover:text-primary transition-colors"
+                      >
+                        {t}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              {/* Image Gallery */}
+              {project.gallery && project.gallery.length > 0 && (
+                <section className="border-t border-subtle pt-10">
+                  <SectionLabel n="07">Production Gallery</SectionLabel>
+                  <div className="mt-6 grid gap-6 sm:grid-cols-2">
+                    {project.gallery.map((img, i) => (
+                      <div
+                        key={i}
+                        className="overflow-hidden rounded-md border border-subtle bg-surface aspect-video"
+                      >
+                        <img
+                          src={img.url}
+                          alt={img.alt || `${project.title} screenshot ${i + 1}`}
+                          className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                          loading="lazy"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
+
+            {/* Sidebar Summary */}
+            <div className="md:col-span-4 space-y-8">
+              <div className="rounded-md border border-subtle bg-surface/30 p-6 space-y-4">
+                <p className="label-mono">Verification Status</p>
+                <div className="flex items-center gap-2 text-emerald-400 font-mono text-sm">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Verified Production Record</span>
+                </div>
+                <p className="text-xs leading-relaxed text-muted">
+                  Managed dynamically via Supabase / CMS database with strict schema validation.
+                </p>
+              </div>
+            </div>
+          </div>
+        </Container>
+
+        {/* Sequential Next Case Study Footer */}
+        {nextProject && (
+          <Container className="mt-28 border-t border-subtle pt-16">
+            <p className="label-mono">Next Case File</p>
+            <Link
+              to={`/work/${nextProject.slug}`}
+              className="group mt-4 flex items-end justify-between gap-6"
+            >
+              <div>
+                <h3 className="text-4xl font-extrabold font-display text-primary transition-colors group-hover:text-emerald-400 md:text-6xl">
+                  {nextProject.title}
+                </h3>
+                <p className="mt-2 text-secondary text-sm">{nextProject.role}</p>
+              </div>
+              <ArrowUpRight className="h-8 w-8 text-muted transition-transform group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-emerald-400 md:h-12 md:w-12" />
+            </Link>
+          </Container>
+        )}
       </article>
     </>
   );

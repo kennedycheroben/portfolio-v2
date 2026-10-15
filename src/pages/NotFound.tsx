@@ -1,49 +1,46 @@
 import React from "react";
-import { Home, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowLeft, Home } from "lucide-react";
 import { Container } from "../components/ui/Container";
-import { Button } from "../components/ui/Button";
-import { Badge } from "../components/ui/Badge";
 import { HeadMeta } from "../components/seo/HeadMeta";
 
 export const NotFound: React.FC = () => {
   return (
     <>
       <HeadMeta
-        title="404 — Page Not Found"
-        description="The requested URL does not exist on this website."
+        title="404 — Page Not Found · Kennedy Cheroben"
+        description="The requested page does not exist in this archive."
         canonicalPath="/404"
       />
 
-      <section className="py-24 sm:py-32 flex-1 flex items-center justify-center text-center">
+      <section className="py-32 flex-1 flex items-center justify-center text-center bg-canvas">
         <Container size="editorial">
           <div className="space-y-6">
-            <Badge variant="warning">HTTP 404</Badge>
+            <p className="label-mono">HTTP 404 · Unindexed Path</p>
 
-            <h1 className="text-5xl sm:text-7xl font-extrabold font-display tracking-tight text-primary">
-              Signal <span className="gradient-brand-text">Lost</span>
+            <h1 className="text-6xl sm:text-8xl font-extrabold font-display tracking-tight text-primary animate-rise">
+              Signal <span className="text-gradient-brand">Lost</span>
             </h1>
 
             <p className="text-lg text-secondary max-w-md mx-auto leading-relaxed">
-              The route or document you requested does not exist in the architectural registry. It may have been moved, renamed, or is currently unindexed.
+              The route or document you requested does not exist in the architectural registry. It may have been moved or unindexed.
             </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-              <Button
+            <div className="flex flex-wrap items-center justify-center gap-4 pt-6">
+              <Link
                 to="/"
-                variant="primary"
-                size="md"
-                icon={<Home className="w-4 h-4" />}
+                className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-7 py-3 text-sm font-semibold text-black hover:bg-emerald-400 transition-colors"
               >
-                Return Home
-              </Button>
-              <Button
+                <Home className="h-4 w-4" />
+                <span>Return Home</span>
+              </Link>
+              <Link
                 to="/work"
-                variant="secondary"
-                size="md"
-                icon={<ArrowLeft className="w-4 h-4" />}
+                className="inline-flex items-center gap-2 rounded-full border border-subtle px-7 py-3 text-sm font-semibold text-primary hover:border-emerald-500 transition-colors"
               >
-                Browse Projects
-              </Button>
+                <ArrowLeft className="h-4 w-4" />
+                <span>Browse Projects</span>
+              </Link>
             </div>
           </div>
         </Container>

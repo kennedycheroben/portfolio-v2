@@ -128,21 +128,60 @@ body {
   outline-offset: 2px;
 }
 
+/* Mono Telemetry & Metadata Label */
+.label-mono {
+  font-family: var(--font-family-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 /* Blueprint Engineering Grid Pattern */
 .blueprint {
   background-image: 
-    linear-gradient(to right, var(--border-subtle) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--border-subtle) 1px, transparent 1px);
-  background-size: 40px 40px;
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
-/* Display Clamp Typography */
+/* Display Clamp Typography - Direct from Lovable Spec */
 .display-xl {
   font-family: var(--font-family-display);
-  font-size: clamp(2.5rem, 5.5vw, 4.5rem);
   font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.035em;
+  line-height: 0.88;
+  letter-spacing: -0.045em;
+  font-size: clamp(3.2rem, 11vw, 10.5rem);
+}
+
+/* Brand Text Gradient */
+.text-gradient-brand {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Photo Backdrop Veils for Flawless Blending */
+.veil-x {
+  background: var(--photo-veil);
+}
+
+.veil-up {
+  background: var(--photo-veil-up);
+}
+
+/* Animated Hover Link Underline */
+.link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.link-underline:hover {
+  background-size: 100% 1px;
 }
 
 /* Glow Border & Card Accents */
@@ -166,16 +205,16 @@ body {
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(18px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 
 .animate-rise {
-  animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: rise 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* Motion Preferences */

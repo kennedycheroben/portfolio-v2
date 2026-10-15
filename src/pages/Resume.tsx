@@ -1,149 +1,145 @@
-import { ArrowUpRight, CheckCircle2, Terminal, Layers, ShieldCheck, Cpu, Printer } from "lucide-react";
+import React from "react";
+import { Link } from "react-router-dom";
+import { Printer, ShieldCheck } from "lucide-react";
 import { Container } from "../components/ui/Container";
-import { Button } from "../components/ui/Button";
-import { Badge } from "../components/ui/Badge";
+import { SectionLabel } from "../components/ui/SectionLabel";
 import { HeadMeta } from "../components/seo/HeadMeta";
 import { profile } from "../content/profile";
+import { usePublishedProjects } from "../lib/projects/PublicProjectsContext";
+import { publishedOnly, sortForDisplay } from "../lib/projects/selectors";
 
 export const Resume: React.FC = () => {
+  const { state } = usePublishedProjects();
+  const published = state.status === "ready" ? sortForDisplay(publishedOnly(state.projects)) : [];
+
   return (
     <>
       <HeadMeta
-        title="Experience, Skills &amp; Credentials"
-        description="Verified technical capabilities, engineering proficiencies, and architectural achievements of Kennedy Cheroben."
+        title="Resume &amp; Technical Capabilities — Kennedy Cheroben"
+        description="Design and engineering capabilities, verified project history, and software systems tooling of Kennedy Cheroben."
         canonicalPath="/resume"
       />
 
-      <section className="py-12 sm:py-20 blueprint">
-        <Container size="default">
-          {/* Header */}
-          <div className="max-w-3xl mb-12 space-y-4 animate-rise">
-            <Badge variant="brand">Verified Technical Dossier</Badge>
-            <h1 className="display-xl text-primary">
-              Engineering Competencies &amp; Experience
-            </h1>
-            <p className="text-lg text-secondary leading-relaxed">
-              A comprehensive summary of technical architectures, production repositories, and design systems delivered with verifiable physical evidence.
-            </p>
-          </div>
+      {/* Page Header */}
+      <section className="pt-16 pb-12 md:pt-24 md:pb-16 bg-canvas">
+        <Container>
+          <SectionLabel n="03">Resume</SectionLabel>
+          <h1 className="mt-6 max-w-5xl text-5xl font-extrabold font-display leading-[0.95] text-primary md:text-8xl animate-rise">
+            {profile.name}
+            <span className="sr-only"> — Engineering Competencies &amp; Experience</span>
+          </h1>
+          <p className="mt-4 text-lg text-secondary">
+            {profile.title} · {profile.location}
+          </p>
+        </Container>
+      </section>
 
-          {/* Quick Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
-            <div className="p-4 rounded-xl bg-surface border border-subtle">
-              <span className="text-xs font-mono text-muted block mb-1">PRACTICE TENURE</span>
-              <span className="text-2xl font-bold font-display text-primary">{profile.experienceYears}</span>
-              <span className="text-[11px] font-mono text-emerald-400 block mt-1">Verified Experience</span>
-            </div>
-            <div className="p-4 rounded-xl bg-surface border border-subtle">
-              <span className="text-xs font-mono text-muted block mb-1">LOCATION</span>
-              <span className="text-2xl font-bold font-display text-primary">Nairobi</span>
-              <span className="text-[11px] font-mono text-muted block mt-1">Kenya (EAT)</span>
-            </div>
-            <div className="p-4 rounded-xl bg-surface border border-subtle">
-              <span className="text-xs font-mono text-muted block mb-1">ARCHITECTURE</span>
-              <span className="text-2xl font-bold font-display text-primary">Full-Stack</span>
-              <span className="text-[11px] font-mono text-muted block mt-1">TypeScript &amp; Rust</span>
-            </div>
-            <div className="p-4 rounded-xl bg-surface border border-subtle">
-              <span className="text-xs font-mono text-muted block mb-1">VISUAL CRAFT</span>
-              <span className="text-2xl font-bold font-display text-primary">Specialist</span>
-              <span className="text-[11px] font-mono text-muted block mt-1">Systems &amp; 3D Motion</span>
-            </div>
-          </div>
-
-          {/* Skills Breakdown by Domain */}
-          <div className="space-y-12 mb-16">
-            <h2 className="text-2xl font-bold font-display text-primary border-b border-subtle pb-4">
-              Technical Proficiencies
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Engineering */}
-              <div className="p-6 rounded-2xl bg-surface border border-subtle space-y-4">
-                <div className="flex items-center gap-2 text-emerald-400">
-                  <Terminal className="w-5 h-5" />
-                  <h3 className="text-lg font-bold font-display">Full-Stack &amp; Web</h3>
-                </div>
-                <ul className="space-y-2 text-sm text-secondary">
-                  {profile.skills.engineering.map((skill) => (
-                    <li key={skill} className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500/80 shrink-0" />
-                      <span>{skill}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Design */}
-              <div className="p-6 rounded-2xl bg-surface border border-subtle space-y-4">
-                <div className="flex items-center gap-2 text-cyan-400">
-                  <Layers className="w-5 h-5" />
-                  <h3 className="text-lg font-bold font-display">Design &amp; Visual Systems</h3>
-                </div>
-                <ul className="space-y-2 text-sm text-secondary">
-                  {profile.skills.design.map((skill) => (
-                    <li key={skill} className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-cyan-500/80 shrink-0" />
-                      <span>{skill}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Systems & Security */}
-              <div className="p-6 rounded-2xl bg-surface border border-subtle space-y-4">
-                <div className="flex items-center gap-2 text-amber-400">
-                  <Cpu className="w-5 h-5" />
-                  <h3 className="text-lg font-bold font-display">Systems &amp; Cryptography</h3>
-                </div>
-                <ul className="space-y-2 text-sm text-secondary">
-                  {profile.skills.systems.map((skill) => (
-                    <li key={skill} className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-amber-500/80 shrink-0" />
-                      <span>{skill}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Evidence Transparency Notice */}
-          <div className="p-6 rounded-2xl bg-surface border border-subtle space-y-3 mb-16">
-            <div className="flex items-center gap-2 text-emerald-400">
-              <ShieldCheck className="w-5 h-5" />
-              <h3 className="text-sm font-bold font-display uppercase tracking-wide">
-                Truthfulness &amp; Evidence-Based Verification Policy
-              </h3>
-            </div>
-            <p className="text-xs text-secondary leading-relaxed">
-              This portfolio enforces a strict factual verification policy. Formal university degrees, proprietary corporate titles, and third-party client testimonials are withheld from public claims pending explicit written authorization and documentation. All technical competencies listed above are demonstrated directly by codebase commits, automated test runs, and live deployments.
-            </p>
-          </div>
-
-          {/* Action Row */}
-          <div className="flex flex-wrap items-center gap-4">
-            <Button
-              to="/contact"
-              variant="primary"
-              size="lg"
-              iconRight={<ArrowUpRight className="w-4 h-4" />}
-            >
-              Request Collaboration
-            </Button>
-            <Button to="/work" variant="secondary" size="lg">
-              Review Architecture Case Studies
-            </Button>
+      {/* Main Content */}
+      <section className="pb-24 bg-canvas">
+        <Container>
+          {/* Print Action Bar */}
+          <div className="flex justify-end border-b border-subtle pb-4">
             <button
+              onClick={() => window.print()}
               type="button"
-              onClick={() => {
-                if (typeof window !== "undefined") window.print();
-              }}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface border border-subtle text-sm font-mono text-secondary hover:text-primary hover:bg-surface-elevated transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-full border border-subtle px-4 py-2 text-sm text-primary hover:border-emerald-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
             >
-              <Printer className="w-4 h-4 text-emerald-400" />
-              <span>Print Dossier</span>
+              <Printer className="h-4 w-4 text-emerald-400" />
+              <span>Print / save PDF</span>
             </button>
+          </div>
+
+          {/* Duality Columns: Surface vs Structure */}
+          <div className="grid gap-px overflow-hidden border-b border-subtle md:grid-cols-2">
+            {[
+              { t: "Visual Design", sub: "Surface", items: profile.skills.design },
+              {
+                t: "Software Engineering",
+                sub: "Structure",
+                items: [...profile.skills.engineering, ...profile.skills.systems],
+              },
+            ].map((col, i) => (
+              <div
+                key={col.t}
+                className={`py-12 ${
+                  i === 0 ? "md:border-r md:pr-10" : "md:pl-10"
+                } border-subtle`}
+              >
+                <p className="label-mono">{col.sub}</p>
+                <h2 className="mt-2 text-3xl md:text-4xl font-bold font-display text-primary">
+                  {col.t}
+                </h2>
+                <ul className="mt-6 flex flex-wrap gap-2">
+                  {col.items.map((s) => (
+                    <li
+                      key={s}
+                      className="rounded-full border border-subtle bg-surface px-3.5 py-1.5 text-xs font-mono text-secondary hover:text-primary transition-colors"
+                    >
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          {/* Dynamic Project History */}
+          <div className="py-16">
+            <SectionLabel n="A">Project history</SectionLabel>
+
+            {state.status === "loading" || state.status === "idle" ? (
+              <div role="status" aria-label="Loading projects" className="mt-8 space-y-4">
+                {[1, 2, 3].map((n) => (
+                  <div key={n} className="h-20 animate-pulse rounded-md bg-surface" />
+                ))}
+              </div>
+            ) : published.length === 0 ? (
+              <div className="mt-8 rounded-md border border-dashed border-subtle p-8 text-center space-y-2 bg-surface/30">
+                <p className="text-secondary font-medium font-display">No published projects yet.</p>
+                <p className="text-xs font-mono text-muted">
+                  Case study records will appear here as they are published via the administrative CMS.
+                </p>
+              </div>
+            ) : (
+              <ol className="mt-10">
+                {published.map((p) => (
+                  <li
+                    key={p.id}
+                    className="grid gap-4 border-t border-subtle py-8 md:grid-cols-[10rem_1fr_auto] md:gap-10 items-baseline"
+                  >
+                    <span className="font-mono text-xs text-emerald-400 font-semibold">
+                      {p.timeline}
+                    </span>
+                    <div>
+                      <h3 className="text-2xl font-bold font-display text-primary">{p.title}</h3>
+                      <p className="mt-1 text-sm font-medium text-emerald-400/90">{p.role}</p>
+                      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-secondary font-light">
+                        {p.summary}
+                      </p>
+                    </div>
+                    <Link
+                      to={`/work/${p.slug}`}
+                      className="h-fit text-sm text-emerald-400 link-underline font-mono font-medium hover:text-emerald-300"
+                    >
+                      Case study →
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
+
+          {/* Verified Evidence Policy */}
+          <div className="rounded-md border border-subtle bg-surface/40 p-6 md:p-8 space-y-3">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-emerald-400" />
+              <h4 className="text-sm font-mono uppercase tracking-wider text-primary font-semibold">
+                Truthfulness &amp; Evidence-Based Verification Policy
+              </h4>
+            </div>
+            <p className="text-xs leading-relaxed text-secondary">
+              Every project showcase in this portfolio reflects genuine production architecture, verified code repositories, and measurable outcomes. No mock entries, fictional statistics, or fabricated claims are permitted in production paths.
+            </p>
           </div>
         </Container>
       </section>

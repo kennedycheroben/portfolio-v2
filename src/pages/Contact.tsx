@@ -1,310 +1,279 @@
 import React, { useState } from "react";
-import { Send, MapPin, CheckCircle2, AlertCircle } from "lucide-react";
+import { CheckCircle2, Loader2, AlertTriangle, ArrowRight } from "lucide-react";
 import { Container } from "../components/ui/Container";
-import { Button } from "../components/ui/Button";
-import { Badge } from "../components/ui/Badge";
+import { SectionLabel } from "../components/ui/SectionLabel";
 import { HeadMeta } from "../components/seo/HeadMeta";
 import { profile } from "../content/profile";
+
+const TOPICS = [
+  "Full-Stack Web Application",
+  "UI/UX & Design Systems",
+  "Systems & Cryptography",
+  "General Inquiry",
+];
 
 export const Contact: React.FC = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    category: "Full-Stack Web Application",
+    category: TOPICS[0],
     message: "",
     website: "", // Anti-bot honeypot
   });
 
-  const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
 
-    // Client-side input validation
-    if (!formData.name.trim() || formData.name.trim().length < 2) {
-      setError("Please provide a valid name (at least 2 characters).");
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      setErrorMessage("Please complete all required fields.");
+      setStatus("error");
       return;
     }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim() || !emailRegex.test(formData.email.trim())) {
-      setError("Please provide a valid email address.");
-      return;
-    }
-
-    if (!formData.message.trim() || formData.message.trim().length < 10) {
-      setError("Please provide project details (at least 10 characters).");
-      return;
-    }
-
-    setLoading(true);
 
     try {
-      const res = await fetch("/api/contact", {
+      setStatus("loading");
+      setErrorMessage("");
+
+      const response = await fetch("/api/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
         },
-        body: JSON.stringify({
-          name: formData.name.trim(),
-          email: formData.email.trim(),
-          category: formData.category,
-          message: formData.message.trim(),
-          website: formData.website,
-        }),
+        body: JSON.stringify(formData),
       });
 
-      const data = await res.json().catch(() => ({}));
+      const result = await response.json();
 
-      if (res.ok && data.success) {
-        setSubmitted(true);
-        setFormData({
-          name: "",
-          email: "",
-          category: "Full-Stack Web Application",
-          message: "",
-          website: "",
-        });
-      } else {
-        setError(data.error || "Failed to submit inquiry. Please try again or reach out directly.");
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to submit inquiry. Please try again.");
       }
+
+      setStatus("success");
     } catch (err: any) {
-      setError(err.message || "Network error. Please verify your connection.");
-    } finally {
-      setLoading(false);
+      console.error("Contact inquiry failed:", err);
+      setErrorMessage(err.message || "Network error. Please try again.");
+      setStatus("error");
     }
+  };
+
+  const handleReset = () => {
+    setFormData({
+      name: "",
+      email: "",
+      category: TOPICS[0],
+      message: "",
+      website: "",
+    });
+    setStatus("idle");
+    setErrorMessage("");
   };
 
   return (
     <>
       <HeadMeta
-        title="Direct Contact &amp; Inquiries"
-        description="Initiate a direct conversation with Kennedy Cheroben regarding full-stack software architecture, systems engineering, or visual design collaboration."
+        title="Contact &amp; Project Inquiries — Kennedy Cheroben"
+        description="Start a project inquiry or collaborate on full-stack architecture, software engineering, or visual design with Kennedy Cheroben."
         canonicalPath="/contact"
       />
 
-      <section className="py-12 sm:py-20">
-        <Container size="default">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-            {/* Visual Framing Column */}
-            <div className="lg:col-span-5 space-y-6">
-              <div className="space-y-4">
-                <Badge variant="brand">Start a Conversation</Badge>
-                <h1 className="text-4xl sm:text-5xl font-extrabold font-display tracking-tight text-primary">
-                  Let's engineer something <span className="gradient-brand-text">extraordinary</span>.
-                </h1>
-                <p className="text-secondary text-base leading-relaxed">
-                  Whether you are planning a greenfield SaaS architecture, need to refine an existing product design system, or want to consult on systems security, feel free to reach out.
-                </p>
-              </div>
+      <section className="py-16 md:py-24 bg-canvas">
+        <Container className="grid gap-14 md:grid-cols-12 items-start">
+          {/* Left Column: Context, Photo & Timezone */}
+          <div className="md:col-span-5 space-y-6">
+            <SectionLabel n="04">Contact</SectionLabel>
+            <h1 className="mt-6 text-5xl font-extrabold font-display leading-[0.92] text-primary md:text-7xl animate-rise">
+              Have something worth building?
+              <span className="sr-only"> — Let's engineer something extraordinary</span>
+            </h1>
+            <p className="text-lg text-secondary leading-relaxed">
+              {profile.contact.messageNote}
+            </p>
 
-              {/* Contact Visual Frame */}
-              <div className="rounded-2xl overflow-hidden border border-subtle bg-surface shadow-lg">
-                <picture>
-                  <source
-                    media="(max-width: 640px)"
-                    srcSet="/images/contact_section_phone.jpeg"
-                  />
-                  <img
-                    src="/images/contact_section.jpeg"
-                    alt="Kennedy Cheroben inviting direct contact"
-                    className="w-full h-auto object-cover aspect-[4/3]"
-                    loading="eager"
-                  />
-                </picture>
-                <div className="p-4 bg-surface border-t border-subtle space-y-2">
-                  <div className="flex items-center gap-2 text-xs font-mono text-muted">
-                    <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Nairobi, Kenya · East Africa Time (EAT)</span>
-                  </div>
-                  <p className="text-xs text-secondary leading-relaxed">
-                    {profile.contact.messageNote}
-                  </p>
-                </div>
-              </div>
+            <div className="mt-8 hidden overflow-hidden rounded-md border border-subtle md:block">
+              <img
+                src="/images/contact_section.jpeg"
+                alt="Kennedy Cheroben"
+                className="aspect-[4/3] w-full object-cover"
+                loading="lazy"
+              />
             </div>
 
-            {/* Interactive Form Panel */}
-            <div className="lg:col-span-7">
-              <div className="glass-panel p-6 sm:p-10">
-                <div className="mb-6 space-y-1">
-                  <h2 className="text-2xl font-bold font-display text-primary">
-                    Project Inquiry Form
-                  </h2>
-                  <p className="text-xs font-mono text-muted">
-                    RESPONSE WINDOW: TYPICALLY WITHIN 24–48 BUSINESS HOURS
-                  </p>
+            <p className="pt-2 label-mono">
+              {profile.contact.city}, {profile.contact.country} · Replies in EAT (UTC+3)
+            </p>
+          </div>
+
+          {/* Right Column: Interactive Form */}
+          <div className="md:col-span-7">
+            {status === "success" ? (
+              <div
+                role="status"
+                className="rounded-md border border-emerald-500/50 p-8 md:p-10 bg-surface/50 space-y-4 animate-rise"
+              >
+                <CheckCircle2 className="h-8 w-8 text-emerald-400" />
+                <h2 className="text-3xl font-bold font-display text-primary">
+                  Thanks, {formData.name.split(" ")[0]}.
+                </h2>
+                <p className="text-secondary leading-relaxed">
+                  Your project inquiry has been received. I review incoming scopes carefully and typically respond within 24 to 48 business hours.
+                </p>
+                <div className="pt-4">
+                  <button
+                    onClick={handleReset}
+                    type="button"
+                    className="inline-flex items-center gap-2 text-sm text-emerald-400 link-underline font-mono"
+                  >
+                    <span>Send another inquiry</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <form
+                noValidate
+                onSubmit={handleSubmit}
+                className="space-y-6 rounded-md border border-subtle bg-surface/30 p-6 md:p-10"
+              >
+                {/* Honeypot field for anti-bot detection */}
+                <div className="hidden" aria-hidden="true">
+                  <label htmlFor="contact-website">Website</label>
+                  <input
+                    id="contact-website"
+                    type="text"
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={formData.website}
+                    onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                  />
                 </div>
 
-                {error && (
+                {/* Error Banner */}
+                {status === "error" && (
                   <div
                     role="alert"
-                    className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-mono flex items-start gap-2.5"
+                    className="flex items-start gap-3 rounded-md border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-300"
                   >
-                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <span>{error}</span>
+                    <AlertTriangle className="h-5 w-5 shrink-0 text-rose-400" />
+                    <span>{errorMessage}</span>
                   </div>
                 )}
 
-                {submitted ? (
-                  <div
-                    role="status"
-                    className="p-8 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-4"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
-                      <CheckCircle2 className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-xl font-bold font-display text-primary">
-                      Inquiry Received
-                    </h3>
-                    <p className="text-sm text-secondary max-w-md mx-auto leading-relaxed">
-                      Thank you for reaching out. Your project inquiry has been recorded and will be reviewed shortly.
-                    </p>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => setSubmitted(false)}
+                {/* Name & Email Row */}
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div>
+                    <label
+                      htmlFor="contact-name"
+                      className="block label-mono text-secondary mb-2"
                     >
-                      Send Another Inquiry
-                    </Button>
+                      Your Name *
+                    </label>
+                    <input
+                      id="contact-name"
+                      type="text"
+                      required
+                      autoComplete="name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="Jane Doe"
+                      className="w-full rounded-md border border-subtle bg-surface px-4 py-3 text-sm text-primary placeholder:text-muted focus:border-emerald-500 focus:outline-none"
+                    />
                   </div>
-                ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Honeypot field (hidden from genuine users) */}
-                    <div className="hidden" aria-hidden="true">
-                      <label htmlFor="contact-website">Website</label>
-                      <input
-                        id="contact-website"
-                        type="text"
-                        name="website"
-                        tabIndex={-1}
-                        autoComplete="off"
-                        value={formData.website}
-                        onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                      />
-                    </div>
 
-                    {/* Name Field */}
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="contact-name"
-                        className="block text-xs font-mono uppercase tracking-wider text-secondary"
-                      >
-                        Your Name *
-                      </label>
-                      <input
-                        id="contact-name"
-                        type="text"
-                        required
-                        value={formData.name}
-                        onChange={(e) =>
-                          setFormData({ ...formData, name: e.target.value })
-                        }
-                        placeholder="e.g. Jane Doe"
-                        className="w-full px-4 py-3 rounded-xl bg-surface border border-subtle text-primary placeholder-muted text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/80 transition-colors"
-                      />
-                    </div>
+                  <div>
+                    <label
+                      htmlFor="contact-email"
+                      className="block label-mono text-secondary mb-2"
+                    >
+                      Email Address *
+                    </label>
+                    <input
+                      id="contact-email"
+                      type="email"
+                      required
+                      autoComplete="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="jane@company.com"
+                      className="w-full rounded-md border border-subtle bg-surface px-4 py-3 text-sm text-primary placeholder:text-muted focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
 
-                    {/* Email Field */}
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="contact-email"
-                        className="block text-xs font-mono uppercase tracking-wider text-secondary"
-                      >
-                        Email Address *
-                      </label>
-                      <input
-                        id="contact-email"
-                        type="email"
-                        required
-                        value={formData.email}
-                        onChange={(e) =>
-                          setFormData({ ...formData, email: e.target.value })
-                        }
-                        placeholder="e.g. jane@company.com"
-                        className="w-full px-4 py-3 rounded-xl bg-surface border border-subtle text-primary placeholder-muted text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/80 transition-colors"
-                      />
-                    </div>
-
-                    {/* Project Category Selection */}
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="contact-category"
-                        className="block text-xs font-mono uppercase tracking-wider text-secondary"
-                      >
-                        Engagement Scope
-                      </label>
-                      <select
-                        id="contact-category"
-                        value={formData.category}
-                        onChange={(e) =>
-                          setFormData({ ...formData, category: e.target.value })
-                        }
-                        className="w-full px-4 py-3 rounded-xl bg-surface border border-subtle text-primary text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/80 transition-colors cursor-pointer"
-                      >
-                        <option value="Full-Stack Web Application">
-                          Full-Stack Web Application (React / Node / Postgres)
-                        </option>
-                        <option value="Systems & Security Engineering">
-                          Systems &amp; Security Engineering (Rust / Desktop)
-                        </option>
-                        <option value="Visual Design & Motion Systems">
-                          Visual Design, 3D Motion &amp; Brand Systems
-                        </option>
-                        <option value="Architecture Consulting">
-                          Architecture Consulting &amp; Code Review
-                        </option>
-                        <option value="General Inquiry">General Inquiry</option>
-                      </select>
-                    </div>
-
-                    {/* Message Area */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <label
-                          htmlFor="contact-message"
-                          className="block text-xs font-mono uppercase tracking-wider text-secondary"
+                {/* Topic / Engagement Scope Pills */}
+                <div>
+                  <label className="block label-mono text-secondary mb-2">
+                    Scope of Engagement
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {TOPICS.map((topic) => {
+                      const isSelected = formData.category === topic;
+                      return (
+                        <button
+                          key={topic}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, category: topic })}
+                          className={`rounded-full border px-4 py-2 text-xs font-mono transition-colors ${
+                            isSelected
+                              ? "border-emerald-500 bg-emerald-500 text-black font-semibold"
+                              : "border-subtle bg-surface text-secondary hover:border-emerald-500/50 hover:text-primary"
+                          }`}
                         >
-                          Project Details *
-                        </label>
-                        <span className="text-[11px] font-mono text-muted">
-                          {formData.message.length} / 3000 chars
-                        </span>
-                      </div>
-                      <textarea
-                        id="contact-message"
-                        required
-                        minLength={10}
-                        maxLength={3000}
-                        rows={5}
-                        value={formData.message}
-                        onChange={(e) =>
-                          setFormData({ ...formData, message: e.target.value })
-                        }
-                        placeholder="Describe your project, timeline, and architectural requirements..."
-                        className="w-full px-4 py-3 rounded-xl bg-surface border border-subtle text-primary placeholder-muted text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/80 transition-colors resize-y"
-                      />
-                    </div>
+                          {topic}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
-                    {/* Submit Button */}
-                    <Button
-                      type="submit"
-                      variant="primary"
-                      size="lg"
-                      loading={loading}
-                      className="w-full justify-center"
-                      iconRight={<Send className="w-4 h-4" />}
+                {/* Message Field */}
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label
+                      htmlFor="contact-message"
+                      className="block label-mono text-secondary"
                     >
-                      Submit Project Inquiry
-                    </Button>
-                  </form>
-                )}
-              </div>
-            </div>
+                      Project Details *
+                    </label>
+                    <span className="font-mono text-[10px] text-muted">
+                      {formData.message.length} chars
+                    </span>
+                  </div>
+                  <textarea
+                    id="contact-message"
+                    required
+                    rows={5}
+                    minLength={10}
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    placeholder="Describe your architectural requirements, timeline, and design expectations…"
+                    className="w-full rounded-md border border-subtle bg-surface px-4 py-3 text-sm text-primary placeholder:text-muted focus:border-emerald-500 focus:outline-none resize-y"
+                  />
+                </div>
+
+                {/* Submit Action */}
+                <button
+                  type="submit"
+                  disabled={status === "loading"}
+                  className="inline-flex h-12 items-center justify-center gap-3 rounded-full bg-emerald-500 px-8 text-sm font-semibold text-black transition-all hover:bg-emerald-400 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                >
+                  {status === "loading" ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Sending inquiry…</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Send inquiry</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
           </div>
         </Container>
       </section>
