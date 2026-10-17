@@ -73,7 +73,7 @@ export const Footer: React.FC = () => {
           <div>
             <span className="meta-label">Availability</span>
             <p className="meta-value text-sm text-primary">
-              Available for Q1–Q2 2026
+              Available
             </p>
           </div>
 

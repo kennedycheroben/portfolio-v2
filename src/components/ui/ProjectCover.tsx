@@ -8,12 +8,15 @@ interface ProjectCoverProps {
 }
 
 export const ProjectCover: React.FC<ProjectCoverProps> = ({ project, index, size = "md" }) => {
-  if (project.coverImageUrl) {
+  const [hasError, setHasError] = React.useState(false);
+
+  if (project.coverImageUrl && !hasError) {
     return (
       <img
         src={project.coverImageUrl}
         alt={project.coverImageAlt || project.title}
         loading="lazy"
+        onError={() => setHasError(true)}
         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
       />
     );
@@ -22,7 +25,7 @@ export const ProjectCover: React.FC<ProjectCoverProps> = ({ project, index, size
   return (
     <div
       aria-hidden="true"
-      className="relative flex h-full w-full flex-col justify-between overflow-hidden bg-surface p-5 blueprint md:p-7 select-none"
+      className="relative flex h-full w-full flex-col justify-between overflow-hidden rounded-xl bg-surface p-5 blueprint md:p-7 select-none"
     >
       <div className="flex justify-between items-center label-mono z-10">
         <span className="text-secondary">{project.category}</span>

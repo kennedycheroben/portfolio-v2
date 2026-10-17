@@ -90,10 +90,10 @@ export const Contact: React.FC = () => {
       <div className="py-16 md:py-24 bg-canvas">
         <Container className="grid gap-14 lg:grid-cols-12 items-start">
           {/* Left Column: Direct Contact & Telemetry */}
-          <div className="lg:col-span-5 space-y-8">
+          <div className="lg:col-span-5 space-y-8 reveal-on-scroll">
             <div>
               <span className="meta-label">04 / Communication</span>
-              <h1 className="display-segerman text-primary mt-2">
+              <h1 className="font-display text-4xl sm:text-5xl lg:text-5xl xl:text-6xl font-bold uppercase tracking-tight text-primary mt-2 leading-[0.9]">
                 Direct Contact
                 <span className="sr-only"> — Let's engineer something extraordinary</span>
               </h1>
@@ -129,6 +129,25 @@ export const Contact: React.FC = () => {
               <p className="text-xs text-muted leading-relaxed">
                 Preferred communication for RFPs, technical consulting, and design system contracts.
               </p>
+            </div>
+
+            {/* Visual Anchor Media Card */}
+            <div className="border border-subtle bg-surface rounded-sm overflow-hidden shadow-lg">
+              <div className="media-wrapper aspect-[16/9] w-full">
+                <picture>
+                  <source media="(max-width: 767px)" srcSet="/images/contact_section_phone.jpeg" />
+                  <img
+                    src="/images/contact_section.jpeg"
+                    alt="Kennedy Cheroben welcoming inquiries"
+                    className="w-full h-full object-cover contrast-105"
+                    loading="lazy"
+                  />
+                </picture>
+              </div>
+              <div className="p-3 bg-surface border-t border-subtle flex justify-between text-[0.7rem] font-mono text-muted">
+                <span>FIGURE 03 / DIRECT INQUIRY</span>
+                <span>OPEN FOR ENGAGEMENT</span>
+              </div>
             </div>
 
             <dl className="grid grid-cols-2 gap-4 border-t border-subtle pt-6">

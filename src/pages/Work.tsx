@@ -23,7 +23,7 @@ export const Work: React.FC = () => {
       />
 
       {/* Page Header */}
-      <section className="pt-16 pb-12 md:pt-24 md:pb-16 bg-canvas border-b border-subtle">
+      <section className="pt-16 pb-12 md:pt-24 md:pb-16 bg-canvas border-b border-subtle reveal-on-scroll">
         <Container>
           <span className="meta-label">01 / Index</span>
           <h1 className="display-segerman text-primary mt-4">
@@ -87,7 +87,7 @@ function Gallery({ projects }: { projects: Project[] }) {
 
   if (projects.length === 0) {
     return (
-      <div className="rounded-sm border border-dashed border-subtle p-12 text-center space-y-4 bg-surface/30">
+      <div className="rounded-2xl border border-dashed border-subtle p-12 text-center space-y-4 bg-surface/30">
         <div className="mx-auto w-12 h-12 rounded-full bg-surface text-primary border border-subtle flex items-center justify-center">
           <FolderGit2 className="w-6 h-6" />
         </div>
@@ -100,13 +100,13 @@ function Gallery({ projects }: { projects: Project[] }) {
         <div className="pt-2 flex justify-center gap-3">
           <Link
             to="/admin/login"
-            className="rounded-sm bg-primary px-6 py-2.5 text-xs font-mono uppercase tracking-wider text-canvas hover:opacity-90 transition-opacity"
+            className="rounded-lg bg-primary px-6 py-2.5 text-xs font-mono uppercase tracking-wider text-canvas hover:opacity-90 transition-opacity"
           >
             Access Admin Enclave
           </Link>
           <Link
             to="/contact"
-            className="rounded-sm border border-subtle px-6 py-2.5 text-xs font-mono uppercase tracking-wider text-secondary hover:text-primary transition-colors"
+            className="rounded-lg border border-subtle px-6 py-2.5 text-xs font-mono uppercase tracking-wider text-secondary hover:text-primary transition-colors"
           >
             Contact Directly
           </Link>
@@ -127,7 +127,7 @@ function Gallery({ projects }: { projects: Project[] }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search title, tech…"
-            className="h-10 w-full rounded-sm border border-subtle bg-surface pl-10 pr-4 text-xs font-mono text-primary placeholder:text-muted focus:border-strong focus:outline-none"
+            className="h-10 w-full rounded-lg border border-subtle bg-surface pl-10 pr-4 text-xs font-mono text-primary placeholder:text-muted focus:border-strong focus:outline-none"
           />
         </label>
 
@@ -144,7 +144,7 @@ function Gallery({ projects }: { projects: Project[] }) {
                 type="button"
                 onClick={() => setCat(c)}
                 aria-pressed={isSelected}
-                className={`shrink-0 rounded-sm border px-3 py-1.5 text-xs font-mono uppercase tracking-wider transition-colors ${
+                className={`shrink-0 rounded-lg border px-3 py-1.5 text-xs font-mono uppercase tracking-wider transition-colors ${
                   isSelected
                     ? "border-primary bg-primary text-canvas font-bold"
                     : "border-subtle bg-surface text-secondary hover:border-strong hover:text-primary"
@@ -164,7 +164,7 @@ function Gallery({ projects }: { projects: Project[] }) {
       {/* Projects Grid with Segerman Editorial Presentation */}
       <div>
         {filtered.length === 0 ? (
-          <div className="rounded-sm border border-dashed border-subtle p-12 text-center space-y-3 bg-surface/30">
+          <div className="rounded-2xl border border-dashed border-subtle p-12 text-center space-y-3 bg-surface/30">
             <p className="text-secondary font-medium">Nothing matches that search.</p>
             <button
               onClick={() => {
@@ -184,13 +184,14 @@ function Gallery({ projects }: { projects: Project[] }) {
               const span = isLead ? "md:col-span-12" : i % 3 === 1 ? "md:col-span-7" : "md:col-span-5 md:mt-12";
 
               return (
-                <article key={p.id} className={span}>
+                <article key={p.id} className={`${span} reveal-on-scroll`}>
                   <Link
                     to={`/work/${p.slug}`}
-                    className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded-sm"
+                    data-cursor="CASE STUDY"
+                    className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded-xl"
                   >
                     <div
-                      className={`media-wrapper rounded-sm overflow-hidden border border-subtle transition-colors group-hover:border-strong ${
+                      className={`media-wrapper rounded-xl overflow-hidden border border-subtle transition-colors group-hover:border-strong ${
                         isLead ? "aspect-[1.736/1]" : "aspect-[1.54/1]"
                       }`}
                     >
@@ -227,7 +228,7 @@ function Gallery({ projects }: { projects: Project[] }) {
                       {p.technologies.slice(0, 4).map((tech) => (
                         <span
                           key={tech}
-                          className="font-mono text-[0.68rem] uppercase text-muted bg-surface px-2 py-0.5 border border-subtle rounded-sm"
+                          className="font-mono text-[0.68rem] uppercase text-muted bg-surface px-2 py-0.5 border border-subtle rounded-md"
                         >
                           {tech}
                         </span>

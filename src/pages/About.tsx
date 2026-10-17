@@ -33,11 +33,12 @@ export const About: React.FC = () => {
 
       <div className="relative w-full overflow-hidden bg-canvas">
         {/* Segerman Giant Editorial Heading & Hero */}
-        <section className="pt-12 pb-20 md:pt-20 md:pb-32 border-b border-subtle">
+        <section className="pt-12 pb-20 md:pt-20 md:pb-32 border-b border-subtle reveal-on-scroll">
           <Container>
             <div className="flex items-center justify-between mb-10">
               <Link
                 to="/work"
+                data-cursor="INDEX"
                 className="group inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-muted hover:text-primary transition-colors"
               >
                 <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" />
@@ -57,7 +58,7 @@ export const About: React.FC = () => {
             </div>
 
             {/* Lead Narrative & Asymmetric Media Card */}
-            <div className="mt-14 grid gap-12 lg:grid-cols-12 items-start">
+            <div className="mt-14 grid gap-12 lg:grid-cols-12 items-start reveal-on-scroll">
               <div className="lg:col-span-7 space-y-6">
                 <p className="text-xl sm:text-2xl text-primary font-light leading-relaxed">
                   {lead}
@@ -72,7 +73,7 @@ export const About: React.FC = () => {
 
               {/* Media Card */}
               <div className="lg:col-span-5">
-                <div className="media-wrapper aspect-[4/5] rounded-sm shadow-xl">
+                <div className="media-wrapper aspect-[4/5] rounded-2xl shadow-xl overflow-hidden">
                   <picture>
                     <source media="(max-width: 767px)" srcSet="/images/about_section_phone.jpeg" />
                     <img
@@ -93,7 +94,7 @@ export const About: React.FC = () => {
         </section>
 
         {/* Practice Narrative */}
-        <section className="py-20 md:py-28 border-b border-subtle">
+        <section className="py-20 md:py-28 border-b border-subtle reveal-on-scroll">
           <Container className="grid gap-12 lg:grid-cols-12">
             <div className="lg:col-span-4">
               <span className="meta-label">Practice Narrative</span>
@@ -110,7 +111,7 @@ export const About: React.FC = () => {
         </section>
 
         {/* Segerman Structured Metas: Tools & Credentials */}
-        <section className="py-20 md:py-28 border-b border-subtle bg-surface/30">
+        <section className="py-20 md:py-28 border-b border-subtle bg-surface/30 reveal-on-scroll">
           <Container>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
               <div>
@@ -134,7 +135,7 @@ export const About: React.FC = () => {
                 <p className="mt-3 text-sm text-secondary leading-relaxed">
                   Nairobi, Kenya · East Africa Time (UTC+3)
                   <br />
-                  <span className="text-emerald-400 font-mono text-xs">Available for Q1–Q2 2026</span>
+                  <span className="text-emerald-400 font-mono text-xs">Available</span>
                 </p>
               </div>
             </div>
@@ -142,7 +143,7 @@ export const About: React.FC = () => {
         </section>
 
         {/* Working Principles */}
-        <section className="py-20 md:py-28">
+        <section className="py-20 md:py-28 reveal-on-scroll">
           <Container>
             <span className="meta-label">Methodology</span>
             <h2 className="font-display text-3xl font-bold uppercase tracking-tight text-primary mt-2">

@@ -208,6 +208,12 @@ export const CaseStudy: React.FC = () => {
               <img
                 src={project.coverImageUrl}
                 alt={project.coverImageAlt || project.title}
+                onError={(e) => {
+                  const target = e.currentTarget as HTMLImageElement;
+                  if (target.src !== "/images/placeholder.webp") {
+                    target.src = "/images/placeholder.webp";
+                  }
+                }}
                 className="w-full h-full object-cover"
                 loading="eager"
               />
@@ -317,6 +323,12 @@ export const CaseStudy: React.FC = () => {
                   <img
                     src={nextProject.coverImageUrl || "/images/placeholder.webp"}
                     alt={nextProject.coverImageAlt || nextProject.title}
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (target.src !== "/images/placeholder.webp") {
+                        target.src = "/images/placeholder.webp";
+                      }
+                    }}
                     className="w-full h-full object-cover transition-transform group-hover:scale-105"
                   />
                 </div>

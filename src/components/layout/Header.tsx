@@ -63,28 +63,22 @@ export const Header: React.FC = () => {
 
         {/* Desktop Primary Navigation */}
         <div className="hidden items-center gap-6 md:flex">
-          <nav aria-label="Main Navigation" className="flex items-center text-sm font-medium">
-            {NAV_LINKS.map((item, index) => (
-              <React.Fragment key={item.path}>
-                <NavLink
-                  to={item.path}
-                  end={item.end}
-                  className={({ isActive }) =>
-                    `relative py-1 transition-colors ${
-                      isActive
-                        ? "text-primary font-semibold"
-                        : "text-secondary hover:text-primary"
-                    }`
-                  }
-                >
-                  <span className="link-underline">{item.name}</span>
-                </NavLink>
-                {index < NAV_LINKS.length - 1 && (
-                  <span className="mx-2 text-muted select-none" aria-hidden="true">
-                    ,
-                  </span>
-                )}
-              </React.Fragment>
+          <nav aria-label="Main Navigation" className="flex items-center gap-6 text-sm font-medium">
+            {NAV_LINKS.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.end}
+                className={({ isActive }) =>
+                  `relative py-1 transition-colors ${
+                    isActive
+                      ? "text-primary font-semibold"
+                      : "text-secondary hover:text-primary"
+                  }`
+                }
+              >
+                <span className="link-underline">{item.name}</span>
+              </NavLink>
             ))}
           </nav>
 

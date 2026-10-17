@@ -20,11 +20,12 @@ export const Resume: React.FC = () => {
       />
 
       {/* Page Header */}
-      <section className="pt-12 pb-12 md:pt-20 md:pb-16 bg-canvas border-b border-subtle">
+      <section className="pt-12 pb-12 md:pt-20 md:pb-16 bg-canvas border-b border-subtle reveal-on-scroll">
         <Container>
           <div className="flex items-center justify-between mb-8">
             <Link
               to="/work"
+              data-cursor="INDEX"
               className="group inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-muted hover:text-primary transition-colors"
             >
               <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" />
@@ -51,6 +52,7 @@ export const Resume: React.FC = () => {
             <button
               onClick={() => window.print()}
               type="button"
+              data-cursor="PRINT"
               className="inline-flex items-center gap-2 rounded-sm border border-subtle bg-surface px-4 py-2 text-xs font-mono uppercase tracking-wider text-primary hover:border-strong transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
             >
               <Printer className="h-3.5 w-3.5" />
@@ -59,7 +61,7 @@ export const Resume: React.FC = () => {
           </div>
 
           {/* Duality Columns: Surface vs Structure */}
-          <div className="grid gap-12 border-b border-subtle pb-16 md:grid-cols-2">
+          <div className="grid gap-12 border-b border-subtle pb-16 md:grid-cols-2 reveal-on-scroll">
             {[
               { t: "Visual Design", sub: "Surface", items: profile.skills.design },
               {
@@ -80,7 +82,7 @@ export const Resume: React.FC = () => {
                   {col.items.map((s) => (
                     <li
                       key={s}
-                      className="rounded-sm border border-subtle bg-surface px-3 py-1.5 text-xs font-mono uppercase text-muted hover:text-primary transition-colors"
+                      className="rounded-md border border-subtle bg-surface px-3 py-1.5 text-xs font-mono uppercase text-muted hover:text-primary transition-colors"
                     >
                       {s}
                     </li>
@@ -105,11 +107,11 @@ export const Resume: React.FC = () => {
             {state.status === "loading" || state.status === "idle" ? (
               <div role="status" aria-label="Loading projects" className="space-y-4">
                 {[1, 2, 3].map((n) => (
-                  <div key={n} className="h-20 animate-pulse rounded-sm bg-surface border border-subtle" />
+                  <div key={n} className="h-20 animate-pulse rounded-xl bg-surface border border-subtle" />
                 ))}
               </div>
             ) : published.length === 0 ? (
-              <div className="rounded-sm border border-dashed border-subtle p-8 text-center space-y-2 bg-surface/30">
+              <div className="rounded-2xl border border-dashed border-subtle p-8 text-center space-y-2 bg-surface/30">
                 <p className="text-secondary font-medium font-display">No published projects yet.</p>
                 <p className="text-xs font-mono text-muted">
                   Case study records will appear here as they are published via the administrative CMS.

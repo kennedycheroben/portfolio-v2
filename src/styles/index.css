@@ -174,7 +174,27 @@ body {
   overflow: hidden;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card, 0.75rem);
   aspect-ratio: var(--ar);
+}
+
+/* Card Foundations */
+.card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card, 0.75rem);
+}
+
+.card-interactive {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card, 0.75rem);
+  transition: border-color var(--transition-fast), background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.card-interactive:hover {
+  border-color: var(--border-strong);
+  background-color: var(--bg-surface-elevated);
 }
 
 .media-wrapper img,
@@ -207,6 +227,86 @@ body {
   animation: rise 600ms var(--ease-out) both;
 }
 
+/* Segerman Circular Eclipse Loader Animation */
+@keyframes loaderIconEclipse {
+  0% {
+    transform: scale(0.48) translate(35%, -50%);
+  }
+  25% {
+    transform: scale(1) translate(0%, 0%);
+  }
+  50% {
+    transform: scale(0.48) translate(-35%, 50%);
+  }
+  75% {
+    transform: scale(1) translate(0%, 0%);
+  }
+  100% {
+    transform: scale(0.48) translate(35%, -50%);
+  }
+}
+
+.loader-eclipse-circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: loaderIconEclipse 3.2s cubic-bezier(0.76, 0, 0.24, 1) infinite;
+}
+
+/* Scroll-Linked Reveal Animation Utilities: Safe default visibility */
+.reveal-on-scroll {
+  opacity: 1;
+  transform: none;
+}
+
+/* Progressive enhancement: Animate only when motion-ready and user prefers motion */
+@media (prefers-reduced-motion: no-preference) {
+  html.motion-ready .reveal-on-scroll:not(.is-revealed) {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out);
+    will-change: opacity, transform;
+  }
+
+  html.motion-ready .reveal-on-scroll.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  html.motion-ready .reveal-delay-1 {
+    transition-delay: 100ms;
+  }
+
+  html.motion-ready .reveal-delay-2 {
+    transition-delay: 200ms;
+  }
+
+  html.motion-ready .reveal-delay-3 {
+    transition-delay: 300ms;
+  }
+}
+
+/* Page Transition Invariant */
+html.is-transitioning {
+  pointer-events: none;
+}
+
+/* Lenis Smooth Scroll Recommended Rules */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
 /* Motion Preferences */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -215,4 +315,11 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  .reveal-on-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }
+
+
