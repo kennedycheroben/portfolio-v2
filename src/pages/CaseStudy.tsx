@@ -8,11 +8,11 @@ import { findBySlug, publishedOnly, sortForDisplay } from "../lib/projects/selec
 import type { Project } from "../lib/projects/types";
 
 const SECTIONS: { key: keyof Project; n: string; label: string }[] = [
-  { key: "problem", n: "01", label: "Problem Space" },
-  { key: "objectives", n: "02", label: "Architectural Objectives" },
-  { key: "approach", n: "03", label: "Engineering & Design Approach" },
-  { key: "implementation", n: "04", label: "Implementation Details" },
-  { key: "outcomes", n: "05", label: "Outcomes & Impact" },
+  { key: "problem", n: "01", label: "Problem & Context" },
+  { key: "objectives", n: "02", label: "Project Goals" },
+  { key: "approach", n: "03", label: "Design & Development Approach" },
+  { key: "implementation", n: "04", label: "Implementation" },
+  { key: "outcomes", n: "05", label: "Results & Impact" },
 ];
 
 export const CaseStudy: React.FC = () => {
@@ -90,13 +90,13 @@ export const CaseStudy: React.FC = () => {
       "@type": "Person",
       name: "Kennedy Cheroben",
     },
-    url: `https://kennedycheroben.co.ke/work/${project.slug}`,
+    url: `https://portfolio.kennedycheroben.co.ke/work/${project.slug}`,
   };
 
   return (
     <>
       <HeadMeta
-        title={`${project.title} — Technical Case Study · Kennedy Cheroben`}
+        title={`${project.title} — Case Study · Kennedy Cheroben`}
         description={project.seoDescription || project.summary}
         canonicalPath={`/work/${project.slug}`}
         jsonLd={caseJsonLd}
@@ -241,7 +241,7 @@ export const CaseStudy: React.FC = () => {
               {/* Technologies Stack */}
               {project.technologies && project.technologies.length > 0 && (
                 <section className="border-t border-subtle pt-10">
-                  <span className="meta-label">06 / Technologies &amp; Architecture</span>
+                  <span className="meta-label">06 / Technologies Used</span>
                   <ul className="mt-6 flex flex-wrap gap-2 list-none p-0">
                     {project.technologies.map((t) => (
                       <li

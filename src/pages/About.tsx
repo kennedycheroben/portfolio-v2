@@ -117,16 +117,16 @@ export const About: React.FC = () => {
               <div>
                 <span className="meta-label">Core Tools &amp; Stack</span>
                 <p className="mt-3 text-sm text-secondary leading-relaxed">
-                  React 19, TypeScript, PostgreSQL, Supabase, Tailwind CSS, Vite, Node.js,
-                  Vitest, Zod, Figma, GSAP, Linux, Cloudflare Workers.
+                  HTML, CSS, JavaScript, TypeScript, React, Next.js, Node.js, PHP,
+                  Supabase, PostgreSQL, Tailwind CSS, Vite, Figma.
                 </p>
               </div>
 
               <div>
-                <span className="meta-label">Engineering Focus</span>
+                <span className="meta-label">Technical Focus</span>
                 <p className="mt-3 text-sm text-secondary leading-relaxed">
-                  Design Systems, Relational Schemas, Authentication Enclaves, Static Site Generation,
-                  Zero Hydration Discrepancy, WCAG 2.2 AA Accessibility.
+                  Responsive Web Applications, Design Systems, Clean Architecture,
+                  Database Design, Accessible Interfaces.
                 </p>
               </div>
 
@@ -171,13 +171,13 @@ export const About: React.FC = () => {
 
             <div className="mt-16 pt-8 border-t border-subtle flex flex-col sm:flex-row items-center justify-between gap-6">
               <span className="text-xs font-mono text-muted uppercase">
-                Want to review formal experience &amp; credentials?
+                Want to review my skills and experience?
               </span>
               <Link
                 to="/resume"
                 className="inline-flex items-center gap-2 border border-subtle bg-surface px-6 py-3 text-xs font-mono uppercase tracking-wider text-primary hover:border-strong transition-colors rounded-sm"
               >
-                <span>Read Full Resume</span>
+                <span>View My Resume</span>
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>

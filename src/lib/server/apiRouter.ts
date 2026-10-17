@@ -22,9 +22,10 @@ import { projectInputSchema, projectPatchSchema, reorderSchema } from "../projec
 
 function getAllowedOrigin(origin: string | undefined): string | null {
   if (!origin) return null;
-  const siteUrl = process.env.VITE_SITE_URL || "https://kennedycheroben.co.ke";
+  const siteUrl = process.env.VITE_SITE_URL || "https://portfolio.kennedycheroben.co.ke";
   const allowed = [
     siteUrl,
+    "https://portfolio.kennedycheroben.co.ke",
     "https://kennedycheroben.co.ke",
     "http://localhost:3000",
     "http://127.0.0.1:3000",

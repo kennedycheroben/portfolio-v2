@@ -26,14 +26,14 @@ export const Home: React.FC = () => {
       addressCountry: "Kenya",
     },
     description: profile.shortBio,
-    url: "https://kennedycheroben.co.ke",
+    url: "https://portfolio.kennedycheroben.co.ke",
   };
 
   return (
     <>
       <HeadMeta
         title="Visual Design Specialist &amp; Full-Stack Developer"
-        description="Personal portfolio of Kennedy Cheroben — Visual Design Specialist &amp; Full-Stack Developer based in Nairobi, Kenya. Bridging technical engineering with high-craft visual design."
+        description="Personal portfolio of Kennedy Cheroben — Visual Design Specialist &amp; Full-Stack Developer based in Nairobi, Kenya. Bridging solid technical engineering with thoughtful visual design."
         canonicalPath="/"
         jsonLd={homeJsonLd}
       />
@@ -59,9 +59,8 @@ export const Home: React.FC = () => {
                     </span>
                   </h1>
 
-                  <p className="mt-8 max-w-xl text-lg text-secondary leading-relaxed md:text-xl">
-                    Building resilient, high-performance web applications with refined visual craft
-                    and architectural depth beneath the surface.
+                  <p className="mt-8 max-w-xl text-lg text-secondary leading-relaxed md:text-xl font-light">
+                    Building reliable web applications and clean digital interfaces. Bridging solid full-stack engineering with thoughtful visual design.
                   </p>
                 </div>
 
@@ -72,7 +71,7 @@ export const Home: React.FC = () => {
                     data-cursor="VIEW WORK"
                     className="group inline-flex items-center gap-3 border border-primary bg-primary px-6 py-3.5 text-xs font-mono uppercase tracking-wider text-canvas hover:opacity-90 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded-sm"
                   >
-                    <span>Selected Works</span>
+                    <span>View My Projects</span>
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Link>
 
@@ -81,7 +80,7 @@ export const Home: React.FC = () => {
                     data-cursor="ABOUT"
                     className="inline-flex items-center gap-2 border border-subtle bg-surface px-6 py-3.5 text-xs font-mono uppercase tracking-wider text-primary hover:border-strong transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded-sm"
                   >
-                    <span>Design Philosophy</span>
+                    <span>About My Work</span>
                   </Link>
                 </div>
 
@@ -289,7 +288,7 @@ export const Home: React.FC = () => {
                     to="/work"
                     className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-secondary hover:text-primary transition-colors link-underline"
                   >
-                    <span>View all case studies</span>
+                    <span>View all projects</span>
                     <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 </div>
@@ -380,27 +379,26 @@ export const Home: React.FC = () => {
           <Container>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-baseline">
               <div className="lg:col-span-4">
-                <span className="meta-label">Engineering Discipline</span>
+                <span className="meta-label">Approach</span>
                 <h2 className="font-display text-2xl font-bold uppercase tracking-tight text-primary mt-2 sm:text-3xl">
-                  Surface &amp; Structure
+                  Design &amp; Engineering
                 </h2>
               </div>
 
               <div className="lg:col-span-8 space-y-6 text-base text-secondary leading-relaxed md:text-lg">
                 <p>
-                  Most digital products suffer either from visual neglect or technical fragility.
-                  My practice bridges this gap: architecting robust databases, secure authorization
-                  enclaves, and performant APIs underneath, while sculpting disciplined typography,
-                  responsive grids, and deliberate micro-interactions on the surface.
+                  I believe great digital products need both reliable engineering and thoughtful design.
+                  I focus on building responsive frontends, clean database schemas, and dependable APIs,
+                  paired with clear typography, intuitive layouts, and accessible interfaces.
                 </p>
                 <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-6 font-mono text-xs text-muted">
                   <div className="border-l border-subtle pl-4">
                     <p className="text-primary font-bold uppercase mb-1">01 / Visual Design</p>
-                    <p>Design Systems, Figma Token Sync, Typographic Hierarchy, WCAG 2.2 AA Contrast.</p>
+                    <p>Design Systems, Figma, Typographic Hierarchy, High-Contrast Accessibility.</p>
                   </div>
                   <div className="border-l border-subtle pl-4">
                     <p className="text-primary font-bold uppercase mb-1">02 / Technical Engineering</p>
-                    <p>React 19, TypeScript, PostgreSQL / Supabase, Cloudflare, Node.js, Zero-Discrepancy SSG.</p>
+                    <p>HTML, CSS, JavaScript, TypeScript, React, Next.js, PHP, Node.js, Supabase, PostgreSQL.</p>
                   </div>
                 </div>
               </div>

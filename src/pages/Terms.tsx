@@ -60,7 +60,7 @@ export const Terms: React.FC = () => {
               </h2>
               <p className="text-secondary leading-relaxed">
                 By accessing, browsing, or utilizing this website (
-                <span className="text-primary font-mono text-xs">https://kennedycheroben.co.ke</span>
+                <span className="text-primary font-mono text-xs">https://portfolio.kennedycheroben.co.ke</span>
                 ), you acknowledge that you have read, understood, and agreed to be bound by these Terms of Service. If you do not agree with these terms, you should discontinue your use of this website.
               </p>
             </div>

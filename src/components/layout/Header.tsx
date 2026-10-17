@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Menu, X, Copy, Check } from "lucide-react";
+import { Menu, X, Copy, Check, Mail } from "lucide-react";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { profile } from "../../content/profile";
 
@@ -113,27 +113,34 @@ export const Header: React.FC = () => {
               ))}
             </nav>
 
-            {/* Quick Email Copy Feedback */}
-            <div className="relative flex items-center border-l border-subtle pl-5">
+            {/* Quick Email Link & Copy Feedback */}
+            <div className="relative flex items-center border-l border-subtle pl-5 gap-1.5">
+              <a
+                href={`mailto:${profile.email}`}
+                className="group inline-flex items-center gap-1.5 text-xs font-mono text-muted hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded px-1.5 py-0.5"
+                title={`Email ${profile.email}`}
+              >
+                <Mail className="h-3.5 w-3.5 text-muted group-hover:text-primary transition-colors" />
+                <span className="hidden xl:inline hover:underline">{profile.email}</span>
+              </a>
               <button
                 type="button"
                 onClick={handleCopyEmail}
-                aria-label="Copy email to clipboard"
+                aria-label="Copy email address"
                 title="Copy email to clipboard"
-                className="group inline-flex items-center gap-1.5 text-xs font-mono text-muted hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded px-1 py-0.5"
+                className="p-1 text-muted hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded"
               >
                 {copied ? (
                   <Check className="h-3.5 w-3.5 text-emerald-400" />
                 ) : (
                   <Copy className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
                 )}
-                <span className="hidden xl:inline">{profile.email}</span>
               </button>
               {copied && (
                 <span
                   role="status"
                   aria-live="polite"
-                  className="absolute -bottom-8 right-0 rounded bg-surface px-2 py-0.5 text-[0.7rem] font-mono text-emerald-400 border border-subtle shadow-md animate-rise"
+                  className="absolute -bottom-8 right-0 rounded bg-surface px-2 py-0.5 text-[0.7rem] font-mono text-emerald-400 border border-subtle shadow-md animate-rise whitespace-nowrap"
                 >
                   Email copied!
                 </span>
@@ -195,17 +202,25 @@ export const Header: React.FC = () => {
           <div className="border-t border-subtle pt-6 mt-8">
             <dl className="space-y-4">
               <div>
-                <dt className="meta-label">Direct Contact</dt>
-                <dd>
+                <dt className="meta-label">Email Me</dt>
+                <dd className="mt-1 flex items-center gap-2">
+                  <a
+                    href={`mailto:${profile.email}`}
+                    className="text-sm font-medium text-primary hover:text-emerald-400 hover:underline flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded py-0.5 break-all"
+                  >
+                    <Mail className="h-3.5 w-3.5 text-muted shrink-0" />
+                    <span className="font-mono text-xs">{profile.email}</span>
+                  </a>
                   <button
                     type="button"
                     onClick={handleCopyEmail}
-                    className="text-sm font-medium text-primary flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded py-0.5"
+                    className="p-1 border border-subtle rounded text-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
                     title="Copy email to clipboard"
+                    aria-label="Copy email to clipboard"
                   >
-                    <span className="font-mono text-xs">{profile.email}</span>
-                    {copied && <span className="text-xs text-emerald-400 font-mono">(Copied!)</span>}
+                    {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
                   </button>
+                  {copied && <span className="text-xs text-emerald-400 font-mono">(Copied!)</span>}
                 </dd>
               </div>
               <div>

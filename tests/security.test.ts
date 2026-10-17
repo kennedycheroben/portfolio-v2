@@ -64,7 +64,7 @@ describe("Security & Configuration Audit", () => {
 
     const content = fs.readFileSync(robotsPath, "utf-8");
     expect(content).toContain("Disallow: /admin/");
-    expect(content).toContain("Sitemap: https://kennedycheroben.co.ke/sitemap.xml");
+    expect(content).toContain("Sitemap: https://portfolio.kennedycheroben.co.ke/sitemap.xml");
   });
 
   it("confirms .gitignore shields dependencies and environment secrets", () => {

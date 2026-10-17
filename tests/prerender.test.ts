@@ -32,7 +32,7 @@ describe("Static Pre-Rendering Output Audit", () => {
       expect(content).toContain(`<meta name="description" content="`);
 
       // Verify canonical link
-      expect(content).toContain(`<link rel="canonical" href="https://kennedycheroben.co.ke${route.path}" />`);
+      expect(content).toContain(`<link rel="canonical" href="https://portfolio.kennedycheroben.co.ke${route.path}" />`);
 
       // Verify Open Graph metadata
       expect(content).toContain(`<meta property="og:title" content="`);
@@ -77,5 +77,18 @@ describe("Static Pre-Rendering Output Audit", () => {
         // Ignored if invalid json
       }
     }
+  });
+
+  it("generates a valid sitemap.xml with canonical subdomain URLs", () => {
+    const sitemapPath = path.join(distDir, "sitemap.xml");
+    expect(fs.existsSync(sitemapPath)).toBe(true);
+    const sitemapContent = fs.readFileSync(sitemapPath, "utf-8");
+    expect(sitemapContent).toContain("<urlset");
+    expect(sitemapContent).toContain("https://portfolio.kennedycheroben.co.ke/");
+    expect(sitemapContent).toContain("https://portfolio.kennedycheroben.co.ke/about");
+    expect(sitemapContent).toContain("https://portfolio.kennedycheroben.co.ke/work");
+    expect(sitemapContent).toContain("https://portfolio.kennedycheroben.co.ke/contact");
+    expect(sitemapContent).toContain("https://portfolio.kennedycheroben.co.ke/resume");
+    expect(sitemapContent).not.toContain("https://portfolio.kennedycheroben.co.ke/404");
   });
 });

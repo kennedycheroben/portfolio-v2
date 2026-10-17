@@ -12,7 +12,7 @@ export interface RouteMetadata {
   jsonLd?: Record<string, unknown>;
 }
 
-export const DEFAULT_SITE_URL = "https://kennedycheroben.co.ke";
+export const DEFAULT_SITE_URL = "https://portfolio.kennedycheroben.co.ke";
 
 export function normalizePath(url: string): string {
   const pathname = url.split(/[?#]/)[0] || "/";

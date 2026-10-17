@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Printer, ShieldCheck, ArrowUpRight, ArrowLeft } from "lucide-react";
+import { Printer, ArrowUpRight, ArrowLeft, ArrowRight, Mail } from "lucide-react";
 import { Container } from "../components/ui/Container";
 import { HeadMeta } from "../components/seo/HeadMeta";
 import { profile } from "../content/profile";
@@ -14,8 +14,8 @@ export const Resume: React.FC = () => {
   return (
     <>
       <HeadMeta
-        title="Resume &amp; Technical Capabilities — Kennedy Cheroben"
-        description="Design and engineering capabilities, verified project history, and software systems tooling of Kennedy Cheroben."
+        title="Resume &amp; Skills — Kennedy Cheroben"
+        description="Design and engineering skills, verified project history, and technical background of Kennedy Cheroben."
         canonicalPath="/resume"
       />
 
@@ -26,20 +26,23 @@ export const Resume: React.FC = () => {
             <Link
               to="/work"
               data-cursor="INDEX"
-              className="group inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-muted hover:text-primary transition-colors"
+              className="group inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-muted hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded"
             >
               <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" />
               <span className="link-underline">Index</span>
             </Link>
-            <span className="meta-label">03 / Experience Dossier</span>
+            <span className="meta-label">03 / Resume</span>
           </div>
 
           <h1 className="display-segerman text-primary">
             {profile.name}
-            <span className="sr-only"> — Engineering Competencies &amp; Experience</span>
+            <span className="sr-only"> — Skills &amp; Experience</span>
           </h1>
-          <p className="mt-6 text-lg text-secondary">
+          <p className="mt-4 text-xs font-mono uppercase tracking-wider text-muted">
             {profile.title} · {profile.location}
+          </p>
+          <p className="mt-4 max-w-2xl text-base sm:text-lg text-secondary leading-relaxed font-light">
+            {profile.shortBio}
           </p>
         </Container>
       </section>
@@ -60,13 +63,13 @@ export const Resume: React.FC = () => {
             </button>
           </div>
 
-          {/* Duality Columns: Surface vs Structure */}
+          {/* Skills Grid: Design Skills and Technical Skills */}
           <div className="grid gap-12 border-b border-subtle pb-16 md:grid-cols-2 reveal-on-scroll">
             {[
-              { t: "Visual Design", sub: "Surface", items: profile.skills.design },
+              { t: "Design Skills", sub: "Visual Design & UI/UX", items: profile.skills.design },
               {
-                t: "Software Engineering",
-                sub: "Structure",
+                t: "Technical Skills",
+                sub: "Engineering & Web Development",
                 items: [...profile.skills.engineering, ...profile.skills.systems],
               },
             ].map((col, i) => (
@@ -101,7 +104,7 @@ export const Resume: React.FC = () => {
                   Project History
                 </h2>
               </div>
-              <span className="meta-label">Supabase CMS Verified</span>
+              <span className="meta-label">Selected Work</span>
             </div>
 
             {state.status === "loading" || state.status === "idle" ? (
@@ -149,17 +152,33 @@ export const Resume: React.FC = () => {
             )}
           </div>
 
-          {/* Verified Evidence Policy */}
-          <div className="mt-16 rounded-sm border border-subtle bg-surface p-6 md:p-8 space-y-3">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-emerald-400" />
-              <h4 className="text-xs font-mono uppercase tracking-wider text-primary font-bold">
-                Truthfulness &amp; Evidence-Based Verification Policy
-              </h4>
+          {/* Clear Contact Action */}
+          <div className="mt-16 rounded-sm border border-subtle bg-surface p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div>
+              <span className="meta-label">Get in Touch</span>
+              <h2 className="text-xl sm:text-2xl font-bold font-display uppercase tracking-tight text-primary mt-1">
+                Interested in working together?
+              </h2>
+              <p className="text-secondary text-sm mt-1 max-w-lg">
+                Available for full-stack engineering, web application development, and visual design projects.
+              </p>
             </div>
-            <p className="text-xs leading-relaxed text-muted">
-              Every project showcase in this portfolio reflects genuine production architecture, verified code repositories, and measurable outcomes. No mock entries, fictional statistics, or fabricated claims are permitted in production paths.
-            </p>
+            <div className="flex flex-wrap items-center gap-4">
+              <Link
+                to="/contact"
+                className="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-3 text-xs font-mono uppercase tracking-wider font-bold text-canvas hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+              >
+                <span>Contact Me</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <a
+                href={`mailto:${profile.email}`}
+                className="inline-flex items-center gap-2 rounded-sm border border-subtle bg-canvas px-4 py-3 text-xs font-mono text-primary hover:border-strong transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+              >
+                <Mail className="h-3.5 w-3.5 text-muted" />
+                <span>{profile.email}</span>
+              </a>
+            </div>
           </div>
         </Container>
       </section>

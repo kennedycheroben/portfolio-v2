@@ -89,29 +89,36 @@ export const Contact: React.FC = () => {
 
       <div className="py-16 md:py-24 bg-canvas">
         <Container className="grid gap-14 lg:grid-cols-12 items-start">
-          {/* Left Column: Direct Contact & Telemetry */}
+          {/* Left Column: Direct Contact & Info */}
           <div className="lg:col-span-5 space-y-8 reveal-on-scroll">
             <div>
-              <span className="meta-label">04 / Communication</span>
+              <span className="meta-label">04 / Contact</span>
               <h1 className="font-display text-4xl sm:text-5xl lg:text-5xl xl:text-6xl font-bold uppercase tracking-tight text-primary mt-2 leading-[0.9]">
-                Direct Contact
-                <span className="sr-only"> — Let's engineer something extraordinary</span>
+                Contact Me
+                <span className="sr-only"> — Let's build something extraordinary</span>
               </h1>
               <p className="mt-6 text-lg text-secondary leading-relaxed">
-                Have a project or technical challenge worth engineering? Send an inquiry or reach out directly via email.
+                Have a project in mind or a question? Send a message below or email me directly.
               </p>
             </div>
 
             {/* Direct Email Card */}
             <div className="border border-subtle bg-surface p-6 rounded-sm space-y-4">
-              <span className="meta-label">Direct Inbox</span>
-              <div className="flex items-center justify-between">
-                <span className="text-base font-medium text-primary font-mono">{profile.email}</span>
+              <span className="meta-label">Email Me Directly</span>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <a
+                  href={`mailto:${profile.email}`}
+                  className="text-base font-medium text-primary font-mono hover:text-emerald-400 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded transition-colors break-all"
+                  title={`Send email to ${profile.email}`}
+                >
+                  {profile.email}
+                </a>
                 <button
                   type="button"
                   onClick={handleCopyEmail}
                   className="inline-flex items-center gap-1.5 border border-subtle bg-surface px-3 py-1.5 rounded-sm text-xs font-mono text-muted hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
                   title="Copy email to clipboard"
+                  aria-label="Copy email address"
                 >
                   {copied ? (
                     <>
@@ -127,7 +134,7 @@ export const Contact: React.FC = () => {
                 </button>
               </div>
               <p className="text-xs text-muted leading-relaxed">
-                Preferred communication for RFPs, technical consulting, and design system contracts.
+                Feel free to email me directly regarding web development, full-stack engineering, or visual design collaboration.
               </p>
             </div>
 
@@ -171,10 +178,10 @@ export const Contact: React.FC = () => {
               >
                 <CheckCircle2 className="h-10 w-10 text-emerald-400" />
                 <h2 className="font-display text-3xl font-bold uppercase tracking-tight text-primary">
-                  Inquiry Received, {formData.name.split(" ")[0]}.
+                  Message Received, {formData.name.split(" ")[0]}.
                 </h2>
                 <p className="text-secondary leading-relaxed">
-                  Thank you for outlining your scope. I review incoming specifications carefully and will reply directly to <span className="text-primary font-mono">{formData.email}</span> within 24 to 48 hours.
+                  Thank you for reaching out. I review incoming messages carefully and will reply directly to <span className="text-primary font-mono">{formData.email}</span> within 24 to 48 hours.
                 </p>
                 <div className="pt-4 border-t border-subtle">
                   <button
@@ -182,7 +189,7 @@ export const Contact: React.FC = () => {
                     type="button"
                     className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-primary link-underline"
                   >
-                    <span>Submit another inquiry</span>
+                    <span>Send another message</span>
                     <ArrowRight className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -259,10 +266,10 @@ export const Contact: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Topic / Engagement Scope */}
+                {/* Topic / Project Type */}
                 <div>
                   <span className="block meta-label mb-2">
-                    Scope of Engagement
+                    Project Type
                   </span>
                   <div className="flex flex-wrap gap-2">
                     {TOPICS.map((topic) => {
@@ -292,7 +299,7 @@ export const Contact: React.FC = () => {
                       htmlFor="contact-message"
                       className="block meta-label"
                     >
-                      Project Details *
+                      Tell Me About Your Project *
                     </label>
                     <span className="font-mono text-[10px] text-muted">
                       {formData.message.length} chars
@@ -305,7 +312,7 @@ export const Contact: React.FC = () => {
                     minLength={10}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder="Describe your architectural scope, design expectations, and timeline…"
+                    placeholder="Describe your project, goals, requirements, and timeline…"
                     className="w-full rounded-sm border border-subtle bg-canvas px-4 py-3 text-sm text-primary placeholder:text-muted focus:border-strong focus:outline-none resize-y"
                   />
                 </div>
@@ -319,11 +326,11 @@ export const Contact: React.FC = () => {
                   {status === "loading" ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      <span>Sending inquiry…</span>
+                      <span>Sending message…</span>
                     </>
                   ) : (
                     <>
-                      <span>Transmit inquiry</span>
+                      <span>Send Message</span>
                       <ArrowRight className="h-4 w-4" />
                     </>
                   )}

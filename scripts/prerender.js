@@ -8,7 +8,7 @@ const distDir = path.resolve(rootDir, "dist");
 const ssrDir = path.resolve(rootDir, "dist-ssr");
 const dbPath = path.resolve(rootDir, "data/projects.json");
 
-const SITE_URL = process.env.VITE_SITE_URL || "https://kennedycheroben.co.ke";
+const SITE_URL = process.env.VITE_SITE_URL || "https://portfolio.kennedycheroben.co.ke";
 
 async function prerender() {
   console.log("Starting dynamic SSG pre-rendering pipeline...");
@@ -165,6 +165,28 @@ async function prerender() {
       fs.writeFileSync(path.resolve(dirPath, "index.html"), pageHtml, "utf-8");
     }
   }
+
+  // 9. Generate valid sitemap.xml for all public indexable routes (excluding /404)
+  const indexableRoutes = routes.filter((r) => r !== "/404");
+  const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${indexableRoutes
+  .map(
+    (r) => `  <url>
+    <loc>${SITE_URL}${r}</loc>
+    <changefreq>${r === "/" ? "daily" : "weekly"}</changefreq>
+    <priority>${r === "/" ? "1.0" : r.startsWith("/work/") ? "0.9" : "0.8"}</priority>
+  </url>`
+  )
+  .join("\n")}
+</urlset>
+`;
+  fs.writeFileSync(path.resolve(distDir, "sitemap.xml"), sitemapXml, "utf-8");
+  const publicDir = path.resolve(rootDir, "public");
+  if (fs.existsSync(publicDir)) {
+    fs.writeFileSync(path.resolve(publicDir, "sitemap.xml"), sitemapXml, "utf-8");
+  }
+  console.log(`Generated sitemap.xml with ${indexableRoutes.length} URLs`);
 
   // Remove temporary SSR bundle directory
   if (fs.existsSync(ssrDir)) {

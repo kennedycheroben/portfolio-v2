@@ -10,7 +10,7 @@ interface GuideSection {
   title: string;
   summary: string;
   icon: React.ComponentType<{ className?: string }>;
-  steps: string[];
+  steps: (string | React.ReactNode)[];
 }
 
 const VISITOR_SECTIONS: GuideSection[] = [
@@ -21,35 +21,45 @@ const VISITOR_SECTIONS: GuideSection[] = [
     icon: Compass,
     steps: [
       "Home (/): Introduces the dual practice (visual design specialist & full-stack developer) and features lead projects.",
-      "Work (/work): A searchable archive of technical case files. Filter by category or search by keywords and technology.",
-      "About (/about): Detailed narrative of engineering philosophy, working principles, and full capabilities matrix.",
-      "Resume (/resume): High-level overview of core engineering & design skills with verified project history and print/PDF support.",
-      "Contact (/contact): Project inquiry form with category selection for architectural and design consultations.",
+      "Work (/work): A searchable gallery of projects. Filter by category or search by keywords and technology.",
+      "About (/about): Narrative of my background, working principles, and core technical skills.",
+      "Resume (/resume): Overview of technical skills, design skills, experience, and project history.",
+      "Contact (/contact): Send a message, choose your project type, or reach out directly via email.",
     ],
   },
   {
     id: "case-studies",
     title: "2. Understanding Case Studies",
-    summary: "Every project in the catalog follows a structured architectural format.",
+    summary: "Every project in the catalog follows a clear, structured format.",
     icon: BookOpen,
     steps: [
-      "Problem Space: Why the project was built, user requirements, and constraints.",
-      "Architectural Objectives: High-level technical and design goals established before writing code.",
-      "Engineering & Design Approach: Systems architecture, data modeling, and UX decisions.",
-      "Implementation Details: Concrete technologies, security controls, and key architectural choices.",
-      "Outcomes & Verification: Deliverables and verified capabilities. (No fabricated metrics or unverified client statistics).",
+      "Problem & Context: Why the project was built, user requirements, and constraints.",
+      "Project Goals: High-level technical and design goals established before building.",
+      "Design & Development Approach: Architecture, data modeling, and UX decisions.",
+      "Implementation: Technologies used, security controls, and key engineering choices.",
+      "Results & Impact: Verified outcomes and deliverables without exaggerated claims.",
     ],
   },
   {
     id: "contact-flow",
-    title: "3. Submitting an Inquiry & What Happens Next",
+    title: "3. Contacting Me & What Happens Next",
     summary: "What to expect when submitting a message through the contact form.",
     icon: Mail,
     steps: [
-      "Complete the form: Provide your name, verified email address, select a scope of engagement, and describe your project requirements.",
-      "Input validation: Submissions are checked for validity and protected by anti-bot honeypot and rate limiting.",
-      "Review & Response: Direct inquiries are reviewed personally. You can expect a response within 24 to 48 business hours (EAT, UTC+3).",
-      `Alternative Contact: You can also reach out directly via email at ${profile.email}.`,
+      "Complete the form: Provide your name, email address, choose a project type, and describe what you need.",
+      "Input validation: Submissions are checked for validity and protected against automated spam.",
+      "Review & Response: Direct messages are reviewed personally. You can expect a response within 24 to 48 business hours (EAT, UTC+3).",
+      (
+        <span key="email-step">
+          Direct Email: You can also reach out directly via email at{" "}
+          <a
+            href={`mailto:${profile.email}`}
+            className="text-emerald-400 hover:underline font-mono focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus rounded"
+          >
+            {profile.email}
+          </a>.
+        </span>
+      ),
     ],
   },
   {
@@ -61,7 +71,7 @@ const VISITOR_SECTIONS: GuideSection[] = [
       "No invasive tracking: This site does not load third-party ad pixels or tracking cookies.",
       "Inquiry data protection: Information provided in the contact form is used solely for corresponding regarding your inquiry.",
       "Legal Compliance: Aligned with data protection principles including the Kenya Data Protection Act, 2019.",
-      "Audit documentation: Full legal and privacy commitments are published on the Privacy Policy and Terms of Service pages.",
+      "Documentation: Full legal and privacy commitments are published on the Privacy Policy and Terms of Service pages.",
     ],
   },
 ];
@@ -187,14 +197,14 @@ export const Guide: React.FC = () => {
                   Ready to discuss a project?
                 </h3>
                 <p className="text-secondary text-sm mt-1 max-w-lg">
-                  Submit an inquiry via the contact form or email directly to begin technical scoping.
+                  Send a message through the contact form or email me directly to discuss your project.
                 </p>
               </div>
               <Link
                 to="/contact"
                 className="inline-flex items-center gap-2 rounded-sm bg-primary px-6 py-3 text-xs font-mono uppercase tracking-wider font-bold text-canvas hover:opacity-90 transition-opacity"
               >
-                <span>Transmit Inquiry</span>
+                <span>Contact Me</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ArrowUpRight, Copy, Check } from "lucide-react";
+import { ArrowUpRight, Copy, Check, Mail } from "lucide-react";
 import { profile } from "../../content/profile";
 
 const PRIMARY_NAV_LINKS = [
@@ -35,10 +35,10 @@ export const Footer: React.FC = () => {
               <div className="space-y-1">
                 <span className="meta-label">Collaborate</span>
                 <h2 className="font-display text-2xl font-bold uppercase tracking-tight text-primary sm:text-3xl">
-                  Have an ambitious project in mind?
+                  Have a project in mind?
                 </h2>
                 <p className="text-sm text-secondary">
-                  Available for full-stack software architecture, systems engineering, and visual design systems.
+                  Available for full-stack web development, design systems, and visual interfaces.
                 </p>
               </div>
               <div className="flex items-center gap-3 shrink-0">
@@ -46,7 +46,7 @@ export const Footer: React.FC = () => {
                   to="/contact"
                   className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-display text-xs font-bold uppercase tracking-wider text-canvas hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus transition-all"
                 >
-                  <span>Get in touch</span>
+                  <span>Contact Me</span>
                   <ArrowUpRight className="h-4 w-4" />
                 </Link>
               </div>
@@ -68,7 +68,7 @@ export const Footer: React.FC = () => {
               {profile.title}
             </p>
             <p className="text-xs text-secondary leading-relaxed max-w-xs">
-              Architecting resilient full-stack systems and high-craft visual interfaces with mathematical rigor.
+              Building reliable full-stack web applications with clean, thoughtful visual design.
             </p>
           </div>
 
@@ -94,23 +94,32 @@ export const Footer: React.FC = () => {
             </nav>
           </div>
 
-          {/* Col 3: Direct Contact & Quick Copy */}
+          {/* Col 3: Direct Contact & Email */}
           <div>
-            <span className="meta-label">Direct Contact</span>
-            <button
-              type="button"
-              onClick={handleCopyEmail}
-              className="group inline-flex items-center gap-2 text-left text-sm font-medium text-primary hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded py-1"
-              title="Click to copy email address"
-              aria-label="Copy direct contact email"
-            >
-              <span className="font-mono text-xs">{profile.email}</span>
-              {copied ? (
-                <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-              ) : (
-                <Copy className="h-3.5 w-3.5 text-muted transition-transform group-hover:scale-110 shrink-0" />
-              )}
-            </button>
+            <span className="meta-label">Email Me</span>
+            <div className="mt-1 flex items-center gap-2">
+              <a
+                href={`mailto:${profile.email}`}
+                className="text-xs font-mono text-primary hover:text-emerald-400 hover:underline flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded py-1 break-all"
+                title={`Send email to ${profile.email}`}
+              >
+                <Mail className="h-3.5 w-3.5 text-muted shrink-0" />
+                <span>{profile.email}</span>
+              </a>
+              <button
+                type="button"
+                onClick={handleCopyEmail}
+                className="p-1 text-muted hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded shrink-0"
+                title="Copy email to clipboard"
+                aria-label="Copy email address"
+              >
+                {copied ? (
+                  <Check className="h-3.5 w-3.5 text-emerald-400" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5 transition-transform hover:scale-110" />
+                )}
+              </button>
+            </div>
             {copied && (
               <span className="block mt-1 text-[0.7rem] font-mono text-emerald-400">
                 Email copied to clipboard!
@@ -134,7 +143,7 @@ export const Footer: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-secondary mt-2 leading-relaxed">
-              Open for architectural consulting, production web engineering, and design system contracts.
+              Open for web development, full-stack engineering, and design system contracts.
             </p>
           </div>
         </div>

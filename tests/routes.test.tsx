@@ -87,13 +87,18 @@ describe("Route Skeletons & Navigation", () => {
     );
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      /let's engineer something extraordinary/i
+      /contact me/i
     );
-    expect(screen.getByLabelText(/your name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/email address/i)).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: /your name/i })).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: /email address/i })).toBeInTheDocument();
+    const emailLinks = screen.getAllByRole("link", { name: /kennedycheroben001@gmail\.com/i });
+    expect(emailLinks.length).toBeGreaterThanOrEqual(1);
+    emailLinks.forEach((link) => {
+      expect(link).toHaveAttribute("href", "mailto:kennedycheroben001@gmail.com");
+    });
   });
 
-  it("renders Resume page at '/resume' with competencies and evidence disclaimer", () => {
+  it("renders Resume page at '/resume' with skills, experience and contact action", () => {
     render(
       <MemoryRouter initialEntries={["/resume"]}>
         <App />
@@ -101,9 +106,15 @@ describe("Route Skeletons & Navigation", () => {
     );
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      /engineering competencies & experience/i
+      /skills & experience/i
     );
-    expect(screen.getByText(/Truthfulness & Evidence-Based Verification Policy/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /technical skills/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /design skills/i })).toBeInTheDocument();
+    const emailLinks = screen.getAllByRole("link", { name: /kennedycheroben001@gmail\.com/i });
+    expect(emailLinks.length).toBeGreaterThanOrEqual(1);
+    emailLinks.forEach((link) => {
+      expect(link).toHaveAttribute("href", "mailto:kennedycheroben001@gmail.com");
+    });
   });
 
   it("renders NotFound 404 page when navigating to an unknown route", () => {

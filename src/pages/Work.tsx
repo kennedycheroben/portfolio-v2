@@ -17,8 +17,8 @@ export const Work: React.FC = () => {
   return (
     <>
       <HeadMeta
-        title="Work Index — Case Files"
-        description="Engineering systems and visual work by Kennedy Cheroben, each documented from problem space to measurable outcome."
+        title="Featured Work &amp; Case Studies — Kennedy Cheroben"
+        description="Software development, web applications, and visual design work by Kennedy Cheroben."
         canonicalPath="/work"
       />
 
@@ -27,10 +27,10 @@ export const Work: React.FC = () => {
         <Container>
           <span className="meta-label">01 / Index</span>
           <h1 className="display-segerman text-primary mt-4">
-            Case Files
+            Projects
           </h1>
-          <p className="mt-8 max-w-2xl text-lg text-secondary leading-relaxed md:text-xl">
-            Selected engineering systems, design infrastructure, and visual artifacts documented from problem space to production outcome.
+          <p className="mt-8 max-w-2xl text-lg text-secondary leading-relaxed md:text-xl font-light">
+            Selected web applications, design systems, and software engineering projects.
           </p>
         </Container>
       </section>
