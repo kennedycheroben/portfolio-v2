@@ -11,7 +11,7 @@ describe("Administrative CMS Enclave", () => {
     vi.restoreAllMocks();
   });
 
-  it("renders AdminLogin with email and password inputs", () => {
+  it("renders AdminLogin with email and password inputs and strictly NO demo autofill buttons", () => {
     render(
       <MemoryRouter initialEntries={["/admin/login"]}>
         <AdminAuthProvider>
@@ -24,10 +24,12 @@ describe("Administrative CMS Enclave", () => {
     expect(screen.getByLabelText(/Administrator Email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Sign In to Dashboard/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Autofill Default Credentials/i })).toBeInTheDocument();
+    // Regression check: demo autofill button MUST NOT exist
+    expect(screen.queryByRole("button", { name: /Autofill Default Credentials/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Autofill/i)).not.toBeInTheDocument();
   });
 
-  it("autofills credentials when clicking demo helper button", () => {
+  it("accepts user credentials securely without exposing defaults", () => {
     render(
       <MemoryRouter initialEntries={["/admin/login"]}>
         <AdminAuthProvider>
@@ -36,14 +38,18 @@ describe("Administrative CMS Enclave", () => {
       </MemoryRouter>
     );
 
-    const helperBtn = screen.getByRole("button", { name: /Autofill Default Credentials/i });
-    fireEvent.click(helperBtn);
-
     const emailInput = screen.getByLabelText(/Administrator Email/i) as HTMLInputElement;
     const passInput = screen.getByLabelText(/Password/i) as HTMLInputElement;
 
-    expect(emailInput.value).toBe("admin@kennedycheroben.co.ke");
-    expect(passInput.value).toBe("Admin@Portfolio2026!");
+    // Initially blank
+    expect(emailInput.value).toBe("");
+    expect(passInput.value).toBe("");
+
+    fireEvent.change(emailInput, { target: { value: "operator@kennedycheroben.co.ke" } });
+    fireEvent.change(passInput, { target: { value: "SecretPassword123!" } });
+
+    expect(emailInput.value).toBe("operator@kennedycheroben.co.ke");
+    expect(passInput.value).toBe("SecretPassword123!");
   });
 
   it("redirects unauthenticated users in AdminLayout to /admin/login", async () => {

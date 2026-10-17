@@ -65,8 +65,8 @@ describe("Motion, Transition & Visual Asset Invariants", () => {
 
     rerender(<ProjectCover project={sampleProject} index={0} />);
     // After error, blueprint card with technology badges renders safely
-    expect(screen.getByText("Full-Stack Web")).toBeInTheDocument();
-    expect(screen.getByText("React")).toBeInTheDocument();
+    expect(screen.getByText("Full-Stack SaaS Architecture")).toBeInTheDocument();
+    expect(screen.getByText("React 19")).toBeInTheDocument();
   });
 
   it("verifies required public image assets exist in the repository", () => {

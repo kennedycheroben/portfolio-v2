@@ -16,15 +16,49 @@ import {
   createAdminToken,
   verifyAdminToken,
   validateAdminCredentials,
+  isAuthConfigured,
 } from "./auth";
 import { projectInputSchema, projectPatchSchema, reorderSchema } from "../projects/schema";
 
-function json(res: ServerResponse, status: number, data: unknown) {
+function getAllowedOrigin(origin: string | undefined): string | null {
+  if (!origin) return null;
+  const siteUrl = process.env.VITE_SITE_URL || "https://kennedycheroben.co.ke";
+  const allowed = [
+    siteUrl,
+    "https://kennedycheroben.co.ke",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+  ];
+  try {
+    const originUrl = new URL(origin);
+    if (allowed.some((a) => {
+      try {
+        return new URL(a).origin === originUrl.origin;
+      } catch {
+        return false;
+      }
+    })) {
+      return origin;
+    }
+  } catch {
+    // Malformed origin
+  }
+  return null;
+}
+
+function json(res: ServerResponse, status: number, data: unknown, req?: IncomingMessage) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json");
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const origin = req?.headers?.origin as string | undefined;
+  const allowedOrigin = getAllowedOrigin(origin);
+  if (allowedOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Vary", "Origin");
   res.end(JSON.stringify(data));
 }
 
@@ -161,8 +195,18 @@ export async function handleApiRequest(
     if (pathname === "/api/admin/login" && method === "POST") {
       const body = await parseBody(req);
       const { email, password } = body;
+
+      // Fail-closed check: server MUST have configured secrets
+      if (!isAuthConfigured()) {
+        json(res, 503, {
+          error: "Authentication service is unconfigured. Required server environment variables are missing.",
+          code: "AUTH_UNCONFIGURED",
+        }, req);
+        return true;
+      }
+
       if (!email || !password || !validateAdminCredentials(email, password)) {
-        json(res, 401, { error: "Invalid credentials", code: "INVALID_CREDENTIALS" });
+        json(res, 401, { error: "Invalid credentials", code: "INVALID_CREDENTIALS" }, req);
         return true;
       }
       const token = createAdminToken(email);
@@ -170,7 +214,7 @@ export async function handleApiRequest(
         success: true,
         token,
         user: { email, role: "admin" },
-      });
+      }, req);
       return true;
     }
 

@@ -167,9 +167,11 @@ describe("Route Skeletons & Navigation", () => {
     expect(footerNav).toHaveTextContent(/About/i);
     expect(footerNav).toHaveTextContent(/Work/i);
     expect(footerNav).toHaveTextContent(/Resume/i);
-    expect(footerNav).toHaveTextContent(/Guide/i);
     expect(footerNav).toHaveTextContent(/Contact/i);
-    expect(footerNav).toHaveTextContent(/Privacy/i);
-    expect(footerNav).toHaveTextContent(/Terms/i);
+    expect(footerNav).toHaveTextContent(/Guide/i);
+
+    const legalNav = screen.getByRole("navigation", { name: "Legal Navigation" });
+    expect(legalNav).toHaveTextContent(/Privacy Policy/i);
+    expect(legalNav).toHaveTextContent(/Terms of Service/i);
   });
 });

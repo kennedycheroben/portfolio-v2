@@ -1,8 +1,25 @@
 import fs from "node:fs";
 import path from "node:path";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import {
+  getAuthConfig,
+  isAuthConfigured,
+  validateAdminCredentials,
+  createAdminToken,
+  verifyAdminToken,
+} from "../src/lib/server/auth";
 
 describe("Security & Configuration Audit", () => {
+  const originalEnv = { ...process.env };
+
+  beforeEach(() => {
+    process.env = { ...originalEnv };
+  });
+
+  afterEach(() => {
+    process.env = { ...originalEnv };
+  });
+
   it("verifies vercel.json contains hardened security headers and cleanUrls", () => {
     const vercelConfigPath = path.resolve(__dirname, "../vercel.json");
     expect(fs.existsSync(vercelConfigPath)).toBe(true);
@@ -36,6 +53,9 @@ describe("Security & Configuration Audit", () => {
     expect(content).not.toMatch(/ey[a-zA-Z0-9_-]{20,}/); // No JWT tokens
     expect(content).toContain("VITE_SITE_URL");
     expect(content).toContain("placeholder");
+    // Ensure no real secrets or passwords leaked in example
+    expect(content).not.toContain("Admin@Portfolio2026!");
+    expect(content).not.toContain("portfolio-admin-secret");
   });
 
   it("verifies robots.txt disallows admin path without exposing secrets", () => {
@@ -55,5 +75,60 @@ describe("Security & Configuration Audit", () => {
     expect(content).toContain("node_modules/");
     expect(content).toContain(".env");
     expect(content).toContain("dist/");
+  });
+
+  it("FAILS CLOSED: server auth rejects authentication when required secrets are absent", () => {
+    delete process.env.ADMIN_AUTH_SECRET;
+    delete process.env.ADMIN_EMAIL;
+    delete process.env.ADMIN_PASSWORD;
+
+    expect(isAuthConfigured()).toBe(false);
+    expect(getAuthConfig()).toBeNull();
+
+    // Must reject any credentials without environment setup
+    expect(validateAdminCredentials("admin@kennedycheroben.co.ke", "Admin@Portfolio2026!")).toBe(false);
+    expect(validateAdminCredentials("admin@example.com", "any-password")).toBe(false);
+
+    // Creating token must throw error rather than fall back to insecure default key
+    expect(() => createAdminToken("admin@example.com")).toThrow(/unconfigured/i);
+
+    // Verifying token must return null
+    expect(verifyAdminToken("sample.token")).toBeNull();
+  });
+
+  it("authenticates correctly only when valid environment secrets are provided", () => {
+    process.env.ADMIN_AUTH_SECRET = "test-secret-salt-key-must-be-at-least-16-chars-long";
+    process.env.ADMIN_EMAIL = "admin@secure-domain.org";
+    process.env.ADMIN_PASSWORD = "StrongSecurePassword2026!";
+
+    expect(isAuthConfigured()).toBe(true);
+    expect(getAuthConfig()).not.toBeNull();
+
+    // Valid credentials succeed
+    expect(validateAdminCredentials("admin@secure-domain.org", "StrongSecurePassword2026!")).toBe(true);
+    // Case-insensitive email succeeds
+    expect(validateAdminCredentials("ADMIN@secure-domain.org", "StrongSecurePassword2026!")).toBe(true);
+
+    // Invalid password fails
+    expect(validateAdminCredentials("admin@secure-domain.org", "WrongPassword")).toBe(false);
+    // Invalid email fails
+    expect(validateAdminCredentials("intruder@evil.com", "StrongSecurePassword2026!")).toBe(false);
+
+    // Token creation and verification works
+    const token = createAdminToken("admin@secure-domain.org");
+    expect(token).toBeDefined();
+
+    const session = verifyAdminToken(token);
+    expect(session).not.toBeNull();
+    expect(session?.email).toBe("admin@secure-domain.org");
+    expect(session?.role).toBe("admin");
+
+    // Tampered token fails
+    const tampered = token.slice(0, -4) + "XXXX";
+    expect(verifyAdminToken(tampered)).toBeNull();
+
+    // Invalid format / mismatched signature length does not throw RangeError
+    expect(verifyAdminToken("short.sig")).toBeNull();
+    expect(verifyAdminToken("a.b.c")).toBeNull();
   });
 });

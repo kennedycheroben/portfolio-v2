@@ -30,6 +30,7 @@ export const SmoothScroll: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     lenisRef.current = lenis;
+    (window as any).__lenis = lenis;
 
     let rafId: number;
     function raf(time: number) {
@@ -43,6 +44,9 @@ export const SmoothScroll: React.FC<{ children: React.ReactNode }> = ({ children
       cancelAnimationFrame(rafId);
       lenis.destroy();
       lenisRef.current = null;
+      if ((window as any).__lenis === lenis) {
+        delete (window as any).__lenis;
+      }
     };
   }, []);
 

@@ -38,11 +38,6 @@ export const AdminLogin: React.FC = () => {
     }
   };
 
-  const handleFillDemo = () => {
-    setEmail("admin@kennedycheroben.co.ke");
-    setPassword("Admin@Portfolio2026!");
-  };
-
   return (
     <>
       <HeadMeta
@@ -94,7 +89,7 @@ export const AdminLogin: React.FC = () => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@kennedycheroben.co.ke"
+                    placeholder="admin@example.com"
                     className="w-full pl-10 pr-4 py-2.5 bg-surface-elevated border border-subtle rounded-xl text-sm text-primary placeholder-muted focus:outline-none focus:ring-2 focus:ring-emerald-500/80 transition-all font-body"
                   />
                 </div>
@@ -131,17 +126,6 @@ export const AdminLogin: React.FC = () => {
                 >
                   Sign In to Dashboard
                 </Button>
-              </div>
-
-              {/* Dev credentials helper button */}
-              <div className="pt-2 text-center">
-                <button
-                  type="button"
-                  onClick={handleFillDemo}
-                  className="text-[11px] font-mono text-muted hover:text-emerald-400 transition-colors underline cursor-pointer"
-                >
-                  Autofill Default Credentials
-                </button>
               </div>
             </form>
 
