@@ -1,0 +1,64 @@
+# ==============================================================================
+# Portfolio 2.0 — Apache Configuration for Truehost cPanel
+# ==============================================================================
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # 1. Enforce HTTPS in production
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # 2. Prevent directory indexing
+  Options -Indexes
+
+  # 3. Block direct access to sensitive configuration, source, and data files
+  RewriteRule ^(\.env|\.git|data/|supabase/|src/|scripts/|tests/) - [F,L,NC]
+  <FilesMatch "(^\.env|\.(json|lock|ts|tsx|md|sql|sh|log))$">
+    Require all denied
+  </FilesMatch>
+
+  # 4. Route /admin and /admin/* SPA client-side routes to index.html
+  RewriteRule ^admin(/.*)?$ index.html [L,QSA]
+
+  # 5. Clean URLs: map extensionless paths to pre-rendered HTML files
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME}.html -f
+  RewriteRule ^(.*)$ $1.html [L]
+
+  # 6. Dynamic fallback for newly published projects (/work/:slug) lacking static pre-render
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME}.html !-f
+  RewriteRule ^work/[^/]+$ index.html [L,QSA]
+
+  # 7. Fallback 404
+  ErrorDocument 404 /404.html
+</IfModule>
+
+# Security Headers (if mod_headers is enabled)
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set X-XSS-Protection "1; mode=block"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), browsing-topics=()"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none';"
+</IfModule>
+
+# Caching for immutable built assets
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType text/javascript "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/avif "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType text/html "access plus 0 seconds"
+</IfModule>

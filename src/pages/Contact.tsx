@@ -5,10 +5,11 @@ import { HeadMeta } from "../components/seo/HeadMeta";
 import { profile } from "../content/profile";
 
 const TOPICS = [
-  "Full-Stack Web Application",
-  "UI/UX & Design Systems",
-  "Systems Architecture",
-  "General Inquiry",
+  "Website or web application",
+  "Visual design or branding",
+  "Design and build",
+  "Employment or collaboration",
+  "Something else",
 ];
 
 export const Contact: React.FC = () => {

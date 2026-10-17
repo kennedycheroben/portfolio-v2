@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && npm run build:ssg",
+    "start": "node server.js",
+    "build": "vite build && npm run build:ssg && npm run build:server",
     "build:client": "vite build",
     "build:ssg": "vite build --ssr src/entry.server.tsx --outDir dist-ssr && node scripts/prerender.js",
+    "build:server": "vite build --ssr src/server/index.ts --outDir dist-server",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",

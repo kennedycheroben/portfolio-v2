@@ -11,6 +11,7 @@ import {
   deleteProjectRecord,
   reorderProjectRecords,
   createInquiryRecord,
+  isLocalFallbackAllowed,
 } from "./db";
 import {
   createAdminToken,
@@ -19,6 +20,9 @@ import {
   isAuthConfigured,
 } from "./auth";
 import { projectInputSchema, projectPatchSchema, reorderSchema } from "../projects/schema";
+import { checkRateLimit, getClientIp } from "./rateLimit";
+import { validateImageUpload } from "./mediaValidator";
+import { isSupabaseConfigured, getSupabaseClient, getSupabaseConfig } from "./supabase";
 
 function getAllowedOrigin(origin: string | undefined): string | null {
   if (!origin) return null;
@@ -34,13 +38,15 @@ function getAllowedOrigin(origin: string | undefined): string | null {
   ];
   try {
     const originUrl = new URL(origin);
-    if (allowed.some((a) => {
-      try {
-        return new URL(a).origin === originUrl.origin;
-      } catch {
-        return false;
-      }
-    })) {
+    if (
+      allowed.some((a) => {
+        try {
+          return new URL(a).origin === originUrl.origin;
+        } catch {
+          return false;
+        }
+      })
+    ) {
       return origin;
     }
   } catch {
@@ -49,17 +55,34 @@ function getAllowedOrigin(origin: string | undefined): string | null {
   return null;
 }
 
-function json(res: ServerResponse, status: number, data: unknown, req?: IncomingMessage) {
+function json(
+  res: ServerResponse,
+  status: number,
+  data: unknown,
+  req?: IncomingMessage,
+  extraHeaders?: Record<string, string>
+) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+
   const origin = req?.headers?.origin as string | undefined;
   const allowedOrigin = getAllowedOrigin(origin);
   if (allowedOrigin) {
     res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
   }
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Vary", "Origin");
+
+  if (extraHeaders) {
+    for (const [k, v] of Object.entries(extraHeaders)) {
+      res.setHeader(k, v);
+    }
+  }
+
   res.end(JSON.stringify(data));
 }
 
@@ -77,7 +100,7 @@ function parseBody(req: IncomingMessage): Promise<any> {
       if (!body) return resolve({});
       try {
         resolve(JSON.parse(body));
-      } catch (e) {
+      } catch {
         reject(new Error("Invalid JSON body"));
       }
     });
@@ -101,11 +124,22 @@ function parseRawBuffer(req: IncomingMessage): Promise<Buffer> {
   });
 }
 
-function getAuthToken(req: IncomingMessage): string | null {
+function getAuthCredentials(req: IncomingMessage): { token: string; viaCookie: boolean } | null {
+  // 1. Try Bearer header
   const header = req.headers.authorization;
-  if (!header) return null;
-  const match = header.match(/^Bearer\s+(.+)$/i);
-  return match ? match[1] : null;
+  if (header) {
+    const match = header.match(/^Bearer\s+(.+)$/i);
+    if (match) return { token: match[1], viaCookie: false };
+  }
+
+  // 2. Try Cookie header (HttpOnly session token)
+  const cookieHeader = req.headers.cookie;
+  if (cookieHeader) {
+    const match = cookieHeader.match(/portfolio_admin_token=([^;]+)/);
+    if (match) return { token: decodeURIComponent(match[1]), viaCookie: true };
+  }
+
+  return null;
 }
 
 export async function handleApiRequest(
@@ -126,14 +160,18 @@ export async function handleApiRequest(
   }
 
   try {
+    // -------------------------------------------------------------------------
     // 1. PUBLIC: GET /api/projects
+    // -------------------------------------------------------------------------
     if (pathname === "/api/projects" && method === "GET") {
       const projects = await getAllProjects({ status: "published" });
       json(res, 200, { projects });
       return true;
     }
 
+    // -------------------------------------------------------------------------
     // 2. PUBLIC: GET /api/projects/:slug
+    // -------------------------------------------------------------------------
     if (pathname.startsWith("/api/projects/") && method === "GET") {
       const slug = pathname.replace("/api/projects/", "");
       const project = await getProjectBySlug(slug, { allowDraft: false });
@@ -145,8 +183,29 @@ export async function handleApiRequest(
       return true;
     }
 
+    // -------------------------------------------------------------------------
     // 3. PUBLIC: POST /api/contact (Project Inquiry Form)
+    // -------------------------------------------------------------------------
     if (pathname === "/api/contact" && method === "POST") {
+      const clientIp = getClientIp(req);
+
+      // Rate limit: 5 inquiries per 10 minutes per IP
+      const rateCheck = checkRateLimit(`contact:${clientIp}`, 5, 10 * 60 * 1000);
+      if (!rateCheck.allowed) {
+        json(
+          res,
+          429,
+          {
+            error: "Too many contact submissions. Please try again later.",
+            code: "RATE_LIMITED",
+            retryAfterSeconds: rateCheck.retryAfterSeconds,
+          },
+          req,
+          { "Retry-After": rateCheck.retryAfterSeconds.toString() }
+        );
+        return true;
+      }
+
       const body = await parseBody(req);
       const { name, email, category, message, website } = body;
 
@@ -172,12 +231,17 @@ export async function handleApiRequest(
         return true;
       }
 
+      // Compute salted SHA-256 client hash for throttling without storing raw IP
+      const salt = process.env.ADMIN_AUTH_SECRET || "default-salt";
+      const clientHash = crypto.createHash("sha256").update(salt + clientIp).digest("hex");
+
       try {
         const inquiry = await createInquiryRecord({
           name: name.trim(),
           email: email.trim(),
-          category: typeof category === "string" ? category.trim() : "General Inquiry",
+          category: typeof category === "string" ? category.trim() : "Something else",
           message: message.trim(),
+          clientHash,
         });
 
         json(res, 200, {
@@ -187,22 +251,49 @@ export async function handleApiRequest(
         });
         return true;
       } catch (err: any) {
+        console.error("Contact inquiry persistence failed:", err);
         json(res, 500, { error: "Failed to persist inquiry. Please try again.", code: "PERSISTENCE_FAILED" });
         return true;
       }
     }
 
+    // -------------------------------------------------------------------------
     // 4. ADMIN AUTH: POST /api/admin/login
+    // -------------------------------------------------------------------------
     if (pathname === "/api/admin/login" && method === "POST") {
+      const clientIp = getClientIp(req);
+
+      // Rate limit: 5 login attempts per 15 minutes per IP
+      const rateCheck = checkRateLimit(`login:${clientIp}`, 5, 15 * 60 * 1000);
+      if (!rateCheck.allowed) {
+        json(
+          res,
+          429,
+          {
+            error: "Too many login attempts. Please wait before trying again.",
+            code: "RATE_LIMITED",
+            retryAfterSeconds: rateCheck.retryAfterSeconds,
+          },
+          req,
+          { "Retry-After": rateCheck.retryAfterSeconds.toString() }
+        );
+        return true;
+      }
+
       const body = await parseBody(req);
       const { email, password } = body;
 
       // Fail-closed check: server MUST have configured secrets
       if (!isAuthConfigured()) {
-        json(res, 503, {
-          error: "Authentication service is unconfigured. Required server environment variables are missing.",
-          code: "AUTH_UNCONFIGURED",
-        }, req);
+        json(
+          res,
+          503,
+          {
+            error: "Authentication service is unconfigured. Required server environment variables are missing.",
+            code: "AUTH_UNCONFIGURED",
+          },
+          req
+        );
         return true;
       }
 
@@ -210,18 +301,49 @@ export async function handleApiRequest(
         json(res, 401, { error: "Invalid credentials", code: "INVALID_CREDENTIALS" }, req);
         return true;
       }
+
       const token = createAdminToken(email);
-      json(res, 200, {
-        success: true,
-        token,
-        user: { email, role: "admin" },
-      }, req);
+
+      // Set HttpOnly SameSite=Strict cookie for hardened browser session protection
+      const isSecure = process.env.NODE_ENV === "production" || (req.headers["x-forwarded-proto"] === "https");
+      const cookieVal = `portfolio_admin_token=${encodeURIComponent(token)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=86400${
+        isSecure ? "; Secure" : ""
+      }`;
+
+      json(
+        res,
+        200,
+        {
+          success: true,
+          token,
+          user: { email, role: "admin" },
+        },
+        req,
+        { "Set-Cookie": cookieVal }
+      );
       return true;
     }
 
-    // 4. ADMIN AUTH: GET /api/admin/me
+    // -------------------------------------------------------------------------
+    // 5. ADMIN AUTH: POST /api/admin/logout
+    // -------------------------------------------------------------------------
+    if (pathname === "/api/admin/logout" && method === "POST") {
+      const isSecure = process.env.NODE_ENV === "production" || (req.headers["x-forwarded-proto"] === "https");
+      const clearCookie = `portfolio_admin_token=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT${
+        isSecure ? "; Secure" : ""
+      }`;
+      json(res, 200, { success: true, message: "Logged out successfully" }, req, {
+        "Set-Cookie": clearCookie,
+      });
+      return true;
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. ADMIN AUTH: GET /api/admin/me
+    // -------------------------------------------------------------------------
     if (pathname === "/api/admin/me" && method === "GET") {
-      const session = verifyAdminToken(getAuthToken(req));
+      const authCreds = getAuthCredentials(req);
+      const session = verifyAdminToken(authCreds?.token);
       if (!session) {
         json(res, 401, { error: "Unauthorized", code: "UNAUTHORIZED" });
         return true;
@@ -230,22 +352,52 @@ export async function handleApiRequest(
       return true;
     }
 
-    // All endpoints beyond this point require ADMIN authorization
+    // -------------------------------------------------------------------------
+    // Protected Admin Routes (Require Admin Authorization)
+    // -------------------------------------------------------------------------
     if (pathname.startsWith("/api/admin/")) {
-      const session = verifyAdminToken(getAuthToken(req));
+      const authCreds = getAuthCredentials(req);
+      const session = verifyAdminToken(authCreds?.token);
       if (!session) {
         json(res, 401, { error: "Unauthorized", code: "UNAUTHORIZED" });
         return true;
       }
 
-      // ADMIN: GET /api/admin/projects (lists ALL, drafts and published)
+      // CSRF Defense for mutating requests authenticated via cookie
+      if (authCreds?.viaCookie && method !== "GET" && method !== "HEAD" && method !== "OPTIONS") {
+        const secFetchSite = req.headers["sec-fetch-site"] as string | undefined;
+        if (secFetchSite === "cross-site") {
+          json(res, 403, { error: "Cross-site request blocked", code: "CSRF_DETECTED" });
+          return true;
+        }
+
+        const origin = req.headers.origin as string | undefined;
+        const referer = req.headers.referer as string | undefined;
+        let originCandidate: string | null = null;
+        if (origin) {
+          originCandidate = origin;
+        } else if (referer) {
+          try {
+            originCandidate = new URL(referer).origin;
+          } catch {
+            originCandidate = null;
+          }
+        }
+
+        if (originCandidate && !getAllowedOrigin(originCandidate)) {
+          json(res, 403, { error: "Forbidden origin", code: "CSRF_DETECTED" });
+          return true;
+        }
+      }
+
+      // GET /api/admin/projects (All projects: draft + published)
       if (pathname === "/api/admin/projects" && method === "GET") {
         const projects = await getAllProjects();
         json(res, 200, { projects });
         return true;
       }
 
-      // ADMIN: POST /api/admin/projects (Create project)
+      // POST /api/admin/projects (Create project)
       if (pathname === "/api/admin/projects" && method === "POST") {
         const body = await parseBody(req);
         const parseResult = projectInputSchema.safeParse(body);
@@ -266,7 +418,7 @@ export async function handleApiRequest(
         return true;
       }
 
-      // ADMIN: POST /api/admin/projects/reorder (Reorder display order)
+      // POST /api/admin/projects/reorder (Reorder display order)
       if (pathname === "/api/admin/projects/reorder" && method === "POST") {
         const body = await parseBody(req);
         const parsed = reorderSchema.safeParse(body);
@@ -274,12 +426,16 @@ export async function handleApiRequest(
           json(res, 400, { error: "Invalid reorder payload", issues: parsed.error.issues });
           return true;
         }
-        const reordered = await reorderProjectRecords(parsed.data.ids);
-        json(res, 200, { success: true, projects: reordered });
+        try {
+          const reordered = await reorderProjectRecords(parsed.data.ids);
+          json(res, 200, { success: true, projects: reordered });
+        } catch (e: any) {
+          json(res, 500, { error: e.message || "Failed to reorder projects" });
+        }
         return true;
       }
 
-      // ADMIN: GET /api/admin/projects/:id
+      // Single project endpoints: /api/admin/projects/:id
       const idMatch = pathname.match(/^\/api\/admin\/projects\/([a-zA-Z0-9-]+)$/);
       if (idMatch && method === "GET") {
         const id = idMatch[1];
@@ -292,7 +448,6 @@ export async function handleApiRequest(
         return true;
       }
 
-      // ADMIN: PUT /api/admin/projects/:id (Full update)
       if (idMatch && method === "PUT") {
         const id = idMatch[1];
         const body = await parseBody(req);
@@ -313,7 +468,6 @@ export async function handleApiRequest(
         return true;
       }
 
-      // ADMIN: PATCH /api/admin/projects/:id (Partial status toggle)
       if (idMatch && method === "PATCH") {
         const id = idMatch[1];
         const body = await parseBody(req);
@@ -331,53 +485,84 @@ export async function handleApiRequest(
         return true;
       }
 
-      // ADMIN: DELETE /api/admin/projects/:id
       if (idMatch && method === "DELETE") {
         const id = idMatch[1];
-        const deleted = await deleteProjectRecord(id);
-        if (!deleted) {
-          json(res, 404, { error: "Project not found" });
-          return true;
+        try {
+          const deleted = await deleteProjectRecord(id);
+          if (!deleted) {
+            json(res, 404, { error: "Project not found" });
+            return true;
+          }
+          json(res, 200, { success: true, id });
+        } catch (e: any) {
+          json(res, 500, { error: e.message || "Delete failed" });
         }
-        json(res, 200, { success: true, id });
         return true;
       }
 
-      // ADMIN: POST /api/admin/upload (Media file upload)
+      // POST /api/admin/upload (Media file upload)
       if (pathname === "/api/admin/upload" && method === "POST") {
-        const contentType = req.headers["content-type"] || "";
-        const allowedTypes: Record<string, string> = {
-          "image/jpeg": "jpg",
-          "image/png": "png",
-          "image/webp": "webp",
-          "image/avif": "avif",
-        };
-
-        // Determine extension
-        let ext = "";
-        for (const [mime, extension] of Object.entries(allowedTypes)) {
-          if (contentType.includes(mime)) {
-            ext = extension;
-            break;
-          }
-        }
-
-        if (!ext) {
-          json(res, 400, {
-            error: "Unsupported file type. Only JPEG, PNG, WebP, and AVIF are allowed.",
-          });
-          return true;
-        }
-
+        const declaredType = req.headers["content-type"] || "";
         const buffer = await parseRawBuffer(req);
-        if (buffer.length > 5 * 1024 * 1024) {
-          json(res, 400, { error: "File exceeds 5MB size limit" });
+
+        // Authoritative server-side file signature (magic bytes) validation
+        const validation = validateImageUpload(buffer, declaredType);
+        if (!validation.valid || !validation.extension || !validation.mimeType) {
+          json(res, 400, {
+            error: validation.error || "File validation failed.",
+          });
           return true;
         }
 
         const year = new Date().getFullYear().toString();
         const fileId = crypto.randomUUID();
-        const filename = `${fileId}.${ext}`;
+        const filename = `${fileId}.${validation.extension}`;
+        const storagePath = `projects/${year}/${filename}`;
+
+        // 1. Supabase Storage Mode
+        if (isSupabaseConfigured()) {
+          try {
+            const supabase = getSupabaseClient();
+            const config = getSupabaseConfig();
+            const { error: uploadError } = await supabase.storage
+              .from("portfolio-media")
+              .upload(storagePath, buffer, {
+                contentType: validation.mimeType,
+                upsert: false,
+              });
+
+            if (uploadError) {
+              console.error("Supabase storage upload error:", uploadError);
+              json(res, 500, { error: `Storage upload failed: ${uploadError.message}` });
+              return true;
+            }
+
+            const publicUrl = `${config?.url.replace(/\/$/, "")}/storage/v1/object/public/portfolio-media/${storagePath}`;
+            json(res, 200, {
+              success: true,
+              storagePath,
+              url: publicUrl,
+              size: buffer.length,
+              type: validation.mimeType,
+            });
+            return true;
+          } catch (err: any) {
+            console.error("Supabase Storage exception:", err);
+            json(res, 500, { error: err.message || "Failed to upload to Supabase Storage" });
+            return true;
+          }
+        }
+
+        // 2. Local Disk Storage Mode (Fallback when Supabase unconfigured)
+        if (!isLocalFallbackAllowed()) {
+          json(res, 503, {
+            error:
+              "Production media storage unavailable: Supabase Storage is not configured. Local media upload fallback is disabled in production.",
+            code: "STORAGE_UNCONFIGURED",
+          });
+          return true;
+        }
+
         const relativeDir = `uploads/projects/${year}`;
         const absoluteDir = path.resolve(process.cwd(), `public/${relativeDir}`);
 
@@ -388,15 +573,13 @@ export async function handleApiRequest(
         const absolutePath = path.resolve(absoluteDir, filename);
         fs.writeFileSync(absolutePath, buffer);
 
-        const storagePath = `projects/${year}/${filename}`;
         const publicUrl = `/${relativeDir}/${filename}`;
-
         json(res, 200, {
           success: true,
           storagePath,
           url: publicUrl,
           size: buffer.length,
-          type: contentType,
+          type: validation.mimeType,
         });
         return true;
       }
@@ -406,7 +589,7 @@ export async function handleApiRequest(
     return true;
   } catch (err: any) {
     console.error("API error:", err);
-    json(res, 500, { error: err.message || "Internal server error" });
+    json(res, 500, { error: "Internal server error" });
     return true;
   }
 }

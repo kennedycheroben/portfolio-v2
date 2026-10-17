@@ -26,9 +26,77 @@ async function prerender() {
 
   const { render } = await import(pathToFileURL(serverEntryPath).href);
 
-  // Read published projects dynamically from database
+  // Read published projects dynamically from database or local snapshot
   let publishedProjects = [];
-  if (fs.existsSync(dbPath)) {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const supabaseKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.VITE_SUPABASE_ANON_KEY;
+
+  if (supabaseUrl && supabaseKey && supabaseUrl.startsWith("https://")) {
+    try {
+      const { createClient } = await import("@supabase/supabase-js");
+      const client = createClient(supabaseUrl, supabaseKey);
+      const { data, error } = await client
+        .from("projects")
+        .select("*")
+        .eq("status", "published")
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: false });
+
+      if (!error && Array.isArray(data)) {
+        publishedProjects = data.map((row) => ({
+          id: row.id,
+          slug: row.slug,
+          title: row.title,
+          summary: row.summary,
+          description: row.description,
+          category: row.category,
+          technologies: Array.isArray(row.technologies) ? row.technologies : [],
+          projectType: row.project_type,
+          role: row.role,
+          timeline: row.timeline,
+          problem: row.problem,
+          objectives: row.objectives,
+          approach: row.approach,
+          implementation: row.implementation,
+          outcomes: row.outcomes,
+          coverImagePath: row.cover_image_path,
+          coverImageAlt: row.cover_image_alt,
+          coverImageUrl: row.cover_image_path
+            ? row.cover_image_path.startsWith("http")
+              ? row.cover_image_path
+              : `${supabaseUrl.replace(/\/$/, "")}/storage/v1/object/public/portfolio-media/${row.cover_image_path}`
+            : null,
+          gallery: Array.isArray(row.gallery)
+            ? row.gallery.map((g) => ({
+                path: g.path,
+                alt: g.alt,
+                url: g.path?.startsWith("http")
+                  ? g.path
+                  : `${supabaseUrl.replace(/\/$/, "")}/storage/v1/object/public/portfolio-media/${g.path}`,
+              }))
+            : [],
+          featured: Boolean(row.featured),
+          sortOrder: row.sort_order || 0,
+          status: row.status,
+          publishedAt: row.published_at,
+          liveUrl: row.live_url,
+          repositoryUrl: row.repository_url,
+          seoTitle: row.seo_title,
+          seoDescription: row.seo_description,
+          createdAt: row.created_at,
+          updatedAt: row.updated_at,
+        }));
+        console.log(`Fetched ${publishedProjects.length} published projects from Supabase for SSG.`);
+      }
+    } catch (e) {
+      console.warn("Could not query Supabase during prerender, falling back to local snapshot:", e.message);
+    }
+  }
+
+  if (publishedProjects.length === 0 && fs.existsSync(dbPath)) {
     try {
       const allProjects = JSON.parse(fs.readFileSync(dbPath, "utf-8"));
       if (Array.isArray(allProjects)) {

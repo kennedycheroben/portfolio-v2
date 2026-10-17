@@ -1,6 +1,10 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import type { IncomingMessage, ServerResponse } from "node:http";
 import { handleApiRequest } from "../src/lib/server/apiRouter";
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  await handleApiRequest(req as any, res as any);
+/**
+ * Standard serverless / edge function adapter.
+ * Accepts standard Node.js HTTP request and response objects.
+ */
+export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  await handleApiRequest(req, res);
 }

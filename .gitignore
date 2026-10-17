@@ -4,6 +4,9 @@ node_modules/
 # Production and prerender build artifacts
 dist/
 dist-ssr/
+dist-server/
+*.code-workspace
+
 
 # Environment files
 .env
@@ -22,7 +25,8 @@ coverage/
 
 # Local runtime data & uploads
 data/
-public/uploads/
+public/uploads/*
+!public/uploads/.htaccess
 
 # Editor and OS
 .DS_Store

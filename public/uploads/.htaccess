@@ -1,0 +1,18 @@
+# ==============================================================================
+# Portfolio 2.0 — Uploads Directory Script Execution Prevention
+# ==============================================================================
+
+<IfModule mod_authz_core.c>
+  <FilesMatch "\.(php|php[0-9]|phtml|pl|py|cgi|sh|bash|exe|bin|js)$">
+    Require all denied
+  </FilesMatch>
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+  <FilesMatch "\.(php|php[0-9]|phtml|pl|py|cgi|sh|bash|exe|bin|js)$">
+    Order Allow,Deny
+    Deny from all
+  </FilesMatch>
+</IfModule>
+
+Options -ExecCGI -Indexes

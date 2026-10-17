@@ -63,6 +63,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email, password: pass }),
       });
       const data = await res.json();
@@ -79,6 +80,9 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const logout = () => {
+    fetch("/api/admin/logout", { method: "POST", credentials: "include" }).catch(() => {
+      // Ignore network errors during logout
+    });
     localStorage.removeItem(TOKEN_KEY);
     setToken(null);
     setUser(null);
