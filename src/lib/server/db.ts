@@ -558,7 +558,6 @@ export async function createInquiryRecord(input: {
 
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseClient();
-    const config = getSupabaseConfig();
 
     // 1. Primary path: invoke database RPC submit_contact_inquiry
     // Aligns with migration 20261015000001_inquiries_and_hardening.sql (RLS & privilege hardening for anon & auth)
@@ -582,7 +581,7 @@ export async function createInquiryRecord(input: {
       };
     }
 
-    // Handle database-level rate limiting (PT429) or invalid input (PT400)
+    // Handle database-level rate limiting (PT429)
     if (rpcError.message?.includes("PT429") || rpcError.message?.includes("rate_limited")) {
       const err: any = new Error("Too many contact submissions. Please try again later.");
       err.code = "RATE_LIMITED";
@@ -590,35 +589,19 @@ export async function createInquiryRecord(input: {
       throw err;
     }
 
-    // 2. Fallback path if RPC is not present but service-role key is configured
-    if (config?.isServiceRole) {
-      const { data, error: insertError } = await supabase
-        .from("contact_inquiries")
-        .insert({
-          name: input.name.trim(),
-          email: input.email.trim().toLowerCase(),
-          category: normalizedCategory,
-          message: input.message.trim(),
-          client_hash: input.clientHash || null,
-          status: "new",
-        })
-        .select()
-        .single();
-
-      if (!insertError && data) {
-        return {
-          id: data.id,
-          name: data.name,
-          email: data.email,
-          category: data.category,
-          message: data.message,
-          createdAt: data.created_at,
-          clientHash: data.client_hash,
-        };
-      }
+    // Handle database-level invalid input check constraints (PT400)
+    if (rpcError.message?.includes("PT400") || rpcError.message?.includes("invalid_")) {
+      const err: any = new Error("Invalid contact submission input.");
+      err.code = "INVALID_INPUT";
+      err.statusCode = 400;
+      throw err;
     }
 
-    throw new Error(`Failed to persist inquiry in Supabase: ${rpcError.message}`);
+    // Never bypass validation or rate limiting using direct table inserts
+    const err: any = new Error(`Failed to persist inquiry in Supabase: ${rpcError.message}`);
+    err.code = "PERSISTENCE_FAILED";
+    err.statusCode = 500;
+    throw err;
   }
 
   // Fail closed in production unless explicitly permitted

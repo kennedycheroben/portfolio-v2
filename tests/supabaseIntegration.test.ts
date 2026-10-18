@@ -570,5 +570,136 @@ describe("Supabase Integration & RLS Authorization Tests", () => {
         })
       ).rejects.toThrow();
     });
+
+    it("proves an RPC failure cannot cause a direct-insert fallback even if service-role key is present", async () => {
+      process.env.SUPABASE_SERVICE_ROLE_KEY = "test-service-role-key-secret-12345";
+      resetSupabaseClientCache();
+
+      const mockFrom = vi.fn();
+      const mockRpc = vi.fn().mockResolvedValue({
+        error: { code: "500", message: "Database internal RPC failure" },
+      });
+
+      const mockClient = {
+        rpc: mockRpc,
+        from: mockFrom,
+      } as any;
+      setMockSupabaseClient(mockClient);
+
+      await expect(
+        createInquiryRecord({
+          name: "Test Client",
+          email: "client@test.com",
+          category: "Website or web application",
+          message: "Attempting inquiry submission during RPC disruption.",
+        })
+      ).rejects.toThrow(/Failed to persist inquiry in Supabase/i);
+
+      // Verify that the direct table insert was NEVER invoked
+      expect(mockRpc).toHaveBeenCalledWith("submit_contact_inquiry", expect.any(Object));
+      expect(mockFrom).not.toHaveBeenCalled();
+
+      delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+      resetSupabaseClientCache();
+    });
+
+    it("preserves HTTP 429 and Retry-After header on /api/contact when database rate limits", async () => {
+      const mockRpc = vi.fn().mockResolvedValue({
+        error: { code: "PT429", message: "rate_limited" },
+      });
+      setMockSupabaseClient({ rpc: mockRpc } as any);
+
+      // Unique IP to avoid hitting memory rate limiter
+      const testIp = `198.51.100.${Math.floor(Math.random() * 200 + 1)}`;
+      const req = new EventEmitter() as any;
+      req.method = "POST";
+      req.url = "/api/contact";
+      req.headers = { origin: "https://portfolio.kennedycheroben.co.ke" };
+      req.socket = { remoteAddress: testIp };
+
+      const res = {
+        statusCode: 200,
+        headers: {} as Record<string, string>,
+        body: "",
+        setHeader(key: string, val: string) {
+          this.headers[key.toLowerCase()] = val;
+        },
+        end(content: string) {
+          this.body = content;
+        },
+      } as any;
+
+      setTimeout(() => {
+        req.emit(
+          "data",
+          Buffer.from(
+            JSON.stringify({
+              name: "Legitimate Visitor",
+              email: "visitor@example.com",
+              category: "Website or web application",
+              message: "Checking database rate-limit preservation.",
+            })
+          )
+        );
+        req.emit("end");
+      }, 10);
+
+      const handled = await handleApiRequest(req, res);
+      expect(handled).toBe(true);
+      expect(res.statusCode).toBe(429);
+      expect(res.headers["retry-after"]).toBe("60");
+
+      const body = JSON.parse(res.body);
+      expect(body.code).toBe("RATE_LIMITED");
+      expect(body.error).toMatch(/Too many contact submissions/i);
+    });
+
+    it("preserves HTTP 400 on /api/contact when database rejects invalid input via RPC", async () => {
+      const mockRpc = vi.fn().mockResolvedValue({
+        error: { code: "PT400", message: "invalid_category" },
+      });
+      setMockSupabaseClient({ rpc: mockRpc } as any);
+
+      const testIp = `198.51.100.${Math.floor(Math.random() * 200 + 1)}`;
+      const req = new EventEmitter() as any;
+      req.method = "POST";
+      req.url = "/api/contact";
+      req.headers = { origin: "https://portfolio.kennedycheroben.co.ke" };
+      req.socket = { remoteAddress: testIp };
+
+      const res = {
+        statusCode: 200,
+        headers: {} as Record<string, string>,
+        body: "",
+        setHeader(key: string, val: string) {
+          this.headers[key.toLowerCase()] = val;
+        },
+        end(content: string) {
+          this.body = content;
+        },
+      } as any;
+
+      setTimeout(() => {
+        req.emit(
+          "data",
+          Buffer.from(
+            JSON.stringify({
+              name: "Legitimate Visitor",
+              email: "visitor@example.com",
+              category: "Something else",
+              message: "Valid app input but fails database check constraint.",
+            })
+          )
+        );
+        req.emit("end");
+      }, 10);
+
+      const handled = await handleApiRequest(req, res);
+      expect(handled).toBe(true);
+      expect(res.statusCode).toBe(400);
+
+      const body = JSON.parse(res.body);
+      expect(body.code).toBe("INVALID_INPUT");
+    });
   });
 });

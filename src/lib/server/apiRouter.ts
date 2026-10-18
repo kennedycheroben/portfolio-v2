@@ -255,7 +255,32 @@ export async function handleApiRequest(
         return true;
       } catch (err: any) {
         console.error("Contact inquiry persistence failed:", err);
-        json(res, 500, { error: "Failed to persist inquiry. Please try again.", code: "PERSISTENCE_FAILED" });
+        if (err?.statusCode === 429 || err?.code === "RATE_LIMITED") {
+          json(
+            res,
+            429,
+            {
+              error: err.message || "Too many contact submissions. Please try again later.",
+              code: "RATE_LIMITED",
+            },
+            req,
+            { "Retry-After": "60" }
+          );
+          return true;
+        }
+        if (err?.statusCode === 400 || err?.code === "INVALID_INPUT") {
+          json(
+            res,
+            400,
+            {
+              error: err.message || "Invalid contact inquiry submission.",
+              code: "INVALID_INPUT",
+            },
+            req
+          );
+          return true;
+        }
+        json(res, 500, { error: "Failed to persist inquiry. Please try again.", code: "PERSISTENCE_FAILED" }, req);
         return true;
       }
     }
