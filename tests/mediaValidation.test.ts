@@ -43,7 +43,7 @@ describe("Media Validation & File Signature Checks", () => {
     expect(detectImageSignature(phpBuffer)).toBeNull();
   });
 
-  it("rejects uploads exceeding the 5MB size limit", () => {
+  it("rejects uploads exceeding the 4MB size limit", () => {
     const largeBuffer = Buffer.alloc(MAX_IMAGE_BYTES + 1024);
     // Even if it has valid JPEG header
     largeBuffer[0] = 0xff;
@@ -52,7 +52,7 @@ describe("Media Validation & File Signature Checks", () => {
 
     const res = validateImageUpload(largeBuffer, "image/jpeg");
     expect(res.valid).toBe(false);
-    expect(res.error).toContain("exceeds the 5 MB limit");
+    expect(res.error).toContain("exceeds the 4 MB limit");
   });
 
   it("rejects MIME type mismatches (e.g. declared PNG but file is JPEG)", () => {

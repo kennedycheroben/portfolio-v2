@@ -9,6 +9,6 @@ export default [
     }
   },
   {
-    ignores: ["dist/**", "dist-ssr/**", "node_modules/**"]
+    ignores: ["dist/**", "dist-ssr/**", "dist-server/**", "node_modules/**"]
   }
 ];

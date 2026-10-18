@@ -1,6 +1,6 @@
 import React from "react";
 import { Outlet, Link, Navigate, useLocation } from "react-router-dom";
-import { Shield, ExternalLink, LogOut, LayoutGrid, PlusCircle } from "lucide-react";
+import { Shield, ExternalLink, LogOut, LayoutGrid, PlusCircle, Mail } from "lucide-react";
 import { useAdminAuth } from "./AdminAuthContext";
 import { ThemeToggle } from "../components/ui/ThemeToggle";
 import { Container } from "../components/ui/Container";
@@ -68,6 +68,17 @@ export const AdminLayout: React.FC = () => {
                 >
                   <PlusCircle className="w-3.5 h-3.5" />
                   <span>New Project</span>
+                </Link>
+                <Link
+                  to="/admin/inquiries"
+                  className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${
+                    location.pathname === "/admin/inquiries"
+                      ? "bg-surface-elevated text-emerald-400 font-semibold"
+                      : "text-secondary hover:text-primary hover:bg-surface-elevated/50"
+                  }`}
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>Inquiries</span>
                 </Link>
               </nav>
             </div>

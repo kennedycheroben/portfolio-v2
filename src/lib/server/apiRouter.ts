@@ -11,6 +11,9 @@ import {
   deleteProjectRecord,
   reorderProjectRecords,
   createInquiryRecord,
+  getAllInquiries,
+  updateInquiryStatusRecord,
+  deleteInquiryRecord,
   isLocalFallbackAllowed,
 } from "./db";
 import {
@@ -22,7 +25,7 @@ import {
 import { projectInputSchema, projectPatchSchema, reorderSchema } from "../projects/schema";
 import { checkRateLimit, getClientIp } from "./rateLimit";
 import { validateImageUpload } from "./mediaValidator";
-import { isSupabaseConfigured, getSupabaseClient, getSupabaseConfig } from "./supabase";
+import { isSupabaseConfigured, getSupabaseClient, getSupabaseAnonClient, getSupabaseConfig } from "./supabase";
 
 function getAllowedOrigin(origin: string | undefined): string | null {
   if (!origin) return null;
@@ -115,8 +118,8 @@ function parseRawBuffer(req: IncomingMessage): Promise<Buffer> {
     req.on("data", (chunk: Buffer) => {
       chunks.push(chunk);
       length += chunk.length;
-      if (length > 6 * 1024 * 1024) {
-        reject(new Error("File exceeds 5MB limit"));
+      if (length > 4.5 * 1024 * 1024) {
+        reject(new Error("File exceeds 4MB limit"));
       }
     });
     req.on("end", () => resolve(Buffer.concat(chunks)));
@@ -283,26 +286,77 @@ export async function handleApiRequest(
       const body = await parseBody(req);
       const { email, password } = body;
 
-      // Fail-closed check: server MUST have configured secrets
-      if (!isAuthConfigured()) {
-        json(
-          res,
-          503,
-          {
-            error: "Authentication service is unconfigured. Required server environment variables are missing.",
-            code: "AUTH_UNCONFIGURED",
-          },
-          req
-        );
-        return true;
+      let supabaseToken: string | undefined;
+      let supabaseRefreshToken: string | undefined;
+      let authenticatedUserId = "admin-master-id";
+      let authenticatedEmail = email ? email.trim().toLowerCase() : "";
+
+      if (isSupabaseConfigured() && email && password) {
+        try {
+          const anonClient = getSupabaseAnonClient();
+          const { data: authData, error: authErr } = await anonClient.auth.signInWithPassword({
+            email: email.trim().toLowerCase(),
+            password: password.trim(),
+          });
+
+          if (!authErr && authData?.session) {
+            // Verify the user is an active administrator in public.admin_users
+            const authedClient = getSupabaseClient(authData.session.access_token);
+            const { data: adminRecord, error: adminErr } = await authedClient
+              .from("admin_users")
+              .select("user_id, is_active")
+              .eq("user_id", authData.user.id)
+              .maybeSingle();
+
+            if (adminErr || !adminRecord || !adminRecord.is_active) {
+              json(
+                res,
+                403,
+                {
+                  error: "Account authenticated, but user is not recognized as an active administrator.",
+                  code: "NOT_ADMIN",
+                },
+                req
+              );
+              return true;
+            }
+
+            supabaseToken = authData.session.access_token;
+            supabaseRefreshToken = authData.session.refresh_token;
+            authenticatedUserId = authData.user.id;
+            authenticatedEmail = authData.user.email || authenticatedEmail;
+          }
+        } catch {
+          // If Supabase Auth encounters an error or is unconfigured, proceed to check fallback credentials
+        }
       }
 
-      if (!email || !password || !validateAdminCredentials(email, password)) {
-        json(res, 401, { error: "Invalid credentials", code: "INVALID_CREDENTIALS" }, req);
-        return true;
+      // If Supabase Auth did not authenticate, check server master credentials fallback
+      if (!supabaseToken) {
+        if (!isAuthConfigured()) {
+          json(
+            res,
+            503,
+            {
+              error: "Authentication service is unconfigured. Required server environment variables are missing.",
+              code: "AUTH_UNCONFIGURED",
+            },
+            req
+          );
+          return true;
+        }
+
+        if (!email || !password || !validateAdminCredentials(email, password)) {
+          json(res, 401, { error: "Invalid credentials", code: "INVALID_CREDENTIALS" }, req);
+          return true;
+        }
       }
 
-      const token = createAdminToken(email);
+      const token = createAdminToken(authenticatedEmail, {
+        userId: authenticatedUserId,
+        supabaseToken,
+        supabaseRefreshToken,
+      });
 
       // Set HttpOnly SameSite=Strict cookie for hardened browser session protection
       const isSecure = process.env.NODE_ENV === "production" || (req.headers["x-forwarded-proto"] === "https");
@@ -316,7 +370,7 @@ export async function handleApiRequest(
         {
           success: true,
           token,
-          user: { email, role: "admin" },
+          user: { email: authenticatedEmail, role: "admin" },
         },
         req,
         { "Set-Cookie": cookieVal }
@@ -392,7 +446,7 @@ export async function handleApiRequest(
 
       // GET /api/admin/projects (All projects: draft + published)
       if (pathname === "/api/admin/projects" && method === "GET") {
-        const projects = await getAllProjects();
+        const projects = await getAllProjects(undefined, session.supabaseToken);
         json(res, 200, { projects });
         return true;
       }
@@ -410,7 +464,7 @@ export async function handleApiRequest(
         }
 
         try {
-          const created = await createProjectRecord(parseResult.data);
+          const created = await createProjectRecord(parseResult.data, session.supabaseToken);
           json(res, 201, { success: true, project: created });
         } catch (e: any) {
           json(res, 400, { error: e.message || "Failed to create project" });
@@ -427,7 +481,7 @@ export async function handleApiRequest(
           return true;
         }
         try {
-          const reordered = await reorderProjectRecords(parsed.data.ids);
+          const reordered = await reorderProjectRecords(parsed.data.ids, session.supabaseToken);
           json(res, 200, { success: true, projects: reordered });
         } catch (e: any) {
           json(res, 500, { error: e.message || "Failed to reorder projects" });
@@ -439,7 +493,7 @@ export async function handleApiRequest(
       const idMatch = pathname.match(/^\/api\/admin\/projects\/([a-zA-Z0-9-]+)$/);
       if (idMatch && method === "GET") {
         const id = idMatch[1];
-        const project = await getProjectById(id);
+        const project = await getProjectById(id, session.supabaseToken);
         if (!project) {
           json(res, 404, { error: "Project not found" });
           return true;
@@ -460,7 +514,7 @@ export async function handleApiRequest(
           return true;
         }
         try {
-          const updated = await updateProjectRecord(id, parseResult.data);
+          const updated = await updateProjectRecord(id, parseResult.data, session.supabaseToken);
           json(res, 200, { success: true, project: updated });
         } catch (e: any) {
           json(res, 400, { error: e.message || "Update failed" });
@@ -477,7 +531,7 @@ export async function handleApiRequest(
           return true;
         }
         try {
-          const updated = await updateProjectRecord(id, parseResult.data);
+          const updated = await updateProjectRecord(id, parseResult.data, session.supabaseToken);
           json(res, 200, { success: true, project: updated });
         } catch (e: any) {
           json(res, 400, { error: e.message || "Patch failed" });
@@ -488,9 +542,55 @@ export async function handleApiRequest(
       if (idMatch && method === "DELETE") {
         const id = idMatch[1];
         try {
-          const deleted = await deleteProjectRecord(id);
+          const deleted = await deleteProjectRecord(id, session.supabaseToken);
           if (!deleted) {
             json(res, 404, { error: "Project not found" });
+            return true;
+          }
+          json(res, 200, { success: true, id });
+        } catch (e: any) {
+          json(res, 500, { error: e.message || "Delete failed" });
+        }
+        return true;
+      }
+
+      // -----------------------------------------------------------------------
+      // Administrator Inquiries Management
+      // -----------------------------------------------------------------------
+      if (pathname === "/api/admin/inquiries" && method === "GET") {
+        try {
+          const inquiries = await getAllInquiries(session.supabaseToken);
+          json(res, 200, { inquiries });
+        } catch (e: any) {
+          json(res, 500, { error: e.message || "Failed to load inquiries" });
+        }
+        return true;
+      }
+
+      const inquiryMatch = pathname.match(/^\/api\/admin\/inquiries\/([a-zA-Z0-9-]+)$/);
+      if (inquiryMatch && method === "PATCH") {
+        const id = inquiryMatch[1];
+        const body = await parseBody(req);
+        const status = body?.status;
+        if (!["new", "read", "archived"].includes(status)) {
+          json(res, 400, { error: "Invalid status. Must be 'new', 'read', or 'archived'." });
+          return true;
+        }
+        try {
+          const updated = await updateInquiryStatusRecord(id, status, session.supabaseToken);
+          json(res, 200, { success: true, inquiry: updated });
+        } catch (e: any) {
+          json(res, 400, { error: e.message || "Failed to update inquiry status" });
+        }
+        return true;
+      }
+
+      if (inquiryMatch && method === "DELETE") {
+        const id = inquiryMatch[1];
+        try {
+          const deleted = await deleteInquiryRecord(id, session.supabaseToken);
+          if (!deleted) {
+            json(res, 404, { error: "Inquiry not found" });
             return true;
           }
           json(res, 200, { success: true, id });
@@ -522,7 +622,7 @@ export async function handleApiRequest(
         // 1. Supabase Storage Mode
         if (isSupabaseConfigured()) {
           try {
-            const supabase = getSupabaseClient();
+            const supabase = getSupabaseClient(session.supabaseToken);
             const config = getSupabaseConfig();
             const { error: uploadError } = await supabase.storage
               .from("portfolio-media")

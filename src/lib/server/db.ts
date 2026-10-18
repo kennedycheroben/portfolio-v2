@@ -170,9 +170,12 @@ export function projectInputToRow(input: Partial<ProjectInput>): Record<string, 
 // Project Data-Access Operations
 // ---------------------------------------------------------------------------
 
-export async function getAllProjects(filter?: { status?: ProjectStatus }): Promise<Project[]> {
+export async function getAllProjects(
+  filter?: { status?: ProjectStatus },
+  adminToken?: string
+): Promise<Project[]> {
   if (isSupabaseConfigured()) {
-    const supabase = getSupabaseClient();
+    const supabase = getSupabaseClient(adminToken);
     const config = getSupabaseConfig();
     let query = supabase
       .from("projects")
@@ -204,10 +207,11 @@ export async function getAllProjects(filter?: { status?: ProjectStatus }): Promi
 
 export async function getProjectBySlug(
   slug: string,
-  options?: { allowDraft?: boolean }
+  options?: { allowDraft?: boolean },
+  adminToken?: string
 ): Promise<Project | null> {
   if (isSupabaseConfigured()) {
-    const supabase = getSupabaseClient();
+    const supabase = getSupabaseClient(adminToken);
     const config = getSupabaseConfig();
     let query = supabase.from("projects").select("*").eq("slug", slug);
 
@@ -233,9 +237,9 @@ export async function getProjectBySlug(
   return match;
 }
 
-export async function getProjectById(id: string): Promise<Project | null> {
+export async function getProjectById(id: string, adminToken?: string): Promise<Project | null> {
   if (isSupabaseConfigured()) {
-    const supabase = getSupabaseClient();
+    const supabase = getSupabaseClient(adminToken);
     const config = getSupabaseConfig();
     const { data, error } = await supabase.from("projects").select("*").eq("id", id).maybeSingle();
     if (error) {
@@ -252,9 +256,9 @@ export async function getProjectById(id: string): Promise<Project | null> {
   return all.find((p) => p.id === id) || null;
 }
 
-export async function createProjectRecord(input: ProjectInput): Promise<Project> {
+export async function createProjectRecord(input: ProjectInput, adminToken?: string): Promise<Project> {
   if (isSupabaseConfigured()) {
-    const supabase = getSupabaseClient();
+    const supabase = getSupabaseClient(adminToken);
     const config = getSupabaseConfig();
     const row = projectInputToRow(input);
     row.id = crypto.randomUUID();
@@ -263,6 +267,11 @@ export async function createProjectRecord(input: ProjectInput): Promise<Project>
     if (error) {
       if (error.code === "23505") {
         throw new Error(`A project with slug "${input.slug}" already exists`);
+      }
+      if (error.code === "42501" || error.message?.includes("violates row-level security")) {
+        throw new Error(
+          "Supabase write rejected by Row Level Security: An authenticated administrator session is required. Ensure an admin account is registered in Supabase Auth (see docs/ADMIN_CMS.md) or configure SUPABASE_SERVICE_ROLE_KEY."
+        );
       }
       throw new Error(`Failed to create project in Supabase: ${error.message}`);
     }
@@ -322,9 +331,13 @@ export async function createProjectRecord(input: ProjectInput): Promise<Project>
   return newProject;
 }
 
-export async function updateProjectRecord(id: string, input: Partial<ProjectInput>): Promise<Project> {
+export async function updateProjectRecord(
+  id: string,
+  input: Partial<ProjectInput>,
+  adminToken?: string
+): Promise<Project> {
   if (isSupabaseConfigured()) {
-    const supabase = getSupabaseClient();
+    const supabase = getSupabaseClient(adminToken);
     const config = getSupabaseConfig();
     const row = projectInputToRow(input);
     row.updated_at = new Date().toISOString();
@@ -333,6 +346,11 @@ export async function updateProjectRecord(id: string, input: Partial<ProjectInpu
     if (error) {
       if (error.code === "23505") {
         throw new Error(`A project with slug "${input.slug}" already exists`);
+      }
+      if (error.code === "42501" || error.message?.includes("violates row-level security")) {
+        throw new Error(
+          "Supabase write rejected by Row Level Security: An authenticated administrator session is required. Ensure an admin account is registered in Supabase Auth (see docs/ADMIN_CMS.md) or configure SUPABASE_SERVICE_ROLE_KEY."
+        );
       }
       throw new Error(`Failed to update project in Supabase: ${error.message}`);
     }
@@ -389,11 +407,16 @@ export async function updateProjectRecord(id: string, input: Partial<ProjectInpu
   return updated;
 }
 
-export async function deleteProjectRecord(id: string): Promise<boolean> {
+export async function deleteProjectRecord(id: string, adminToken?: string): Promise<boolean> {
   if (isSupabaseConfigured()) {
-    const supabase = getSupabaseClient();
+    const supabase = getSupabaseClient(adminToken);
     const { error, count } = await supabase.from("projects").delete({ count: "exact" }).eq("id", id);
     if (error) {
+      if (error.code === "42501" || error.message?.includes("violates row-level security")) {
+        throw new Error(
+          "Supabase write rejected by Row Level Security: An authenticated administrator session is required. Ensure an admin account is registered in Supabase Auth (see docs/ADMIN_CMS.md) or configure SUPABASE_SERVICE_ROLE_KEY."
+        );
+      }
       throw new Error(`Failed to delete project in Supabase: ${error.message}`);
     }
     return (count ?? 0) > 0;
@@ -411,16 +434,21 @@ export async function deleteProjectRecord(id: string): Promise<boolean> {
   return true;
 }
 
-export async function reorderProjectRecords(ids: string[]): Promise<Project[]> {
+export async function reorderProjectRecords(ids: string[], adminToken?: string): Promise<Project[]> {
   if (isSupabaseConfigured()) {
-    const supabase = getSupabaseClient();
+    const supabase = getSupabaseClient(adminToken);
     for (let index = 0; index < ids.length; index++) {
       const { error } = await supabase.from("projects").update({ sort_order: index }).eq("id", ids[index]);
       if (error) {
+        if (error.code === "42501" || error.message?.includes("violates row-level security")) {
+          throw new Error(
+            "Supabase write rejected by Row Level Security: An authenticated administrator session is required. Ensure an admin account is registered in Supabase Auth (see docs/ADMIN_CMS.md) or configure SUPABASE_SERVICE_ROLE_KEY."
+          );
+        }
         throw new Error(`Failed to reorder projects in Supabase: ${error.message}`);
       }
     }
-    return getAllProjects();
+    return getAllProjects(undefined, adminToken);
   }
 
   // Fail closed in production unless explicitly permitted
@@ -494,6 +522,7 @@ export interface Inquiry {
   message: string;
   createdAt: string;
   clientHash?: string | null;
+  status?: "new" | "read" | "archived";
 }
 
 export function readInquiriesFromFile(): Inquiry[] {
@@ -609,5 +638,124 @@ export async function createInquiryRecord(input: {
   all.push(newInquiry);
   writeInquiriesToFile(all);
   return newInquiry;
+}
+
+export async function getAllInquiries(adminToken?: string): Promise<Inquiry[]> {
+  if (isSupabaseConfigured()) {
+    const supabase = getSupabaseClient(adminToken);
+
+    // Call retention purge function (older than 12 months removed)
+    try {
+      await supabase.rpc("purge_expired_inquiries");
+    } catch {
+      // Non-fatal if unprivileged or already purged
+    }
+
+    const { data, error } = await supabase
+      .from("contact_inquiries")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      if (error.code === "42501" || error.message?.includes("violates row-level security")) {
+        throw new Error(
+          "Inquiries access denied by Row Level Security: An authenticated administrator session is required."
+        );
+      }
+      throw new Error(`Failed to query contact inquiries from Supabase: ${error.message}`);
+    }
+
+    return (data || []).map((row: any) => ({
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      category: row.category,
+      message: row.message,
+      createdAt: row.created_at,
+      clientHash: row.client_hash,
+      status: (row.status as "new" | "read" | "archived") || "new",
+    }));
+  }
+
+  assertStorageAvailable("read contact inquiries");
+  return readInquiriesFromFile();
+}
+
+export async function updateInquiryStatusRecord(
+  id: string,
+  status: "new" | "read" | "archived",
+  adminToken?: string
+): Promise<Inquiry> {
+  if (isSupabaseConfigured()) {
+    const supabase = getSupabaseClient(adminToken);
+    const { data, error } = await supabase
+      .from("contact_inquiries")
+      .update({ status })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === "42501" || error.message?.includes("violates row-level security")) {
+        throw new Error(
+          "Inquiry update denied by Row Level Security: An authenticated administrator session is required."
+        );
+      }
+      throw new Error(`Failed to update inquiry status in Supabase: ${error.message}`);
+    }
+    if (!data) {
+      throw new Error(`Inquiry not found (id: ${id})`);
+    }
+
+    return {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      category: data.category,
+      message: data.message,
+      createdAt: data.created_at,
+      clientHash: data.client_hash,
+      status: data.status,
+    };
+  }
+
+  assertStorageAvailable("update inquiry status");
+  const all = readInquiriesFromFile();
+  const item = all.find((i) => i.id === id);
+  if (!item) {
+    throw new Error(`Inquiry not found (id: ${id})`);
+  }
+  item.status = status;
+  writeInquiriesToFile(all);
+  return item;
+}
+
+export async function deleteInquiryRecord(id: string, adminToken?: string): Promise<boolean> {
+  if (isSupabaseConfigured()) {
+    const supabase = getSupabaseClient(adminToken);
+    const { error, count } = await supabase
+      .from("contact_inquiries")
+      .delete({ count: "exact" })
+      .eq("id", id);
+
+    if (error) {
+      if (error.code === "42501" || error.message?.includes("violates row-level security")) {
+        throw new Error(
+          "Inquiry deletion denied by Row Level Security: An authenticated administrator session is required."
+        );
+      }
+      throw new Error(`Failed to delete inquiry in Supabase: ${error.message}`);
+    }
+    return (count ?? 0) > 0;
+  }
+
+  assertStorageAvailable("delete inquiry");
+  const all = readInquiriesFromFile();
+  const filtered = all.filter((i) => i.id !== id);
+  if (filtered.length === all.length) {
+    return false;
+  }
+  writeInquiriesToFile(filtered);
+  return true;
 }
 

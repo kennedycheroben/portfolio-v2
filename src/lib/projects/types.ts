@@ -63,7 +63,7 @@ export const ALLOWED_IMAGE_TYPES = {
 
 export type AllowedImageType = keyof typeof ALLOWED_IMAGE_TYPES;
 
-export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+export const MAX_IMAGE_BYTES = 4 * 1024 * 1024; // 4 MiB (4,194,304 bytes), matches Supabase portfolio-media bucket limit
 
 /** Server-generated storage paths: projects/<year>/<uuid>.<ext> */
 export const MEDIA_PATH_PATTERN =

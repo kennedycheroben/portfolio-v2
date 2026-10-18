@@ -13,6 +13,7 @@ import { NotFound } from "./pages/NotFound";
 import { AdminLayout } from "./admin/AdminLayout";
 import { AdminLogin } from "./admin/AdminLogin";
 import { AdminDashboard } from "./admin/AdminDashboard";
+import { AdminInquiries } from "./admin/AdminInquiries";
 import { ProjectEditor } from "./admin/ProjectEditor";
 
 export const routes: RouteObject[] = [
@@ -77,6 +78,10 @@ export const routes: RouteObject[] = [
       {
         path: "dashboard",
         element: <AdminDashboard />,
+      },
+      {
+        path: "inquiries",
+        element: <AdminInquiries />,
       },
       {
         path: "projects/new",

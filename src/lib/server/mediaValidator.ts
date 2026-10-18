@@ -4,7 +4,7 @@
  * Prevents executable or malicious files disguised with an image extension.
  */
 
-export const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB
+export const MAX_IMAGE_BYTES = 4 * 1024 * 1024; // 4 MiB (4,194,304 bytes, matches Supabase portfolio-media limit)
 
 export type SupportedExtension = "jpg" | "png" | "webp" | "avif";
 
@@ -75,7 +75,7 @@ export function validateImageUpload(
   if (buffer.length > MAX_IMAGE_BYTES) {
     return {
       valid: false,
-      error: `File size (${(buffer.length / (1024 * 1024)).toFixed(2)} MB) exceeds the 5 MB limit.`,
+      error: `File size (${(buffer.length / (1024 * 1024)).toFixed(2)} MB) exceeds the 4 MB limit.`,
     };
   }
 

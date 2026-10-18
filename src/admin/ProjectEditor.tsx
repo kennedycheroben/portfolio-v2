@@ -167,8 +167,8 @@ export const ProjectEditor: React.FC = () => {
       alert("Only JPEG, PNG, WebP, or AVIF image files are supported.");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Image exceeds 5MB size limit.");
+    if (file.size > 4 * 1024 * 1024) {
+      alert("Image exceeds 4MB size limit.");
       return;
     }
 
@@ -202,6 +202,15 @@ export const ProjectEditor: React.FC = () => {
   const handleUploadGallery = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (!["image/jpeg", "image/png", "image/webp", "image/avif"].includes(file.type)) {
+      alert("Only JPEG, PNG, WebP, or AVIF image files are supported.");
+      return;
+    }
+    if (file.size > 4 * 1024 * 1024) {
+      alert("Image exceeds 4MB size limit.");
+      return;
+    }
 
     setUploadingGallery(true);
     try {

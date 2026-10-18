@@ -6,6 +6,8 @@ export interface AdminSession {
   role: "admin";
   issuedAt: number;
   expiresAt: number;
+  supabaseToken?: string;
+  supabaseRefreshToken?: string;
 }
 
 export interface AuthConfig {
@@ -48,7 +50,14 @@ export function isAuthConfigured(): boolean {
  * Issues an HMAC SHA-256 signed administrative bearer session token.
  * Throws if the server is unconfigured to fail closed.
  */
-export function createAdminToken(email: string): string {
+export function createAdminToken(
+  email: string,
+  options?: {
+    userId?: string;
+    supabaseToken?: string;
+    supabaseRefreshToken?: string;
+  }
+): string {
   const config = getAuthConfig();
   if (!config) {
     throw new Error(
@@ -59,11 +68,13 @@ export function createAdminToken(email: string): string {
   const issuedAt = Date.now();
   const expiresAt = issuedAt + 24 * 60 * 60 * 1000; // 24 hours
   const payload = JSON.stringify({
-    userId: "admin-master-id",
+    userId: options?.userId || "admin-master-id",
     email: email.trim().toLowerCase(),
     role: "admin",
     issuedAt,
     expiresAt,
+    supabaseToken: options?.supabaseToken,
+    supabaseRefreshToken: options?.supabaseRefreshToken,
   });
 
   const b64Payload = Buffer.from(payload).toString("base64url");

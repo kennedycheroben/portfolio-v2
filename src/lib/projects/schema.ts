@@ -139,7 +139,7 @@ export const uploadRequestSchema = z
       .number()
       .int()
       .positive()
-      .max(5 * 1024 * 1024, "Images must be 5 MB or smaller"),
+      .max(4 * 1024 * 1024, "Images must be 4 MB or smaller"),
   })
   .strict();
 
